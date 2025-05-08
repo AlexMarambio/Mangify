@@ -10,9 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-pdf/renderer": "^4.3.0",
     "pdfjs-dist": "^5.2.133",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-pdf": "^9.2.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
