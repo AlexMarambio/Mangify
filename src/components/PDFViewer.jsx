@@ -1,31 +1,34 @@
-import { useEffect, useRef } from 'react';
-import * as pdfjsLib from 'pdfjs-dist';
+import { useState } from 'react';
+import { Document, Page, pdfjs } from 'react-pdf';
+import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-export default function PDFViewer({ pdfUrl, pageNumber }) {
-  const canvasRef = useRef();
+export default function PDFFrame({ pdfUrl }) {
+  const [numPages, setNumPages] = useState(null);
+  const [pageNumber, setPageNumber] = useState(1);
 
-  useEffect(() => {
-    (async () => {
-      const loadingTask = pdfjsLib.getDocument(pdfUrl);
-      const pdf = await loadingTask.promise;
-      const page = await pdf.getPage(pageNumber);
+  function onDocumentLoadSuccess({ numPages }) {
+    setNumPages(numPages);
+  }
 
-      const viewport = page.getViewport({ scale: 1.5 });
-      const canvas = canvasRef.current;
-      const context = canvas.getContext('2d');
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
+  return (
+    <div>
+      <Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess}>
+        <Page pageNumber={pageNumber} />
+      </Document>
 
-      const renderContext = {
-        canvasContext: context,
-        viewport
-      };
-
-      await page.render(renderContext).promise;
-    })();
-  }, [pdfUrl, pageNumber]);
-
-  return <canvas ref={canvasRef} />;
+      <div style={{ marginTop: '1rem' }}>
+        <button onClick={() => setPageNumber(p => Math.max(p - 1, 1))} disabled={pageNumber <= 1}>
+          Anterior
+        </button>
+        <span style={{ margin: '0 1rem' }}>
+          Página {pageNumber} de {numPages}
+        </span>
+        <button onClick={() => setPageNumber(p => Math.min(p + 1, numPages))} disabled={pageNumber >= numPages}>
+          Siguiente
+        </button>
+      </div>
+    </div>
+  );
 }

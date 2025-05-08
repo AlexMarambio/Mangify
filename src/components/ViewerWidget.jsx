@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import PDFViewer from './PDFViewer';
+import PDFFrame from './PDFViewer';
 
 export default function ViewerWidget({ config, pdfUrl }) {
   const [currentPage, setCurrentPage] = useState(1);
@@ -8,25 +8,22 @@ export default function ViewerWidget({ config, pdfUrl }) {
   const pageConfig = config.pages.find(p => p.page === currentPage);
 
   useEffect(() => {
-    if (audio) {
-      audio.pause();
-      setAudio(null);
-    }
-
-    if (pageConfig?.audioUrl) {
-      const newAudio = new Audio(pageConfig.audioUrl);
-      newAudio.play();
-      setAudio(newAudio);
-    }
-  }, [currentPage]);
+    const handleInteraction = () => {
+      if (pageConfig?.audioUrl) {
+        const audio = new Audio(pageConfig.audioUrl);
+        audio.play();
+      }
+      document.removeEventListener('click', handleInteraction);
+    };
+  
+    document.addEventListener('click', handleInteraction);
+    return () => document.removeEventListener('click', handleInteraction);
+  }, [pageConfig]);
+  
 
   return (
     <div>
-      <PDFViewer pdfUrl={pdfUrl} pageNumber={currentPage} />
-      <div style={{ marginTop: '10px' }}>
-        <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))}>Anterior</button>
-        <button onClick={() => setCurrentPage(p => Math.min(config.totalPages, p + 1))}>Siguiente</button>
-      </div>
+      <PDFFrame pdfUrl={pdfUrl}/>
     </div>
   );
 }

@@ -7,11 +7,10 @@
 <body>
   <h1>Prueba Visualizador</h1>
 
-  <script
-    type="module"
-    src="/src/viewer.jsx"
-    data-pdf-url="/public/Armados_Mangify.pdf"
-    data-config-url="/public/test-config.json"
-  ></script>
+  <iframe
+    src="http://localhost:5173/viewer.html?pdfUrl=/armadosMangify.pdf&configUrl=/testConfig.json"
+    style="width: 80%; height: 600px; border: none;"
+  ></iframe>
+
 </body>
 </html>
