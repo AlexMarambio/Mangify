@@ -1,8 +1,0 @@
-{
-    "totalPages": 2,
-    "pages": [
-      { "page": 1, "audioUrl": "/web/music/page1.mp3" },
-      { "page": 2, "audioUrl": "/web/music/page2.mp3" }
-    ]
-  }
-  

@@ -1,0 +1,21 @@
+{
+    "totalPages": 3,
+    "pages": [
+      {
+        "page": 1,
+        "audioUrl": "/audio/intro.mp3",
+        "style": "suspense"
+      },
+      {
+        "page": 2,
+        "audioUrl": "/audio/action.mp3",
+        "style": "intense"
+      },
+      {
+        "page": 3,
+        "audioUrl": "/audio/calm.mp3",
+        "style": "relax"
+      }
+    ]
+  }
+  
