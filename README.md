@@ -1,4 +1,4 @@
-# TheBegin
+# Mangify
 
 Este proyecto utiliza **TypeScript**, **React** y **TailwindCSS**.
 
@@ -36,8 +36,8 @@ Y más...
 1. Clonar el repositorio:
 
    ```bash
-   git clone https://github.com/deigodd/thebegin-frontend.git
-   cd thebegin-frontend
+   git clone https://github.com/AlexMarambio/Mangify.git
+   cd Mangify
    ```
 
 2. Verifica las ramas existentes:
@@ -100,18 +100,6 @@ Y más...
 
 - **`npm run dev`**: Inicia el servidor de desarrollo.
 - **`npm run build`**: Genera una versión optimizada para producción.
-
----
-
-## 🔧 Variables de entorno
-
-Configura las variables de entorno en un archivo `.env`.  
-Ejemplo:
-
-```env
-VITE_API_URL=https://api.example.com
-VITE_API_KEY=your-api-key
-```
 
 ---
 
