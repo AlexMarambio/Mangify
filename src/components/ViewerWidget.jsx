@@ -34,11 +34,13 @@ export default function ViewerWidget({ config, pdfUrl }) {
 
   return (
     <div>
-      <PDFFrame
-        pdfUrl={pdfUrl}
-        pageNumber={currentPage}
-        onDocumentLoadSuccess={onDocumentLoadSuccess}
-      />
+      <div style={{width:`650px`}}>
+        <PDFFrame
+          pdfUrl={pdfUrl}
+          pageNumber={currentPage}
+          onDocumentLoadSuccess={onDocumentLoadSuccess}
+        />
+      </div>
 
       <div style={{ marginTop: '1rem' }}>
         <button onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} disabled={currentPage <= 1}>
@@ -51,6 +53,7 @@ export default function ViewerWidget({ config, pdfUrl }) {
           Siguiente
         </button>
       </div>
+
     </div>
   );
 }
