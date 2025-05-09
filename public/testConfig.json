@@ -3,17 +3,17 @@
     "pages": [
       {
         "page": 1,
-        "audioUrl": "/audio/intro.mp3",
+        "audioUrl": "/music/Tension/Drama 1.mp3",
         "style": "suspense"
       },
       {
         "page": 2,
-        "audioUrl": "/audio/action.mp3",
+        "audioUrl": "/music/Tension/Righteous.mp3",
         "style": "intense"
       },
       {
         "page": 3,
-        "audioUrl": "/audio/calm.mp3",
+        "audioUrl": "/music/Tension/Tension 4.mp3",
         "style": "relax"
       }
     ]
