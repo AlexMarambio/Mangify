@@ -27,7 +27,7 @@ export default function ViewerWidget({ config, pdfUrl }) {
         newAudio.play().catch(console.warn);
         document.removeEventListener('click', playAudio);
       };
-
+      
       document.addEventListener('click', playAudio);
     }
   }, [pageConfig]);
