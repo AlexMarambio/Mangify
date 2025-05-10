@@ -1,6 +1,5 @@
-import React from 'react';
 import { createRoot } from 'react-dom/client';
-import ViewerWidget from './components/ViewerWidget';
+import ViewerWidget from './components/Viewer/ViewerWidget';
 
 (async function () {
   // Obtener parámetros del iframe (ej: ?pdfUrl=...&configUrl=...)
