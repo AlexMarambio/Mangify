@@ -1,7 +1,6 @@
 import { Routes, Route, BrowserRouter } from 'react-router-dom'
 import Editor from './Pages/Editor.tsx'
-// @ts-ignore
-import Viewer from './Pages/Viewer.jsx'
+import Viewer from './Pages/Viewer.tsx'
 
 function App() {
 

@@ -1,12 +1,13 @@
-import { Document, Page, pdfjs } from 'react-pdf';
+import { Document, Page, pdfjs, type DocumentProps } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import { useRef, useEffect, useState } from 'react';
+import type { RefObject } from 'react';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-function useContainerWidth() {
-  const ref = useRef();
-  const [width, setWidth] = useState(800);
+function useContainerWidth(): [RefObject<HTMLDivElement | null>, number] {
+  const ref = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState<number>(800);
 
   useEffect(() => {
     const observer = new ResizeObserver(entries => {
@@ -21,13 +22,23 @@ function useContainerWidth() {
   return [ref, width];
 }
 
-export default function PDFFrame({ pdfUrl, pageNumber, onDocumentLoadSuccess }) {
+interface PDFFrameProps {
+  pdfUrl: string;
+  pageNumber: number;
+  onDocumentLoadSuccess: DocumentProps['onLoadSuccess'];
+}
+
+export default function PDFFrame({ pdfUrl, pageNumber, onDocumentLoadSuccess }: PDFFrameProps) {
   const [containerRef, width] = useContainerWidth();
 
   return (
     <div ref={containerRef} style={{ width: '100%' }}>
       <Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess}>
-        <Page pageNumber={pageNumber} width={width} renderTextLayer={false}/>
+        <Page
+          pageNumber={pageNumber}
+          width={width}
+          renderTextLayer={false}
+        />
       </Document>
     </div>
   );
