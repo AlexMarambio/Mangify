@@ -1,10 +1,11 @@
 import { createContext, useContext, useState } from "react"
 
 export const AppConext = createContext<any>(null)
+
 export const AppProvider = ({ children }: any) => {
-    const [nodos, setNodos] = useState(false)
-    const [separador, setSeparador] = useState(false)
-    const [musica, setMusica] = useState(false)
+    const [nodos, setNodos] = useState<boolean>(false)
+    const [separador, setSeparador] = useState<boolean>(false)
+    const [musica, setMusica] = useState<boolean>(false)
 
     return (
         <AppConext.Provider value={{ nodos, setNodos, separador, setSeparador, musica, setMusica }}>
@@ -12,6 +13,7 @@ export const AppProvider = ({ children }: any) => {
         </AppConext.Provider>
     )
 }
+
 export const useAppContext = () => {
     const context = useContext(AppConext)
     if (!context) {

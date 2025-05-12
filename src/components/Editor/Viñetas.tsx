@@ -16,13 +16,13 @@ const Viñetas = () => {
     return (
         <div className="flex flex-wrap gap-2 justify-center">
             <div className="flex flex-row w-full">
-                <div onClick={() => setViñetas(viñetas + 1)} className="flex basis-1/2 h-24 justify-center items-center">
-                    <button className="m-2 px-5 py-3 rounded-full hover:bg-stone-800">
+                <div className="flex basis-1/2 h-24 justify-center items-center">
+                    <button className="m-2 px-5 py-3 rounded-full hover:bg-stone-800" onClick={() => setViñetas(viñetas + 1)}>
                         <svg className="fill-white size-15" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 144L48 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0 0 144c0 17.7 14.3 32 32 32s32-14.3 32-32l0-144 144 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-144 0 0-144z"/></svg>
                     </button>
                 </div>
-                <div onClick={() => setViñetas(viñetas - 1)} className="flex basis-1/2 h-24 justify-center items-center">
-                    <button className="m-2 px-5 py-3 rounded-full hover:bg-stone-800">
+                <div className="flex basis-1/2 h-24 justify-center items-center">
+                    <button className="m-2 px-5 py-3 rounded-full hover:bg-stone-800" onClick={() => setViñetas(viñetas - 1)}>
                         <svg className="fill-white size-15" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M432 256c0 17.7-14.3 32-32 32L48 288c-17.7 0-32-14.3-32-32s14.3-32 32-32l352 0c17.7 0 32 14.3 32 32z"/></svg>
                     </button>
                 </div>

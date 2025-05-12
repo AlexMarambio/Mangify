@@ -1,27 +1,56 @@
-const Paginas = () => {
-    return (
-        <div className="grid grid-rows-5 col-span-1 bg-stone-900 border-x-4 border-b-4 border-stone-600">
-          <div className="row-span-1 flex justify-start items-center hover:bg-stone-800 rounded-lg">
-            <svg className="fill-white size-10 ml-10 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M384 80c8.8 0 16 7.2 16 16l0 320c0 8.8-7.2 16-16 16L64 432c-8.8 0-16-7.2-16-16L48 96c0-8.8 7.2-16 16-16l320 0zM64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32z"/></svg>
-            <span className="text-white text-xl">Página 1</span>
-          </div>
-          <div className="row-span-1 flex justify-start items-center hover:bg-stone-800 rounded-lg">
-            <svg className="fill-white size-10 ml-10 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M384 80c8.8 0 16 7.2 16 16l0 320c0 8.8-7.2 16-16 16L64 432c-8.8 0-16-7.2-16-16L48 96c0-8.8 7.2-16 16-16l320 0zM64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32z"/></svg>
-            <span className="text-white text-xl">Página 2</span>
-          </div>
-          <div className="row-span-1 flex justify-start items-center hover:bg-stone-800 rounded-lg">
-            <svg className="fill-white size-10 ml-10 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M384 80c8.8 0 16 7.2 16 16l0 320c0 8.8-7.2 16-16 16L64 432c-8.8 0-16-7.2-16-16L48 96c0-8.8 7.2-16 16-16l320 0zM64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32z"/></svg>
-            <span className="text-white text-xl">Página 3</span>
-          </div>
-          <div className="row-span-1 flex justify-start items-center hover:bg-stone-800 rounded-lg">
-            <svg className="fill-white size-10 ml-10 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M384 80c8.8 0 16 7.2 16 16l0 320c0 8.8-7.2 16-16 16L64 432c-8.8 0-16-7.2-16-16L48 96c0-8.8 7.2-16 16-16l320 0zM64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32z"/></svg>
-            <span className="text-white text-xl">Página 4</span>  
-          </div>
-          <div className="row-span-1 flex justify-start items-center hover:bg-stone-800 rounded-lg">
-            <svg className="fill-white size-10 ml-10 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M384 80c8.8 0 16 7.2 16 16l0 320c0 8.8-7.2 16-16 16L64 432c-8.8 0-16-7.2-16-16L48 96c0-8.8 7.2-16 16-16l320 0zM64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32z"/></svg>
-            <span className="text-white text-xl">Página 5</span>
-          </div>
+import { Page, Document, pdfjs} from 'react-pdf'
+import { usePageContext } from '../../context/PageContext'
+import { useEffect } from 'react'
+import * as pdfjsLib from "pdfjs-dist"
+
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+
+const Paginas = ({pdfUrl, config}: {pdfUrl:string | null; config: any;}) => {
+  console.log("PDF URL:", pdfUrl)
+  const { numPages, setNumPages, setCurrentPage } = usePageContext()
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        if(pdfUrl === null) {
+          throw new Error("No se ha proporcionado una URL de PDF")
+        }
+        const loadingTask = await pdfjsLib.getDocument(pdfUrl)
+        const pdf = await loadingTask.promise;
+        setNumPages(pdf.numPages)
+        setCurrentPage(1) 
+      } catch (e) {
+        console.error("Error obteniendo PDF", e)
+      }
+    }
+    load()
+  }, [])
+
+  const SelectPage = () => {
+    return Array.from({length: numPages}, (_,i) => {
+      return (
+        <div key={i + 1} className="row-span-1 flex h-[20%]  w-full">
+          <button onClick={() => setCurrentPage(i + 1)} className='flex w-full justify-center items-center hover:bg-stone-800 rounded-full gap-10'>
+            <Document file={pdfUrl} className="inline-block">
+              <Page 
+                pageNumber={i + 1} 
+                renderTextLayer={false}
+                renderAnnotationLayer={false}
+                scale={0.2}
+                />
+            </Document>
+            <span className="text-white text-xl">Página {i + 1}</span>
+          </button>
         </div>
-    )
+      )
+    })
+  }
+
+  return (
+      <div className="bg-stone-900 border-x-4 border-b-4 border-stone-600 flex flex-wrap overflow-y-auto">
+        {numPages > 0 ? SelectPage() : <span className="text-white text-xl">Cargando...</span>}
+      </div>
+  )
 }
 export default Paginas
