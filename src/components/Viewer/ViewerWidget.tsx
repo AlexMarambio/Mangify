@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import PDFFrame from './PDFFrame';
+import PDFFrame from '../PDFFrame';
+import { usePageAudio } from './AudioServer';
 
 interface PageConfig {
   page: number;
@@ -18,60 +19,15 @@ interface ViewerWidgetProps {
 export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [volume, setVolume] = useState<number>(0.5);
-  const [isPaused, setIsPaused] = useState<boolean>(false);
 
   const pageConfig = config.pages.find(p => p.page === currentPage);
+
+  const { toggleAudio, isPaused } = usePageAudio(volume, pageConfig?.audioUrl);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     setNumPages(numPages);
   }
-
-  function toggleAudio() {
-    if (audio) {
-      if (!isPaused) {
-        audio.pause();
-        setIsPaused(true);
-      } else {
-        audio.play().catch(console.warn);
-        setIsPaused(false);
-      }
-    }
-  }
-
-  useEffect(() => {
-    if (audio) {
-      audio.pause();
-      setAudio(null);
-    }
-
-    if (pageConfig?.audioUrl) {
-      const newAudio = new Audio(pageConfig.audioUrl);
-      newAudio.volume = volume;
-      setAudio(newAudio);
-
-      const playAudio = () => {
-        newAudio.play().catch(console.warn);
-        document.removeEventListener('click', playAudio);
-      };
-
-      document.addEventListener('click', playAudio);
-
-      // Cleanup (en caso de cambiar de página o desmontar)
-      return () => {
-        document.removeEventListener('click', playAudio);
-        newAudio.pause();
-      };
-    }
-
-  }, [pageConfig]);
-
-  useEffect(() => {
-    if (audio) {
-      audio.volume = volume;
-    }
-  }, [volume, audio]);
 
   return (
     <div>
@@ -83,7 +39,7 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
         />
       </div>
 
-      <div style={{ marginTop: '1rem' }}>
+      <div className='bg-red-500' style={{ marginTop: '1rem' }}>
         <button
           onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
           disabled={currentPage <= 1}
@@ -119,7 +75,7 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
           <span>{Math.round(volume * 100)}%</span>
         </label>
         <span>
-          <button onClick={toggleAudio}>pause/play</button>
+          <button onClick={toggleAudio}>{isPaused ? 'Play' : 'Pause'}</button>
         </span>
       </div>
     </div>
