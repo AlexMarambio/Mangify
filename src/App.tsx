@@ -1,6 +1,6 @@
 import { Routes, Route, BrowserRouter } from "react-router-dom";
 import Editor from "./Pages/Editor.tsx";
-import Viewer from "./Pages/Viewer.js";
+import Viewer from "./Pages/Viewer.tsx";
 
 function App() {
   return (
