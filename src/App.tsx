@@ -1,18 +1,16 @@
-import { Routes, Route, BrowserRouter } from 'react-router-dom'
-import Editor from './Pages/Editor.tsx'
-// @ts-ignore
-import Viewer from './Pages/Viewer.jsx'
+import { Routes, Route, BrowserRouter } from "react-router-dom";
+import Editor from "./Pages/Editor.tsx";
+import Viewer from "./Pages/Viewer.js";
 
 function App() {
-
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/Editor" element={<Editor />} />
-        <Route path="/Viewer" element={<Viewer />}/>
+        <Route path="/Viewer" element={<Viewer />} />
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;
