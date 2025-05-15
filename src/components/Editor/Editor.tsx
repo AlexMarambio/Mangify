@@ -244,7 +244,6 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
           </div>
 
             <div className="row-span-1 border-t-4 border-stone-600 border-b-4 border-r-4">
-            <Timeline activeMode={activeMode} />
           </div>
 
           <div className="row-span-1 border-t-4 border-stone-600 border-r-4 p-2 flex items-center justify-center gap-2 bg-stone-800 z-20">
