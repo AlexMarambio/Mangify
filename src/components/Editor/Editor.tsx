@@ -6,8 +6,8 @@ import Musica from './Musica'
 import Manga from './Manga'
 import { useAppContext } from '../../context/AppContext'
 
-const Editor = ({pdfUrl, config}: {pdfUrl:string | null; config: any;}) => {
-  const { nodos, separador, musica } = useAppContext()
+const Editor = ({ config}: {pdfUrl:string | null; config: any;}) => {
+  const { nodos, separador, musica, pdfUrl } = useAppContext()
   console.log("PDF URL:", pdfUrl)
   console.log("Config URL:", config)
 
