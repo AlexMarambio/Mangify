@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import PDFFrame from "../PDFFrame";
 import { usePageAudio } from "./AudioServer";
 import comicData from "./comic-chapter-1-page-1 (2).json"; // Importa tu JSON exportado
@@ -51,28 +51,24 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
     setNumPages(numPages);
   }
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [stageWidth, setStageWidth] = useState(650);
+
   const [currentChapter, setCurrentChapter] = useState(1);
   const [availableChapters, setAvailableChapters] = useState<number[]>([]);
   const [availablePages, setAvailablePages] = useState<number[]>([]);
 
   // Carga la estructura de capítulos y páginas
   useEffect(() => {
-    const chapters = Object.keys(comicData.chapters).map(Number);
-    setAvailableChapters(chapters);
-
-    if (
-      comicData.chapters[
-        currentChapter.toString() as keyof typeof comicData.chapters
-      ]
-    ) {
-      const pages = Object.keys(
-        comicData.chapters[
-          currentChapter.toString() as keyof typeof comicData.chapters
-        ]
-      ).map(Number);
-      setAvailablePages(pages);
+    function updateWidth() {
+      if (containerRef.current) {
+        setStageWidth(containerRef.current.offsetWidth);
+      }
     }
-  }, [currentChapter]);
+    updateWidth();
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
+  }, []);
 
   // Obtiene las figuras para la página actual
   const getCurrentShapes = (): ComicShape[] => {
@@ -98,24 +94,23 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
 
   return (
     <div>
-      <div style={{ width: "650px", position: "relative" }}>
+      <div ref={containerRef} className="w-full max-w-[650px] relative mx-auto">
         <PDFFrame
           pdfUrl={pdfUrl}
           pageNumber={currentPage}
           onDocumentLoadSuccess={onDocumentLoadSuccess}
-          // className="pdf-frame"
         />
         <Stage
-          width={window.innerWidth}
-          height={window.innerHeight - 150}
+          width={stageWidth}
+          height={stageWidth * 1.414} // relación A4, ajusta si necesitas
           style={{
             position: "absolute",
             top: 0,
             left: 0,
             zIndex: 10,
-            background: "transparent", // quitar fondo blanco
-            border: "none", // quitar borde
-            pointerEvents: "none", // evita bloquear clics en el PDF si no necesitas interacción
+            background: "transparent",
+            border: "none",
+            pointerEvents: "none",
           }}
         >
           <Layer>
@@ -132,17 +127,19 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
           </Layer>
         </Stage>
       </div>
-      <div className="bg-red-500" style={{ marginTop: "1rem" }}>
+      <div className="flex items-center justify-center bg-red-500 mt-4 py-2 rounded">
         <button
+          className="px-4 py-1 bg-white text-red-500 rounded disabled:opacity-50 cursor-pointer hover:bg-red-200 hover:text-red-700"
           onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
           disabled={currentPage <= 1}
         >
           Anterior
         </button>
-        <span style={{ margin: "0 1rem" }}>
+        <span className="mx-4 text-white font-semibold">
           Página {currentPage} de {numPages || "?"}
         </span>
         <button
+          className="px-4 py-1 bg-white text-red-500 rounded disabled:opacity-50 cursor-pointer hover:bg-red-200 hover:text-red-700"
           onClick={() =>
             setCurrentPage((p) =>
               Math.min(p + 1, numPages ?? Number.MAX_SAFE_INTEGER)
@@ -154,9 +151,9 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
         </button>
       </div>
 
-      <div style={{ marginTop: "1rem" }}>
-        <label>
-          Volumen:
+      <div className="flex items-center justify-center mt-4 gap-4">
+        <label className="flex items-center gap-2">
+          <span className="font-medium">Volumen:</span>
           <input
             type="range"
             min="0"
@@ -164,12 +161,16 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
             step="0.01"
             value={volume}
             onChange={(e) => setVolume(parseFloat(e.target.value))}
+            className="accent-red-500"
           />
-          <span>{Math.round(volume * 100)}%</span>
+          <span className="w-10 text-right">{Math.round(volume * 100)}%</span>
         </label>
-        <span>
-          <button onClick={toggleAudio}>{isPaused ? "Play" : "Pause"}</button>
-        </span>
+        <button
+          className="px-3 py-1 bg-red-500 text-white rounded cursor-pointer hover:bg-red-600"
+          onClick={toggleAudio}
+        >
+          {isPaused ? "Play" : "Pause"}
+        </button>
       </div>
     </div>
   );
