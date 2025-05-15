@@ -3,7 +3,34 @@ import { AppProvider } from "../context/AppContext.tsx";
 import { PageProvider } from "../context/PageContext.tsx";
 import EditorComponent from "../components/Editor/Editor";
 
+import { Stage, Layer, Line, Circle, Text } from 'react-konva';
+
+
+
+
+
+//creador de formas
+
+
+
+
+
+
+
+
+
+
 const Editor = () => {
+
+  
+
+
+
+
+
+
+
+  //pdf
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [config, setConfig] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
