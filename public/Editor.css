@@ -1,0 +1,139 @@
+/* @tailwind base;
+@tailwind components; */
+@tailwind utilities; 
+
+:root {
+  --background: #1a1a1a;
+  --foreground: #ffffff;
+  --primary: #2d2d2d;
+  --secondary: #3a3a3a;
+  --accent-pink: #ff69b4;
+  --accent-purple: #9370db;
+  --accent-green: #90ee90;
+  --accent-blue: #6495ed;
+  --accent-orange: #ffa07a;
+}
+
+body {
+  color: var(--foreground);
+  background-color: var(--background);
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.sidebar {
+  background-color: var(--primary);
+  width: 175px;
+  height: 100%;
+  overflow-y: auto;
+  transition: width 0.3s ease;
+}
+
+.top-nav {
+  background-color: var(--background);
+  height: 60px;
+  border-bottom: 1px solid #333;
+}
+
+.timeline {
+  background-color: var(--background);
+  min-height: 180px;
+  border-top: 1px solid #333;
+}
+
+.content-area {
+  background-color: var(--secondary);
+  flex: 1;
+  overflow: auto;
+}
+
+.page-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #333;
+}
+
+.page-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.page-thumbnail {
+  width: 30px;
+  height: 30px;
+  background-color: #fff;
+  margin-right: 10px;
+}
+
+.mode-button {
+  padding: 8px 16px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--foreground);
+  font-size: 16px;
+  position: relative;
+}
+
+.mode-button.active {
+  font-weight: bold;
+}
+
+.mode-button.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--foreground);
+}
+
+.node {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.node-1 {
+  background-color: var(--accent-pink);
+}
+
+.node-2 {
+  background-color: var(--accent-purple);
+}
+
+.node-3 {
+  background-color: var(--accent-green);
+}
+
+.node-4 {
+  background-color: var(--accent-blue);
+}
+
+.node-5 {
+  background-color: var(--accent-orange);
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: absolute;
+    z-index: 10;
+    height: 100%;
+  }
+
+  .mode-button {
+    padding: 8px;
+    font-size: 14px;
+  }
+}
