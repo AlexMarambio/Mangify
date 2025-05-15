@@ -180,7 +180,12 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
         : "bg-white text-red-500 hover:bg-red-200 hover:text-red-700 cursor-pointer"
     }
   `}
-          onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+          onClick={() => {
+            if (currentPage > 1) {
+              setCurrentPage((p) => p - 1);
+              setCurrentPanel(1); // <-- Reinicia panel al retroceder
+            }
+          }}
           disabled={currentPage <= 1}
         >
           Anterior
@@ -190,22 +195,17 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
         </span>
         <button
           onClick={() => {
-            if (
-              currentPanel == getNumberOfShapes(currentChapter, currentPage)
-            ) {
-              setCurrentPage((p) =>
-                Math.min(p + 1, numPages ?? Number.MAX_SAFE_INTEGER)
-              );
-              resetPanel();
-            } else nextPanel();
+            const totalShapes = getNumberOfShapes(currentChapter, currentPage);
+            if (currentPanel === totalShapes) {
+              if (currentPage < (numPages ?? Number.MAX_SAFE_INTEGER)) {
+                setCurrentPage((p) => p + 1);
+                setCurrentPanel(1); // <-- Reinicia panel al avanzar de página
+              }
+            } else {
+              setCurrentPanel((prevPanel) => prevPanel + 1);
+            }
           }}
           className="px-4 py-1 bg-white text-red-500 rounded disabled:opacity-50 cursor-pointer hover:bg-red-200 hover:text-red-700"
-          // funcion de click comentada -> old version
-          // onClick={() =>
-          //   setCurrentPage((p) =>
-          //     Math.min(p + 1, numPages ?? Number.MAX_SAFE_INTEGER)
-          //   )
-          // }
           disabled={!!numPages && currentPage >= numPages}
         >
           Siguiente
