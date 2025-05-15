@@ -43,6 +43,8 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [volume, setVolume] = useState<number>(0.5);
   const [currentPanel, setCurrentPanel] = useState<number>(1);
+  const [fadingPanel, setFadingPanel] = useState<number | null>(null);
+  const [fadeOpacity, setFadeOpacity] = useState(1);
 
   const pageConfig = config.pages.find((p) => p.page === currentPage);
 
@@ -158,16 +160,23 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
           <Layer>
             {getCurrentShapes()
               .filter((_, index) => index >= currentPanel)
-              .map((shape, index) => (
-                <Line
-                  key={`${currentChapter}-${currentPage}-${index}`}
-                  points={shape.points.map((point) => point * 1.155)}
-                  fill={shape.fill}
-                  closed={shape.closed}
-                  stroke="black"
-                  strokeWidth={2}
-                />
-              ))}
+              .map((shape, index) => {
+                const shapeIndex = index + currentPanel;
+                const isFading = fadingPanel === shapeIndex;
+                return (
+                  <Line
+                    key={`${currentChapter}-${currentPage}-${shapeIndex}`}
+                    points={shape.points.map((point) => point * 1.155)}
+                    fill={shape.fill}
+                    closed={shape.closed}
+                    stroke="black"
+                    strokeWidth={2}
+                    opacity={isFading ? fadeOpacity : 1}
+                    listening={false}
+                    perfectDrawEnabled={false}
+                  />
+                );
+              })}
           </Layer>
         </Stage>
       </div>
@@ -199,10 +208,24 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
             if (currentPanel === totalShapes) {
               if (currentPage < (numPages ?? Number.MAX_SAFE_INTEGER)) {
                 setCurrentPage((p) => p + 1);
-                setCurrentPanel(1); // <-- Reinicia panel al avanzar de página
+                setCurrentPanel(1);
               }
             } else {
-              setCurrentPanel((prevPanel) => prevPanel + 1);
+              setFadingPanel(currentPanel);
+              setFadeOpacity(1);
+              // Animación manual de opacidad
+              let step = 0;
+              const steps = 10;
+              const interval = setInterval(() => {
+                step++;
+                setFadeOpacity(1 - step / steps);
+                if (step >= steps) {
+                  clearInterval(interval);
+                  setCurrentPanel((prevPanel) => prevPanel + 1);
+                  setFadingPanel(null);
+                  setFadeOpacity(1);
+                }
+              }, 40); // 10 pasos x 40ms = 400ms
             }
           }}
           className="px-4 py-1 bg-white text-red-500 rounded disabled:opacity-50 cursor-pointer hover:bg-red-200 hover:text-red-700"
