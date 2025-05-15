@@ -8,6 +8,7 @@ import { useAppContext } from "../../context/AppContext";
 import React, { createContext, useContext, useState } from "react";
 import { Stage, Layer, Line, Circle, Text } from "react-konva";
 import { usePageContext } from "../../context/PageContext";
+import { viñetasGlobal } from "./Viñetas";
 
 interface ShapeMetadata {
   order: number;
@@ -88,7 +89,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
           order: shapes.length + 1,
           chapter,
           page,
-          panel,
+          panel: viñetasGlobal,
           createdAt: new Date().toISOString(),
         },
       };

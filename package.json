@@ -9,8 +9,6 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "postinstall": "flowbite-react patch"
-    "preview": "vite preview",
-    "postinstall": "flowbite-react patch"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.3.0",
