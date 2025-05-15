@@ -84,15 +84,15 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
       // Removed setAvailablePages as availablePages is no longer used
     }
   }, [currentChapter]);
-    function updateWidth() {
-      if (containerRef.current) {
-        setStageWidth(containerRef.current.offsetWidth);
-      }
+
+  function updateWidth() {
+    if (containerRef.current) {
+      setStageWidth(containerRef.current.offsetWidth);
     }
     updateWidth();
     window.addEventListener("resize", updateWidth);
     return () => window.removeEventListener("resize", updateWidth);
-  }, []);
+  }
 
   // Obtiene las figuras para la página actual
   const getCurrentShapes = (): ComicShape[] => {
@@ -173,7 +173,13 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
       </div>
       <div className="flex items-center justify-center bg-red-500 mt-4 py-2 rounded">
         <button
-          className="px-4 py-1 bg-white text-red-500 rounded disabled:opacity-50 cursor-pointer hover:bg-red-200 hover:text-red-700"
+          className={`px-4 py-1 rounded transition-colors
+    ${
+      currentPage <= 1
+        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+        : "bg-white text-red-500 hover:bg-red-200 hover:text-red-700 cursor-pointer"
+    }
+  `}
           onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
           disabled={currentPage <= 1}
         >
@@ -194,11 +200,12 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
             } else nextPanel();
           }}
           className="px-4 py-1 bg-white text-red-500 rounded disabled:opacity-50 cursor-pointer hover:bg-red-200 hover:text-red-700"
-          onClick={() =>
-            setCurrentPage((p) =>
-              Math.min(p + 1, numPages ?? Number.MAX_SAFE_INTEGER)
-            )
-          }
+          // funcion de click comentada -> old version
+          // onClick={() =>
+          //   setCurrentPage((p) =>
+          //     Math.min(p + 1, numPages ?? Number.MAX_SAFE_INTEGER)
+          //   )
+          // }
           disabled={!!numPages && currentPage >= numPages}
         >
           Siguiente
