@@ -160,61 +160,51 @@ export function Timeline({ initialNodes = [], initialMusic = [], onChange, readO
   }
 
   // Handle bullet point dragging
-  const handleBulletPointDrag = (bulletPointId: string, position: number) => {
-    if (readOnly) return
-
-    // Find which node contains this position
-    const containingNode = nodes.find((node) => position >= node.start && position <= node.end)
-
-    if (!containingNode) return
-
-    setNodes((prevNodes) => {
-      return prevNodes.map((node) => {
-        // Find the bullet point in the current node
-        const bulletIndex = node.bulletPoints.findIndex((bp) => bp.id === bulletPointId)
-
-        if (bulletIndex >= 0) {
-          // Remove the bullet point from its current node
-          const updatedBulletPoints = [...node.bulletPoints]
-          const [bulletPoint] = updatedBulletPoints.splice(bulletIndex, 1)
-
-          // If this is the containing node, add it back with updated position
-          if (node.id === containingNode.id) {
-            updatedBulletPoints.push({
-              ...bulletPoint,
-              position,
-              nodeId: containingNode.id,
-            })
+  const handleBulletPointDrag = (bulletPointId: string, newPosition: number, newNodeId: string) => {
+    setNodes(prevNodes => {
+      let movedBullet: TimelineBulletPoint | undefined;
+      // Quitar la viñeta del nodo original
+      const nodesWithoutBullet = prevNodes.map(node => {
+        const filtered = node.bulletPoints.filter(bp => {
+          if (bp.id === bulletPointId) {
+            movedBullet = bp;
+            return false;
           }
+          return true;
+        });
+        return { ...node, bulletPoints: filtered };
+      });
 
-          return {
-            ...node,
-            bulletPoints: updatedBulletPoints,
-          }
-        }
-        // If this is the containing node and the bullet wasn't in this node before
-        else if (node.id === containingNode.id) {
-          // Find the bullet point in all nodes
-          const bulletPoint = prevNodes.flatMap((n) => n.bulletPoints).find((bp) => bp.id === bulletPointId)
+      if (!movedBullet) return prevNodes;
 
-          if (bulletPoint) {
-            return {
-              ...node,
-              bulletPoints: [
-                ...node.bulletPoints,
-                {
-                  ...bulletPoint,
-                  position,
-                  nodeId: containingNode.id,
-                },
-              ],
-            }
-          }
-        }
+      // Actualizar la viñeta con la nueva posición y nodeId
+      const updatedBullet = {
+        ...movedBullet,
+        position: newPosition,
+        nodeId: newNodeId,
+      };
 
-        return node
-      })
-    })
+      // Agregar la viñeta al nuevo nodo
+      const nodesWithBullet = nodesWithoutBullet.map(node =>
+        node.id === newNodeId
+          ? { ...node, bulletPoints: [...node.bulletPoints, updatedBullet] }
+          : node
+      );
+
+      // Recalcular los textos correlativos de las viñetas del nodo destino
+      return nodesWithBullet.map(node => {
+        if (node.id !== newNodeId) return node;
+        return {
+          ...node,
+          bulletPoints: node.bulletPoints
+            .sort((a, b) => a.position - b.position)
+            .map((bp, idx) => ({
+              ...bp,
+              text: `Bullet ${idx + 1}`,
+            })),
+        };
+      });
+    });
   }
 
   // Handle music track resizing
