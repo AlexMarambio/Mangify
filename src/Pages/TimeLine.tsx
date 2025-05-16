@@ -46,9 +46,10 @@ export default function Home() {
               Arrastra nodos y puntos para reorganizarlos. Cambia el tamaño de los elementos arrastrando sus bordes.
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent className="p-4 max-h-[360px] overflow-y-auto">
             <Timeline onChange={handleTimelineChange} />
           </CardContent>
+
         </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
