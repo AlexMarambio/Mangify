@@ -49,7 +49,6 @@ export default function Home() {
           <CardContent className="p-4 max-h-[360px] overflow-y-auto">
             <Timeline onChange={handleTimelineChange} />
           </CardContent>
-
         </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

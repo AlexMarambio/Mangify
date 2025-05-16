@@ -106,13 +106,15 @@ const HamburgerMenu: React.FC = () => {
           }`}
         >
           <Button
-            className="mb-2 w-full"
+            className="mb-2 inline-block"
             onClick={() => {
               setIsSecondModalOpen(true);
               setIsOpen(false);
             }}
           >
-            <span className="text-xl text-white">Selecciona el Manga</span>
+            <span className="text-3xl font-medium text-white cursor-pointer">
+              Selecciona el Manga
+            </span>
           </Button>
           <Button className="mb-2 w-full">
             <span className="text-xl text-white">Test</span>

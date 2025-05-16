@@ -114,7 +114,7 @@ export function Timeline({ initialNodes = [], initialMusic = [], onChange, readO
   // Notify parent component of changes
   useEffect(() => {
     onChange?.(nodes, music)
-  }, [nodes, music, onChange])
+  }, [nodes, music])
 
   // Scroll automático al agregar un nodo nuevo (hasta el end del último nodo)
   useEffect(() => {
