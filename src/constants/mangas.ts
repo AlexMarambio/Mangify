@@ -8,13 +8,8 @@ export interface Manga {
 
 const mangas: Manga[] = [
   {
-    title: "Naruto",
-    imageUrl: "https://upload.wikimedia.org/wikipedia/en/9/94/NarutoCoverTankobon1.jpg",
-    pdfUrl: "/NarutoVol1.pdf"
-  },
-  {
-    title: "One Piece",
-    imageUrl: "https://i.pinimg.com/736x/01/7e/2f/017e2f2db03a579590f38c8fff990cba.jpg",
+    title: "Chainsaw Man",
+    imageUrl: "https://i.pinimg.com/736x/2c/88/f1/2c88f165b1509f5c8f2d61d6db142901.jpg",
     pdfUrl: "/ChainsawManVol1.pdf"
   },
   {

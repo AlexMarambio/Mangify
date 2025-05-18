@@ -1,21 +1,20 @@
 import { useEffect, useState } from "react";
-import { AppProvider } from "../context/AppContext.tsx";
 import { PageProvider } from "../context/PageContext.tsx";
 import EditorComponent from "../components/Editor/Editor";
+import { useAppContext } from "../context/AppContext.tsx";
+
 
 const Editor = () => {
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const { pdfUrl } = useAppContext();
   const [config, setConfig] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Obtener los parámetros una sola vez
+  const params = new URLSearchParams(window.location.search);
+  const pdfUrlParam = params.get("pdfUrl") || "/armadosMangify.pdf";
+  const configUrl = params.get("configUrl") || "/testConfig.json";
+
   useEffect(() => {
-    // Simular la obtención de parámetros (puedes ajustar esto según tu lógica)
-    const params = new URLSearchParams(window.location.search);
-    const pdfUrlParam = params.get("pdfUrl") || "/armadosMangify.pdf";
-    const configUrl = params.get("configUrl") || "/testConfig.json";
-
-    setPdfUrl(pdfUrlParam);
-
     // Cargar configuración
     fetch(configUrl)
       .then((response) => {
@@ -24,22 +23,23 @@ const Editor = () => {
       })
       .then((data) => setConfig(data))
       .catch((err) => setError(err.message));
-  }, []);
+  }, [configUrl]);
 
   if (error) {
     return <div>Error: {error}</div>;
   }
 
-  if (!config || !pdfUrl) {
+  // Usar pdfUrl si existe, si no, usar pdfUrlParam
+  const finalPdfUrl = pdfUrl || pdfUrlParam;
+
+  if (!config || !finalPdfUrl) {
     return <div>Cargando...</div>;
   }
 
   return (
-    <AppProvider>
       <PageProvider>
-        <EditorComponent pdfUrl={pdfUrl} config={config} />
+        <EditorComponent pdfUrl={finalPdfUrl} config={config} />
       </PageProvider>
-    </AppProvider>
   );
 };
 

@@ -46,7 +46,7 @@ export default function Home() {
               Arrastra nodos y puntos para reorganizarlos. Cambia el tamaño de los elementos arrastrando sus bordes.
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent className="p-4 max-h-[360px] overflow-y-auto">
             <Timeline onChange={handleTimelineChange} />
           </CardContent>
         </Card>
