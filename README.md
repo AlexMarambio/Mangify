@@ -174,12 +174,14 @@ Se visualiza la página actual del manga. Puedes hacer clic en diferentes partes
 
 5. 🎵 Línea de Tiempo
 
-Representa la música agregada:
+Representa una línea para sincronizar el orden de visualización de viñetas con la música a reproducir:
 
-    Cada nodo representa una pista musical.
+    🎵 Cada nodo representa una pista musical.
 
-    Dentro de cada nodo hay bullets (círculos) que pueden moverse para reordenar las viñetas asociadas a esa pista.
+    🖱️ Dentro de cada nodo hay bullets (círculos) que pueden moverse para reordenar las viñetas.
 
+    🔄 Asigna la música a reproducir para las viñetas que estimes convenientes.
+      
 6. ✂️ Separador de Viñetas
 
 Trabaja junto a la sección del manga. Incluye los siguientes botones:
