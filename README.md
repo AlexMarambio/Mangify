@@ -138,3 +138,30 @@ Y más...
    LEER DOCUMENTACIÓN.
 
 ---
+## Documentación de uso
+
+### Editor/Viewer
+- Página principal:
+   Al ingresar a esta página se mostrarán dos botones:
+   - Editor: Ingresar al editor
+   - Viewer: Ingresar al visualizador de mangas
+- Editor:
+  Aquí estaran las todas las opciones para editar el manga, Estará distribuido en 6 partes principales:
+   1. Navbar: Aqui se mostrarán opciones tales como:
+      - Menú: Aqui se puede cambiar de manga a editar, además de seleccionar los test.
+      - Separador de viñetas: Al seleccionar este botón se modificara la segunda columna y se mostraran dos botones para agregar o eliminar viñetas a editar.
+      - Música: Al seleccionar este botón se mostrarán las categorias de música para agregar a la linea de tiempo.
+   2. Selección de páginas:
+      Scroll-bar donde aparecen todas las páginas y al momento de seleccionar una página se cambiara la página a editar.
+   3. Opciones del navbar:
+      Se muestran las herramientas seleccionadas en el navbar.
+   4.Manga:
+      Se muestra el manga seleccionado a editar, en esta sección de la página se estarán dividiendo las viñetas para editar. Al momento dar clic en distintas partes del manga mostrado para empezar a crear formas que representan viñetas separadas.
+   5.Linea de tiempo:
+      En esta sección se mostraran los nodos los cuales representan una música cada uno y además dentro de estos hay unos circulos llamados bullet los cuales se pueden mover para cambiar el orden de las viñetas.
+   6.Separador de viñetas:
+      Trabaja en conjunto con la sección de mangas y contiene 4 botones con las siguientes funcionalidades:
+      - Finalizar forma: Para cerrar una figura.
+      - Eliminar último punto: Para eliminar el ultimo punto creado.
+      - Eliminar última forma: Para eliminar la ultima figura creada.
+      - Exportar cómic: Cuando se esta lista la página se tiene que exportar.
