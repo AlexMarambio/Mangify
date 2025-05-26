@@ -1,6 +1,6 @@
 import type React from "react"
 import { useState } from "react"
-import { Music } from "lucide-react"
+//import { Music } from "lucide-react"
 import type { TimelineMusic, TimelineNode } from "./timeline"
 
 interface MusicTrackProps {
@@ -138,6 +138,15 @@ export function MusicTrack({
         const colorClass = node ? node.color : "bg-green-500"
         const isPlaying = playingTrack === musicTrack.id
 
+        // Buscar musicType en la metadata de la primera viñeta del nodo (si existe)
+        let musicType = musicTrack.musicType;
+        if (node && node.bulletPoints && node.bulletPoints.length > 0) {
+          const bulletWithMusic = node.bulletPoints.find(bp => typeof bp.metadata === 'object' && bp.metadata && bp.metadata.musicType);
+          if (bulletWithMusic && bulletWithMusic.metadata && bulletWithMusic.metadata.musicType) {
+            musicType = bulletWithMusic.metadata.musicType;
+          }
+        }
+
         return (
           <div
             key={musicTrack.id}
@@ -149,13 +158,7 @@ export function MusicTrack({
           >
             {/* Music icon and title */}
             <div className="flex items-center w-full px-2">
-              <button
-                className="mr-1 text-white opacity-80 hover:opacity-100 transition-opacity"
-                onClick={() => togglePlayTrack(musicTrack.id)}
-              >
-                <Music size={16} className={isPlaying ? "animate-pulse" : ""} />
-              </button>
-              <div className="text-xs md:text-sm font-medium text-white truncate flex-1">{musicTrack.title}</div>
+              <div className="text-xs md:text-sm font-medium text-white truncate flex-1">{musicType}</div>
             </div>
 
             {!readOnly && (

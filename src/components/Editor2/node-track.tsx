@@ -65,27 +65,38 @@ export function NodeTrack({
                 />
                 {/* Viñetas */}
                 {node.bulletPoints.map((bp) => (
-                  <Circle
-                    key={bp.id}
-                    x={timeToPixel(bp.position)}
-                    y={y + nodeHeight / 2}
-                    radius={12}
-                    fill="#ec4899"
-                    stroke="#fff"
-                    strokeWidth={2}
-                    draggable={!readOnly}
-                    onDragEnd={e => {
-                      const newX = e.target.x();
-                      const newPosition = pixelToTime(newX);
-                      // Detectar el nodo sobre el que se soltó la viñeta
-                      const newNode = nodes.find(n =>
-                        newPosition >= n.start && newPosition <= n.end
-                      );
-                      if (newNode) {
-                        onBulletPointDrag(bp.id, newPosition, newNode.id);
-                      }
-                    }}
-                  />
+                  <React.Fragment key={bp.id}>
+                    <Circle
+                      x={timeToPixel(bp.position)}
+                      y={y + nodeHeight / 2}
+                      radius={12}
+                      fill="#ec4899"
+                      stroke="#fff"
+                      strokeWidth={2}
+                      draggable={!readOnly}
+                      onDragEnd={e => {
+                        const newX = e.target.x();
+                        const newPosition = pixelToTime(newX);
+                        // Detectar el nodo sobre el que se soltó la viñeta
+                        const newNode = nodes.find(n =>
+                          newPosition >= n.start && newPosition <= n.end
+                        );
+                        if (newNode) {
+                          onBulletPointDrag(bp.id, newPosition, newNode.id);
+                        }
+                      }}
+                    />
+                    {/* Mostrar musicType si existe en metadata */}
+                    {typeof bp.metadata === 'object' && bp.metadata && bp.metadata.musicType && (
+                      <Text
+                        x={timeToPixel(bp.position) - 20}
+                        y={y + nodeHeight / 2 - 28}
+                        text={`🎵 ${bp.metadata.musicType}`}
+                        fontSize={12}
+                        fill="#fff"
+                      />
+                    )}
+                  </React.Fragment>
                 ))}
                 {/* Etiquetas de viñetas */}
                 {node.bulletPoints.map((bp) => (

@@ -6,6 +6,8 @@ export interface TimelineNode {
   start: number
   end: number
   bulletPoints: TimelineBulletPoint[]
+  pageNumber: number
+  panelNumber: number
 }
 
 // Bullet point types
@@ -19,7 +21,7 @@ export interface TimelineBulletPoint {
 // Music track types
 export interface TimelineMusic {
   id: string
-  title: string
+  musicType: string
   start: number
   end: number
   nodeId: string
