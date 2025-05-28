@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { 
   DndContext, 
   DragOverlay, 
@@ -42,9 +42,16 @@ function ComicEditorContent() {
   const nodes = getNodesFromData()
   const isDragging = activeId !== null
 
+  useEffect(() => {
+    const handler = () => {
+      addPanelToNode(0); // Agrega viñeta al primer nodo
+    };
+    window.addEventListener("add-panel-to-first-node", handler);
+    return () => window.removeEventListener("add-panel-to-first-node", handler);
+  }, [addPanelToNode]);
+
   return (
-    <div className="min-h-screen bg-slate-800 text-white p-6">
-      <div className="max-w-full mx-auto">
+      <div className="max-w-full mx-auto h-auto">
         {/* Barra superior con pestañas y botones de acción */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex space-x-1">
@@ -83,7 +90,7 @@ function ComicEditorContent() {
           onDragEnd={handleDragEnd}
         >
           {/* Lista horizontal de nodos */}
-          <div className="overflow-x-auto pb-4">
+          <div className="overflow-x-auto pb-2">
             <div className="flex space-x-6 min-w-max">
               <SortableContext
                 items={nodes.map((_, index) => `node-${index}`)}
@@ -106,13 +113,13 @@ function ComicEditorContent() {
           </div>
 
           {/* Zona de eliminación que aparece al arrastrar */}
-          <div
-            className={`fixed bottom-0 left-0 right-0 h-20 transition-all duration-300 ${
-              isDragging ? "bg-red-500/20 border-t-2 border-red-500" : "bg-transparent"
-            }`}
-          >
-            <DeleteZone isActive={isDragging} dragType={activeDragType} />
-          </div>
+          {isDragging && (
+            <div
+              className="fixed z-50 bottom-0 left-0 right-0 h-20 transition-all duration-300 bg-red-500/20 border-t-2 border-red-500"
+            >
+              <DeleteZone isActive={isDragging} dragType={activeDragType} />
+            </div>
+          )}
 
           {/* Vista previa del elemento que se está arrastrando */}
           <DragOverlay>
@@ -132,12 +139,11 @@ function ComicEditorContent() {
         </DndContext>
 
         {/* Debug JSON output */}
-        <div className="mt-8 p-4 bg-slate-900 rounded-lg">
+         <div className="mt-8 p-4 bg-slate-900 rounded-lg">
           <h3 className="text-lg font-semibold mb-2">JSON Output:</h3>
           <pre className="text-sm text-slate-300 overflow-auto max-h-144">{JSON.stringify(comicData, null, 2)}</pre>
-        </div>
+        </div> 
       </div>
-    </div>
   )
 }
 

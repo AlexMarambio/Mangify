@@ -11,8 +11,6 @@ export interface TimelineNode {
   start: number
   end: number
   bulletPoints: TimelineBulletPoint[]
-  pageNumber: number
-  panelNumber: number
 }
 
 export interface TimelineBulletPoint {
@@ -20,23 +18,15 @@ export interface TimelineBulletPoint {
   text: string
   position: number
   nodeId: string
-  metadata?: {
-    musicType?: string
-    order?: number
-    chapter?: number
-    page?: number
-    panel?: number
-    createdAt?: string
-    // otros campos opcionales
-  }
 }
 
 export interface TimelineMusic {
   id: string
-  musicType: string
+  title: string
   start: number
   end: number
   nodeId: string
+  file?: string
 }
 
 interface TimelineProps {
@@ -53,26 +43,24 @@ export function Timeline({ initialNodes = [], initialMusic = [], onChange, readO
       : [
           {
             id: "node-1",
-            title: "Panel 1",
+            title: "Node 1",
             color: "bg-emerald-500",
             start: 0,
             end: 50,
-            pageNumber: 1,
-            panelNumber: 1,
             bulletPoints: [
-              { id: "bullet-1", text: "Panel 1", position: 10, nodeId: "node-1" },
+              { id: "bullet-1", text: "Bullet 1", position: 10, nodeId: "node-1" },
+              { id: "bullet-2", text: "Bullet 2", position: 30, nodeId: "node-1" },
             ],
           },
           {
             id: "node-2",
-            title: "Panel 2",
+            title: "Node 2",
             color: "bg-violet-500",
             start: 60,
-            end: 110,
-            pageNumber: 1,
-            panelNumber: 2,
+            end: 110, // <-- ahora mide 50 igual que el primero
             bulletPoints: [
-              { id: "bullet-2", text: "Panel 2", position: 70, nodeId: "node-2" },
+              { id: "bullet-3", text: "Bullet 3", position: 70, nodeId: "node-2" },
+              { id: "bullet-4", text: "Bullet 4", position: 90, nodeId: "node-2" },
             ],
           },
         ],
@@ -84,17 +72,19 @@ export function Timeline({ initialNodes = [], initialMusic = [], onChange, readO
       : [
           {
             id: "music-1",
-            musicType: "triste",
+            title: "We Are the Champions.mp3",
             start: 0,
             end: 50,
             nodeId: "node-1",
+            file: "/we-are-the-champions.mp3",
           },
           {
             id: "music-2",
-            musicType: "feliz",
+            title: "Another One Bites the Dust.mp3",
             start: 60,
             end: 110,
             nodeId: "node-2",
+            file: "/another-one-bites-the-dust.mp3",
           },
         ],
   )
@@ -258,8 +248,6 @@ export function Timeline({ initialNodes = [], initialMusic = [], onChange, readO
       color: `bg-${getNextColor()}-500`,
       start,
       end,
-      pageNumber: 1,
-      panelNumber: 1,
       bulletPoints: [],
     }
 
@@ -268,7 +256,7 @@ export function Timeline({ initialNodes = [], initialMusic = [], onChange, readO
     // Agrega una pista de música para el nuevo nodo
     const newMusic: TimelineMusic = {
       id: `music-${Date.now()}`,
-      musicType: "triste",
+      title: "New Music Track.mp3",
       start: newNode.start,
       end: newNode.end,
       nodeId: newNodeId,
@@ -306,10 +294,10 @@ export function Timeline({ initialNodes = [], initialMusic = [], onChange, readO
   }
 
   // Helper function to get a random color
-  const getRandomColor = () => {
-    const colors = ["red", "blue", "green",  "violet"]
-    return colors[Math.floor(Math.random() * colors.length)]
-  }
+  // const getRandomColor = () => {
+  //   const colors = ["red", "blue", "green",  "violet"]
+  //   return colors[Math.floor(Math.random() * colors.length)]
+  // }
 
   return (
     <div className="w-full bg-gray-900 rounded-lg overflow-hidden">

@@ -130,7 +130,7 @@ export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPa
                   items={panels.map((p) => p.id)} 
                   strategy={horizontalListSortingStrategy}
                 >
-                  <div className="flex items-center space-x-4 min-w-max pb-2">
+                  <div className="flex items-center space-x-4 min-w-max pb-2 m-1">
                     {panels.map((panel, index) => (
                       <React.Fragment key={panel.id}>
                         <SortablePanel 

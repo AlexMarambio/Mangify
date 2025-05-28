@@ -11,7 +11,8 @@ import { usePageContext } from "../../context/PageContext";
 import { viñetasGlobal } from "./Viñetas";
 import { Timeline, type TimelineNode, type TimelineMusic } from "../Editor2/timeline"
 import { Card, CardContent } from "../Editor2/card"
-
+// ...otros imports...
+import ComicEditor from "../../Pages/Lineatiempo"; // Ajusta la ruta si es necesario
 interface ShapeMetadata {
   order: number;
   chapter: number;
@@ -78,26 +79,29 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
     }
   };
 
-  const finishShape = () => {
-    if (points.length >= 6) {
-      // Mínimo 3 puntos (x,y)
-      const newShape: ComicShape = {
-        id: Date.now(),
-        points: [...points],
-        fill: `hsl(${Math.random() * 360}, 70%, 70%)`,
-        closed: true,
-        metadata: {
-          order: shapes.length + 1,
-          chapter,
-          page,
-          panel: viñetasGlobal,
-          createdAt: new Date().toISOString(),
-        },
-      };
-      setShapes((prev) => [...prev, newShape]);
-      setPoints([]);
-    }
-  };
+ const finishShape = () => {
+  if (points.length >= 6) {
+    // Mínimo 3 puntos (x,y)
+    const newShape: ComicShape = {
+      id: Date.now(),
+      points: [...points],
+      fill: `hsl(${Math.random() * 360}, 70%, 70%)`,
+      closed: true,
+      metadata: {
+        order: shapes.length + 1,
+        chapter,
+        page,
+        panel: viñetasGlobal,
+        createdAt: new Date().toISOString(),
+      },
+    };
+    setShapes((prev) => [...prev, newShape]);
+    setPoints([]);
+
+    // Lanzar evento personalizado para agregar viñeta al primer nodo
+    window.dispatchEvent(new CustomEvent("add-panel-to-first-node"));
+  }
+};
 
   const clearLastPoint = () => {
     setPoints((prev) => prev.slice(0, -2));
@@ -263,9 +267,9 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
 
           <div className="row-span-1 border-t-4 border-stone-600 border-r-4 w-full overflow-hidden">
             {/* Línea de tiempo */}
-            <Card className="bg-gray-900 border-gray-800 max-h-[360px]">
-              <CardContent className="p-4 overflow-y-auto">
-                <Timeline onChange={handleTimelineChange} />
+            <Card className="bg-gray-900 border-gray-800 h-full">
+              <CardContent className="overflow-y-auto pb-5">
+                <ComicEditor />
               </CardContent>
             </Card>
           </div>
