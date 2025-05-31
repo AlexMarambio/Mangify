@@ -9,8 +9,12 @@ import React, { useState } from "react";
 import { Stage, Layer, Line, Circle, Text } from "react-konva";
 import { usePageContext } from "../../context/PageContext";
 import { viñetasGlobal } from "./Viñetas";
-import { Timeline, type TimelineNode, type TimelineMusic } from "../Editor2/timeline"
-import { Card, CardContent } from "../Editor2/card"
+import {
+  Timeline,
+  type TimelineNode,
+  type TimelineMusic,
+} from "../Editor2/timeline";
+import { Card, CardContent } from "../Editor2/card";
 // ...otros imports...
 import ComicEditor from "../../Pages/Lineatiempo"; // Ajusta la ruta si es necesario
 interface ShapeMetadata {
@@ -49,7 +53,10 @@ interface ComicData {
 const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
   const { nodos, separador, musica } = useAppContext();
 
-  const [pdfSize, setPdfSize] = useState<{ width: number; height: number }>({width: 0,height: 0,});
+  const [pdfSize, setPdfSize] = useState<{ width: number; height: number }>({
+    width: 0,
+    height: 0,
+  });
 
   //creador de formas
   const [points, setPoints] = useState<number[]>([]);
@@ -79,29 +86,29 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
     }
   };
 
- const finishShape = () => {
-  if (points.length >= 6) {
-    // Mínimo 3 puntos (x,y)
-    const newShape: ComicShape = {
-      id: Date.now(),
-      points: [...points],
-      fill: `hsl(${Math.random() * 360}, 70%, 70%)`,
-      closed: true,
-      metadata: {
-        order: shapes.length + 1,
-        chapter,
-        page,
-        panel: viñetasGlobal,
-        createdAt: new Date().toISOString(),
-      },
-    };
-    setShapes((prev) => [...prev, newShape]);
-    setPoints([]);
+  const finishShape = () => {
+    if (points.length >= 6) {
+      // Mínimo 3 puntos (x,y)
+      const newShape: ComicShape = {
+        id: Date.now(),
+        points: [...points],
+        fill: `hsl(${Math.random() * 360}, 70%, 70%)`,
+        closed: true,
+        metadata: {
+          order: shapes.length + 1,
+          chapter,
+          page,
+          panel: viñetasGlobal,
+          createdAt: new Date().toISOString(),
+        },
+      };
+      setShapes((prev) => [...prev, newShape]);
+      setPoints([]);
 
-    // Lanzar evento personalizado para agregar viñeta al primer nodo
-    window.dispatchEvent(new CustomEvent("add-panel-to-first-node"));
-  }
-};
+      // Lanzar evento personalizado para agregar viñeta al primer nodo
+      window.dispatchEvent(new CustomEvent("add-panel-to-first-node"));
+    }
+  };
 
   const clearLastPoint = () => {
     setPoints((prev) => prev.slice(0, -2));
@@ -157,22 +164,25 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
 
   //<------ Linea de tiempo ------>
   const [timelineData, setTimelineData] = useState<{
-    nodes: TimelineNode[]
-    music: TimelineMusic[]
+    nodes: TimelineNode[];
+    music: TimelineMusic[];
   }>({
     nodes: [],
     music: [],
-  })
+  });
 
-  const handleTimelineChange = (nodes: TimelineNode[], music: TimelineMusic[]) => {
-    setTimelineData({ nodes, music })
-  }
+  const handleTimelineChange = (
+    nodes: TimelineNode[],
+    music: TimelineMusic[]
+  ) => {
+    setTimelineData({ nodes, music });
+  };
 
   const handleSave = () => {
-    console.log("Timeline data saved:", timelineData)
+    console.log("Timeline data saved:", timelineData);
     // Here you would typically save to a database or API
-    alert("¡Datos de línea de tiempo guardados en la consola!")
-  }
+    alert("¡Datos de línea de tiempo guardados en la consola!");
+  };
 
   return (
     <div className="font-mono h-screen flex flex-col">
@@ -274,10 +284,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
               </CardContent>
             </Card>
           </div>
-          <div className="row-span-1 border-t-4 border-stone-600 border-b-4 border-r-4 p-2 flex items-center gap-2 justify-center bg-stone-800 z-20">
-          <div className="row-span-1 border-t-4 border-stone-600 border-b-4 border-r-4"></div>
-
-          <div className="row-span-1 border-t-4 border-stone-600 border-r-4 p-2 flex items-center justify-center gap-2 bg-stone-800 z-20">
+          <div className="row-span-1 border-t-4 border-stone-600 border-b-4 border-r-4 p-2 flex items-center justify-center gap-2 bg-stone-800 z-20">
             {/* Botones */}
             <button
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
