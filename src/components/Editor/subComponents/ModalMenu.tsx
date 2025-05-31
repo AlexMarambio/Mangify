@@ -106,13 +106,15 @@ const HamburgerMenu: React.FC = () => {
           }`}
         >
           <Button
-            className="mb-2 w-full"
+            className="mb-2 inline-block w-full"
             onClick={() => {
               setIsSecondModalOpen(true);
               setIsOpen(false);
             }}
           >
-            <span className="text-xl text-white">Selecciona el Manga</span>
+            <span className="text-xl font-medium text-white cursor-pointer">
+              Selecciona el Manga
+            </span>
           </Button>
           <Button className="mb-2 w-full">
             <span className="text-xl text-white">Test</span>
@@ -136,17 +138,25 @@ const HamburgerMenu: React.FC = () => {
       >
         <div
           ref={secondModalRef}
-          className={`w-full max-w-[90vw] md:max-w-[80vw] lg:max-w-[65vw] max-h-[80vh] bg-white p-6 rounded-lg shadow-lg dark:bg-gray-800 transform transition-transform duration-300 ${
-            isSecondModalOpen ? "scale-100" : "scale-95"
-          } flex flex-col`}
+          className={`
+            w-full
+            max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl
+            max-h-[90vh]
+            bg-white p-2 sm:p-4 md:p-6
+            rounded-lg shadow-lg dark:bg-gray-800
+            transform transition-transform duration-300
+            ${isSecondModalOpen ? "scale-100" : "scale-95"}
+            flex flex-col
+            overflow-hidden
+          `}
         >
           {/* Título fijo */}
-          <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-4 flex-shrink-0">
+          <h3 className="text-lg sm:text-xl font-medium text-gray-900 dark:text-white mb-2 sm:mb-4 flex-shrink-0">
             Selecciona tu Manga a Editar
           </h3>
 
           {/* Contenedor scrollable para las cards */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4 mb-4 p-4 overflow-y-auto max-h-[60vh]">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4 mb-2 sm:mb-4 p-2 sm:p-4 overflow-y-auto flex-1">
             {mangas.map((manga) => (
               <MangaCard
                 key={manga.title}
@@ -154,7 +164,7 @@ const HamburgerMenu: React.FC = () => {
                 imageUrl={manga.imageUrl}
                 onClick={() => {
                   console.log("Seleccionaste:", manga.title);
-                  handleSelectManga(manga.pdfUrl); // Llama a la función para manejar la selección
+                  handleSelectManga(manga.pdfUrl);
                   setIsSecondModalOpen(false);
                 }}
               />
@@ -162,7 +172,7 @@ const HamburgerMenu: React.FC = () => {
           </div>
 
           {/* Botón fijo */}
-          <div className="flex justify-start mt-4 flex-shrink-0">
+          <div className="flex justify-start mt-2 sm:mt-4 flex-shrink-0">
             <Button onClick={() => setIsSecondModalOpen(false)}>Cancelar</Button>
           </div>
         </div>

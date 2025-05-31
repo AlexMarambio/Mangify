@@ -12,8 +12,7 @@ const Manga = ({
   config: any;
   setPdfSize: (size: { width: number; height: number }) => void;
 }) => {
-  const { numPages, setNumPages, currentPage, setCurrentPage } =
-    usePageContext();
+  const {currentPage} = usePageContext();
 
   return (
     <div className="h-full w-full overflow-hidden bg-stone-900 flex items-center justify-center">
