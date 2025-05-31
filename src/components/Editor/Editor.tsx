@@ -59,7 +59,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
   const { currentPage: page } = usePageContext();
   const [panel, setPanel] = useState<number>(1);
 
-  const [activeMode, setActiveMode] = useState("nodes")
+  const [activeMode, setActiveMode] = useState("nodes");
 
   const handleStageClick = (e: any) => {
     const stage = e.currentTarget;
@@ -175,16 +175,17 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
             <div
               style={{
                 position: "relative",
-                width: pdfSize.width,
-                height: pdfSize.height,
+                width: 600,
+                height: 800,
                 margin: "0 auto", // Centra horizontalmente si quieres
               }}
             >
               <Manga pdfUrl={pdfUrl} config={config} setPdfSize={setPdfSize} />
 
               <Stage
-                width={pdfSize.width}
-                height={pdfSize.height}
+                width={600}
+                height={800}
+                margin="0 auto"
                 style={{
                   position: "absolute",
                   top: 0,
@@ -244,8 +245,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
             </div>
           </div>
 
-            <div className="row-span-1 border-t-4 border-stone-600 border-b-4 border-r-4">
-          </div>
+          <div className="row-span-1 border-t-4 border-stone-600 border-b-4 border-r-4"></div>
 
           <div className="row-span-1 border-t-4 border-stone-600 border-r-4 p-2 flex items-center justify-center gap-2 bg-stone-800 z-20">
             {/* Botones */}
@@ -274,7 +274,6 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
               Exportar cómic
             </button>
           </div>
-          
         </div>
       </div>
     </div>
