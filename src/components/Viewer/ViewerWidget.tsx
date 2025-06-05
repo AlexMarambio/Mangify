@@ -3,6 +3,7 @@ import PDFFrame from "../PDFFrame";
 import { usePageAudio } from "./AudioServer";
 import comicData from "./comic-chapter-1-page-4 (2).json"; // Importa tu JSON exportado
 import { Stage, Layer, Line } from "react-konva";
+import { get } from "flowbite-react/helpers/get";
 
 interface ComicShape {
   points: number[];
@@ -43,8 +44,12 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [volume, setVolume] = useState<number>(0.5);
   const [currentPanel, setCurrentPanel] = useState<number>(1);
-
+  const [totalPagesPanel, setTotalPanel] = useState<number>(0);
+  const [totalCurrentPanel, setTotalCurrentPanel] = useState<number>(0);
   const pageConfig = config.pages.find((p) => p.page === currentPage);
+  const [panelProgress, setPanelProgress] = useState<{
+    [page: number]: number;
+  }>({});
 
   const { toggleAudio, isPaused } = usePageAudio(volume, pageConfig?.audioUrl);
 
@@ -53,11 +58,22 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
   }
 
   const [currentChapter] = useState(1);
-  // Removed unused availableChapters state
-  // Removed unused availablePages state
+
+  const updateTotalPanel = () => {
+    setTotalPanel(
+      (prevTotal) => prevTotal + getNumberOfShapes(currentChapter, currentPage)
+    );
+  };
 
   const nextPanel = () => {
-    setCurrentPanel((prevPanel) => prevPanel + 1);
+    setCurrentPanel((prevPanel) => {
+      const next = prevPanel + 1;
+      setPanelProgress((prevProgress) => ({
+        ...prevProgress,
+        [currentPage]: next,
+      }));
+      return next;
+    });
   };
   const resetPanel = () => {
     setCurrentPanel(1);
@@ -81,6 +97,11 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
       // Removed setAvailablePages as availablePages is no longer used
     }
   }, [currentChapter]);
+
+  useEffect(() => {
+    const progress = panelProgress[currentPage] ?? 1;
+    setCurrentPanel(progress);
+  }, [currentPage]);
 
   // Obtiene las figuras para la página actual
   const getCurrentShapes = (): ComicShape[] => {
@@ -162,7 +183,9 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
       </div>
       <div className="bg-red-500" style={{ marginTop: "1rem" }}>
         <button
-          onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+          onClick={() => {
+            setCurrentPage((p) => Math.max(p - 1, 1));
+          }}
           disabled={currentPage <= 1}
         >
           Anterior
@@ -173,7 +196,8 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
         <button
           onClick={() => {
             if (
-              currentPanel == getNumberOfShapes(currentChapter, currentPage)
+              currentPanel == getNumberOfShapes(currentChapter, currentPage) ||
+              getNumberOfShapes(currentChapter, currentPage) === 0
             ) {
               setCurrentPage((p) =>
                 Math.min(p + 1, numPages ?? Number.MAX_SAFE_INTEGER)

@@ -9,9 +9,14 @@ import React, { useState } from "react";
 import { Stage, Layer, Line, Circle, Text } from "react-konva";
 import { usePageContext } from "../../context/PageContext";
 import { viñetasGlobal } from "./Viñetas";
-import { Timeline, type TimelineNode, type TimelineMusic } from "../Editor2/timeline"
-import { Card, CardContent } from "../Editor2/card"
-
+import {
+  Timeline,
+  type TimelineNode,
+  type TimelineMusic,
+} from "../Editor2/timeline";
+import { Card, CardContent } from "../Editor2/card";
+// ...otros imports...
+import ComicEditor from "../../Pages/Lineatiempo"; // Ajusta la ruta si es necesario
 interface ShapeMetadata {
   order: number;
   chapter: number;
@@ -48,7 +53,10 @@ interface ComicData {
 const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
   const { nodos, separador, musica } = useAppContext();
 
-  const [pdfSize, setPdfSize] = useState<{ width: number; height: number }>({width: 0,height: 0,});
+  const [pdfSize, setPdfSize] = useState<{ width: number; height: number }>({
+    width: 0,
+    height: 0,
+  });
 
   //creador de formas
   const [points, setPoints] = useState<number[]>([]);
@@ -57,7 +65,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
   const { currentPage: page } = usePageContext();
   const [panel, setPanel] = useState<number>(1);
 
-  const [activeMode, setActiveMode] = useState("nodes")
+  const [activeMode, setActiveMode] = useState("nodes");
 
   const handleStageClick = (e: any) => {
     const stage = e.currentTarget;
@@ -96,6 +104,9 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
       };
       setShapes((prev) => [...prev, newShape]);
       setPoints([]);
+
+      // Lanzar evento personalizado para agregar viñeta al primer nodo
+      window.dispatchEvent(new CustomEvent("add-panel-to-first-node"));
     }
   };
 
@@ -153,22 +164,25 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
 
   //<------ Linea de tiempo ------>
   const [timelineData, setTimelineData] = useState<{
-    nodes: TimelineNode[]
-    music: TimelineMusic[]
+    nodes: TimelineNode[];
+    music: TimelineMusic[];
   }>({
     nodes: [],
     music: [],
-  })
+  });
 
-  const handleTimelineChange = (nodes: TimelineNode[], music: TimelineMusic[]) => {
-    setTimelineData({ nodes, music })
-  }
+  const handleTimelineChange = (
+    nodes: TimelineNode[],
+    music: TimelineMusic[]
+  ) => {
+    setTimelineData({ nodes, music });
+  };
 
   const handleSave = () => {
-    console.log("Timeline data saved:", timelineData)
+    console.log("Timeline data saved:", timelineData);
     // Here you would typically save to a database or API
-    alert("¡Datos de línea de tiempo guardados en la consola!")
-  }
+    alert("¡Datos de línea de tiempo guardados en la consola!");
+  };
 
   return (
     <div className="font-mono h-screen flex flex-col">
@@ -192,16 +206,17 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
             <div
               style={{
                 position: "relative",
-                width: pdfSize.width,
-                height: pdfSize.height,
+                width: 600,
+                height: 800,
                 margin: "0 auto", // Centra horizontalmente si quieres
               }}
             >
               <Manga pdfUrl={pdfUrl} config={config} setPdfSize={setPdfSize} />
 
               <Stage
-                width={pdfSize.width}
-                height={pdfSize.height}
+                width={600}
+                height={800}
+                margin="0 auto"
                 style={{
                   position: "absolute",
                   top: 0,
@@ -263,13 +278,13 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
 
           <div className="row-span-1 border-t-4 border-stone-600 border-r-4 w-full overflow-hidden">
             {/* Línea de tiempo */}
-            <Card className="bg-gray-900 border-gray-800 max-h-[360px]">
-              <CardContent className="p-4 overflow-y-auto">
-                <Timeline onChange={handleTimelineChange} />
+            <Card className="bg-gray-900 border-gray-800 h-full">
+              <CardContent className="overflow-y-auto pb-5">
+                <ComicEditor />
               </CardContent>
             </Card>
           </div>
-          <div className="row-span-1 border-t-4 border-stone-600 border-b-4 border-r-4 p-2 flex items-center gap-2 justify-center bg-stone-800 z-20">
+          <div className="row-span-1 border-t-4 border-stone-600 border-b-4 border-r-4 p-2 flex items-center justify-center gap-2 bg-stone-800 z-20">
             {/* Botones */}
             <button
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
