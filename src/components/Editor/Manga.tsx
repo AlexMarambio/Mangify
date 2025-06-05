@@ -15,7 +15,7 @@ const Manga = ({
   const {currentPage} = usePageContext();
 
   return (
-    <div className="h-full w-full overflow-hidden bg-stone-900 flex items-center justify-center">
+    <div className="h-full w-full overflow-hidden flex items-center justify-center">
       <Document file={pdfUrl} className="inline-block">
         <Page
           pageNumber={currentPage}
