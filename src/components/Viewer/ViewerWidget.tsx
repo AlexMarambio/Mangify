@@ -47,7 +47,6 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
   const [fadeOpacity, setFadeOpacity] = useState(1);
 
   const pageConfig = config.pages.find((p) => p.page === currentPage);
-
   const { toggleAudio, isPaused } = usePageAudio(volume, pageConfig?.audioUrl);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
@@ -56,7 +55,7 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [stageWidth, setStageWidth] = useState(650);
-
+  const [stageHeight, setStageHeight] = useState(650); // NUEVO
   const [currentChapter] = useState(1);
   // Removed unused availableChapters state
   // Removed unused availablePages state
@@ -87,14 +86,16 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
     }
   }, [currentChapter]);
 
-  function updateWidth() {
-    if (containerRef.current) {
-      setStageWidth(containerRef.current.offsetWidth);
-    }
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setStageWidth(containerRef.current.offsetWidth);
+      }
+    };
     updateWidth();
     window.addEventListener("resize", updateWidth);
     return () => window.removeEventListener("resize", updateWidth);
-  }
+  }, []);
 
   // Obtiene las figuras para la página actual
   const getCurrentShapes = (): ComicShape[] => {
@@ -138,22 +139,34 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
 
   return (
     <div>
-      <div ref={containerRef} className="w-full max-w-[650px] relative mx-auto">
+      <div
+        ref={containerRef}
+        className="relative w-full max-w-[650px] mx-auto"
+        style={{
+          width: "100%",
+          position: "relative",
+        }}
+      >
         <PDFFrame
           pdfUrl={pdfUrl}
           pageNumber={currentPage}
           onDocumentLoadSuccess={onDocumentLoadSuccess}
+          onSizeChange={({ width, height }) => {
+            setStageWidth(width);
+            setStageHeight(height); // Captura el alto real
+          }}
         />
+
         <Stage
           width={stageWidth}
-          height={stageWidth * 1.414} // relación A4, ajusta si necesitas
+          height={stageHeight} // Usa altura real del PDF
           style={{
             position: "absolute",
             top: 0,
             left: 0,
             zIndex: 10,
             background: "transparent",
-            border: "none",
+            border: "1px solid red",
             pointerEvents: "none",
           }}
         >
