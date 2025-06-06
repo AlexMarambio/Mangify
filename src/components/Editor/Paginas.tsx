@@ -4,6 +4,7 @@ import { Page, Document, pdfjs } from 'react-pdf';
 import { usePageContext } from '../../context/PageContext';
 import { useEffect } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
+import { useTheme } from "@/components/theme-provider"
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -14,6 +15,7 @@ interface PaginasProps {
 
 const Paginas = ({ pdfUrl, config }: PaginasProps) => {
   const { numPages, setNumPages, setCurrentPage } = usePageContext();
+  const { theme } = useTheme();
 
   useEffect(() => {
     const load = async () => {
@@ -39,7 +41,7 @@ const Paginas = ({ pdfUrl, config }: PaginasProps) => {
         <div key={i + 1} className="row-span-1 flex h-[20%] w-full">
         <Button
           onClick={() => setCurrentPage(i + 1)}
-          className="flex h-full w-full justify-center items-center gap-10 my-1 px-2 bg-transparent text-white hover:text-black"
+          className={`flex h-full w-full justify-center items-center gap-10 my-1 px-2 bg-transparent ${theme === 'dark' ? 'text-white hover:text-black' : 'text-black hover:text-white'}`}
           >
           <Document file={pdfUrl} className="inline-block">
             <Page

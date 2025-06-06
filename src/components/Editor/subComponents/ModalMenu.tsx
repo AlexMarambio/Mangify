@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import "./ModalIcon.css";
 import MangaCard from "./MangaCard";
 import mangas from "../../../constants/mangas.ts";
+import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../../../context/AppContext.tsx";
 import { Button } from "@/components/ui/button"
 import {
@@ -23,6 +24,7 @@ import {
 
 const HamburgerMenu: React.FC = () => {
   const {setPdfUrl} = useAppContext();
+  const navigate = useNavigate();
 
   const [isOpen, setIsOpen] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
@@ -108,7 +110,7 @@ const HamburgerMenu: React.FC = () => {
         <DropdownMenuContent className="mx-2 w-full">
           <DropdownMenuGroup>
             <DropdownMenuItem>
-              <Button className=" text-xl w-full"> Home </Button>
+              <Button onClick={() => navigate('/')} className=" text-xl w-full"> Home </Button>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Dialog>

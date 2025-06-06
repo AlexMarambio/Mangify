@@ -95,7 +95,7 @@ export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPa
   return (
     <div className="flex flex-col space-y-2 flex-shrink-0" style={{ minWidth: `${minWidth}px` }}>
       <Card
-        className={`${getNodeColor()} text-white border-0 ${isSortableDragging ? "shadow-2xl scale-105" : ""} ${
+        className={`bg-red-500 ${getNodeColor()}  text-white border-0 ${isSortableDragging ? "shadow-2xl scale-105" : ""} ${
           isDroppableOver ? "ring-4 ring-blue-400 ring-opacity-50 bg-opacity-80" : ""
         } transition-all duration-200`}
         ref={setNodeRef}
