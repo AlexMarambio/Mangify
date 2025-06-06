@@ -13,12 +13,12 @@ import React, { useState } from "react";
 import { viñetasGlobal } from "./Viñetas";
 import { Stage, Layer, Line, Circle, Text } from "react-konva";
 import { usePageContext } from "../../context/PageContext";
-import {
-  Timeline,
-  type TimelineNode,
-  type TimelineMusic,
-} from "../Editor2/timeline";
-import { Card, CardContent } from "../Editor2/card";
+// import {
+//   Timeline,
+//   type TimelineNode,
+//   type TimelineMusic,
+// } from "../Editor2/timeline";
+import { Card, CardContent } from "../Timeline/Extra/card";
 // ...otros imports...
 import ComicEditor from "../../Pages/Lineatiempo"; // Ajusta la ruta si es necesario
 interface ShapeMetadata {
@@ -165,26 +165,26 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
   };
 
   //<------ Linea de tiempo ------>
-  const [timelineData, setTimelineData] = useState<{
-    nodes: TimelineNode[];
-    music: TimelineMusic[];
-  }>({
-    nodes: [],
-    music: [],
-  });
+  // const [timelineData, setTimelineData] = useState<{
+  //   nodes: TimelineNode[];
+  //   music: TimelineMusic[];
+  // }>({
+  //   nodes: [],
+  //   music: [],
+  // });
 
-  const handleTimelineChange = (
-    nodes: TimelineNode[],
-    music: TimelineMusic[]
-  ) => {
-    setTimelineData({ nodes, music });
-  };
+  // const handleTimelineChange = (
+  //   nodes: TimelineNode[],
+  //   music: TimelineMusic[]
+  // ) => {
+  //   setTimelineData({ nodes, music });
+  // };
 
-  const handleSave = () => {
-    console.log("Timeline data saved:", timelineData);
-    // Here you would typically save to a database or API
-    alert("¡Datos de línea de tiempo guardados en la consola!");
-  };
+  // const handleSave = () => {
+  //   console.log("Timeline data saved:", timelineData);
+  //   // Here you would typically save to a database or API
+  //   alert("¡Datos de línea de tiempo guardados en la consola!");
+  // };
 
   return (
     <div className="font-mono h-screen flex flex-col">
@@ -212,7 +212,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                 {/* CONTENEDOR RELATIVO PARA SUPERPOSICIÓN */}
                 <Manga
                   pdfUrl={pdfUrl}
-                  config={config}
+                  //config={config}
                   setPdfSize={setPdfSize}
                 />
 
