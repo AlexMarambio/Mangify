@@ -3,6 +3,7 @@ import PDFFrame from "../PDFFrame";
 import { usePageAudio } from "./AudioServer";
 import comicData from "./comic-chapter-1-page-4 (2).json"; // Importa tu JSON exportado
 import { Stage, Layer, Line } from "react-konva";
+import { get } from "flowbite-react/helpers/get";
 
 interface ComicShape {
   points: number[];
@@ -57,11 +58,22 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
   const [stageWidth, setStageWidth] = useState(650);
   const [stageHeight, setStageHeight] = useState(650); // NUEVO
   const [currentChapter] = useState(1);
-  // Removed unused availableChapters state
-  // Removed unused availablePages state
+
+  const updateTotalPanel = () => {
+    setTotalPanel(
+      (prevTotal) => prevTotal + getNumberOfShapes(currentChapter, currentPage)
+    );
+  };
 
   const nextPanel = () => {
-    setCurrentPanel((prevPanel) => prevPanel + 1);
+    setCurrentPanel((prevPanel) => {
+      const next = prevPanel + 1;
+      setPanelProgress((prevProgress) => ({
+        ...prevProgress,
+        [currentPage]: next,
+      }));
+      return next;
+    });
   };
   const resetPanel = () => {
     setCurrentPanel(1);
