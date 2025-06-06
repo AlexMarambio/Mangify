@@ -1,13 +1,30 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Button } from "flowbite-react";
 import "./ModalIcon.css";
 import MangaCard from "./MangaCard";
 import mangas from "../../../constants/mangas.ts";
+import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../../../context/AppContext.tsx";
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
  // Asegúrate de que la ruta sea correcta
 
 const HamburgerMenu: React.FC = () => {
   const {setPdfUrl} = useAppContext();
+  const navigate = useNavigate();
 
   const [isOpen, setIsOpen] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
@@ -82,103 +99,58 @@ const HamburgerMenu: React.FC = () => {
     setPdfUrl(pdfUrl);         // Guardamos la URL en contexto
     setIsSecondModalOpen(false);  // Cerramos modal
   };
-
-
   return (
-    <div className="relative inline-block">
-      <div
-        id="nav-icon1"
-        className={`cursor-pointer ${isOpen ? "open" : ""}`}
-        onClick={toggleMenu}
-        ref={iconRef}
-      >
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-
-      {/* Menú hamburguesa */}
-      {shouldRender && (
-        <div
-          ref={menuRef}
-          className={`absolute top-full mt-2 z-50 w-72 bg-gray-800 border rounded-lg shadow-lg p-4 transition-all duration-300 transform ${
-            isOpen ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
-          }`}
-        >
-          <Button
-            className="mb-2 inline-block w-full"
-            onClick={() => {
-              setIsSecondModalOpen(true);
-              setIsOpen(false);
-            }}
-          >
-            <span className="text-xl font-medium text-white cursor-pointer">
-              Selecciona el Manga
-            </span>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button className={`cursor-pointer ${isOpen ? "open" : ""} w-32 h-12 text-3xl`} onClick={toggleMenu}>
+            Menu
           </Button>
-          <Button className="mb-2 w-full">
-            <span className="text-xl text-white">Test</span>
-          </Button>
-          <Button className="mb-2 w-full">
-            <span className="text-xl text-white">Test</span>
-          </Button>
-          <Button className="mb-2 w-full">
-            <span className="text-xl text-white">Test</span>
-          </Button>
-        </div>
-      )}
-
-      {/* Segundo modal */}
-     {showSecondModal && (
-      <div
-        className={`fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-300 ${
-          isSecondModalOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
-        style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
-      >
-        <div
-          ref={secondModalRef}
-          className={`
-            w-full
-            max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl
-            max-h-[90vh]
-            bg-white p-2 sm:p-4 md:p-6
-            rounded-lg shadow-lg dark:bg-gray-800
-            transform transition-transform duration-300
-            ${isSecondModalOpen ? "scale-100" : "scale-95"}
-            flex flex-col
-            overflow-hidden
-          `}
-        >
-          {/* Título fijo */}
-          <h3 className="text-lg sm:text-xl font-medium text-gray-900 dark:text-white mb-2 sm:mb-4 flex-shrink-0">
-            Selecciona tu Manga a Editar
-          </h3>
-
-          {/* Contenedor scrollable para las cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4 mb-2 sm:mb-4 p-2 sm:p-4 overflow-y-auto flex-1">
-            {mangas.map((manga) => (
-              <MangaCard
-                key={manga.title}
-                title={manga.title}
-                imageUrl={manga.imageUrl}
-                onClick={() => {
-                  console.log("Seleccionaste:", manga.title);
-                  handleSelectManga(manga.pdfUrl);
-                  setIsSecondModalOpen(false);
-                }}
-              />
-            ))}
-          </div>
-
-          {/* Botón fijo */}
-          <div className="flex justify-start mt-2 sm:mt-4 flex-shrink-0">
-            <Button onClick={() => setIsSecondModalOpen(false)}>Cancelar</Button>
-          </div>
-        </div>
-      </div>
-    )}
-    </div>
+        </DropdownMenuTrigger>
+        {/* Menú hamburguesa */}
+        <DropdownMenuContent className="mx-2 w-full">
+          <DropdownMenuGroup>
+            <DropdownMenuItem>
+              <Button onClick={() => navigate('/')} className=" text-xl w-full"> Home </Button>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Dialog>
+                <DialogTrigger>
+                  <Button className="mb-2 mt-2 mx-2 w-full text-xl" /*onClick={() => {setIsSecondModalOpen(true);setIsOpen(false);}}*/>
+                    Seleccionar manga
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="w-full 
+                  w-3xl max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl 
+                  max-h-[90vh] 
+                  transform transition-transform duration-300 
+                  flex flex-col
+                  overflow-hidden">
+                  <DialogHeader>
+                    <DialogTitle className="text-3xl">Selecciona el Manga a Editar</DialogTitle>
+                    <DialogDescription className="text-xl">
+                      Elige un manga de la lista para editarlo.
+                    </DialogDescription>
+                  </DialogHeader>
+                  {/* Contenedor scrollable para las cards */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4 mb-2 sm:mb-4 p-2 sm:p-4 overflow-y-auto">
+                    {mangas.map((manga) => (
+                      <MangaCard
+                        key={manga.title}
+                        title={manga.title}
+                        imageUrl={manga.imageUrl}
+                        onClick={() => {
+                          console.log("Seleccionaste:", manga.title);
+                          handleSelectManga(manga.pdfUrl);
+                        }}
+                      />
+                    ))}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+      </DropdownMenuContent>
+      </DropdownMenu>
   );
 };
 

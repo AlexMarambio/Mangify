@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
 import { 
   DndContext, 
@@ -13,7 +14,6 @@ import {
   horizontalListSortingStrategy,
   sortableKeyboardCoordinates
 } from "@dnd-kit/sortable"
-import { Button } from "flowbite-react"
 import { Plus, GripVertical } from "lucide-react"
 import { NodeCard } from "../components/Timeline/NodeCard"
 import { DeleteZone } from "../components/Timeline/DeleteZone"
@@ -51,30 +51,28 @@ function ComicEditorContent() {
   }, [addPanelToNode]);
 
   return (
-      <div className="max-w-full mx-auto h-auto">
+      <div className="max-w-full mx-auto flex flex-col">
         {/* Barra superior con pestañas y botones de acción */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex space-x-1">
             {["nodos", "viñetas", "música"].map((tab) => (
-              <button
+              <Button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 rounded-lg font-medium capitalize ${
-                  activeTab === tab ? "bg-blue-600 text-white" : "bg-slate-700 text-slate-300 hover:bg-slate-600"
-                }`}
+                className={`px-4 py-2 font-medium capitalize`}
               >
                 {tab === "nodos" && "🏗️"} {tab === "viñetas" && "📋"} {tab === "música" && "🎵"} {tab}
-              </button>
+              </Button>
             ))}
           </div>
 
           {/* Botones para añadir viñetas y nodos */}
           <div className="flex space-x-2">
-            <Button onClick={() => addPanelToNode(0)} className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={() => addPanelToNode(0)}>
               <Plus className="w-4 h-4 mr-2" />
               Añadir Viñeta
             </Button>
-            <Button onClick={addNewNode} className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={addNewNode}>
               <Plus className="w-4 h-4 mr-2" />
               Añadir Nodo
             </Button>
@@ -138,11 +136,12 @@ function ComicEditorContent() {
           </DragOverlay>
         </DndContext>
 
-        {/* Debug JSON output */}
-         <div className="mt-8 p-4 bg-slate-900 rounded-lg">
+        {/* Debug JSON output 
+        <div className="mt-8 p-4 bg-slate-900 rounded-lg">
           <h3 className="text-lg font-semibold mb-2">JSON Output:</h3>
           <pre className="text-sm text-slate-300 overflow-auto max-h-144">{JSON.stringify(comicData, null, 2)}</pre>
         </div> 
+        */}
       </div>
   )
 }

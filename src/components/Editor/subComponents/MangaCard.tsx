@@ -1,5 +1,10 @@
 // components/MangaCard.tsx
 import React from "react";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card"
 
 type MangaCardProps = {
   title: string;
@@ -9,22 +14,20 @@ type MangaCardProps = {
 
 const MangaCard: React.FC<MangaCardProps> = ({ title, imageUrl, onClick }) => {
   return (
-    <div
-        onClick={onClick}
-        className="cursor-pointer w-full h-full bg-gray-100 dark:bg-gray-700 rounded-lg shadow-md overflow-hidden hover:scale-105 transform transition"
-        >
-        <img
+    <div>
+      <Card onClick={onClick} className="cursor-pointer m-0 p-0 w-full gap-0 overflow-hidden hover:scale-105 transform transition">
+        <CardContent className="p-0">
+          <img
             src={imageUrl}
             alt={title}
-            className="w-full h-48 "
-        />
-        <div className="p-2 text-center">
-            <h4 className="text-sm font-semibold text-gray-800 dark:text-white">
-            {title}
-            </h4>
-        </div>
+            className="w-full h-48"
+          />
+        </CardContent>
+        <CardFooter className="flex text-sm font-semibold px-0 my-3 justify-center items-center">
+          {title}
+        </CardFooter>
+      </Card>
     </div>
-
   );
 };
 

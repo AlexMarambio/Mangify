@@ -64,4 +64,3 @@ const Viñetas = () => {
   );
 };
 export default Viñetas;
-
