@@ -2,14 +2,15 @@ import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from "@/components/ui/resizable"
-import { Separator } from "@/components/ui/separator"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/resizable";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import NavBar from "./Navbar";
 import Paginas from "./Paginas";
 import Musica from "./Musica";
 import Manga from "./Manga";
 import React, { useState } from "react";
+import { viñetasGlobal } from "./Viñetas";
 import { Stage, Layer, Line, Circle, Text } from "react-konva";
 import { usePageContext } from "../../context/PageContext";
 import {
@@ -54,7 +55,6 @@ interface ComicData {
 }
 
 const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
-
   const [pdfSize, setPdfSize] = useState<{ width: number; height: number }>({
     width: 0,
     height: 0,
@@ -191,16 +191,16 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
       <div className="h-[8%]">
         <NavBar />
       </div>
-      <Separator/>
+      <Separator />
       <ResizablePanelGroup direction="horizontal" className="font-mono h-[90%]">
         <ResizablePanel defaultSize={20}>
           {/* Seleccionador de páginas */}
           <Paginas pdfUrl={pdfUrl} config={config} />
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <Separator orientation="vertical"/>
+        <Separator orientation="vertical" />
         <ResizablePanel className="h-full" defaultSize={20}>
-        {/* Opciones de herramientas */}
+          {/* Opciones de herramientas */}
           <Musica activePage={0} />
         </ResizablePanel>
         <ResizableHandle withHandle />
@@ -210,63 +210,69 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
             <ResizablePanel defaultSize={60}>
               <div className="flex relative h-full items-center">
                 {/* CONTENEDOR RELATIVO PARA SUPERPOSICIÓN */}
-                  <Manga pdfUrl={pdfUrl} config={config} setPdfSize={setPdfSize} />
+                <Manga
+                  pdfUrl={pdfUrl}
+                  config={config}
+                  setPdfSize={setPdfSize}
+                />
 
-                  <Stage
-                    width={600}
-                    height={800}
-                    margin="0 auto"
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-                    onClick={handleStageClick}
-                  >
-                    <Layer>
-                      {/* Formas completadas */}
-                      {shapes
-                        .filter(
-                          (shape) =>
-                            shape.metadata.chapter === chapter &&
-                            shape.metadata.page === page
-                        )
-                        .map((shape) => (
-                          <Line
-                            key={shape.id}
-                            points={shape.points}
-                            fill={shape.fill}
-                            closed={shape.closed}
-                            stroke="black"
-                            strokeWidth={2}
-                          />
-                        ))}
-
-                      {/* Forma en progreso */}
-                      {points.length > 1 && (
+                <Stage
+                  width={600}
+                  height={800}
+                  margin="0 auto"
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                  onClick={handleStageClick}
+                >
+                  <Layer>
+                    {/* Formas completadas */}
+                    {shapes
+                      .filter(
+                        (shape) =>
+                          shape.metadata.chapter === chapter &&
+                          shape.metadata.page === page
+                      )
+                      .map((shape) => (
                         <Line
-                          points={points}
-                          stroke="red"
+                          key={shape.id}
+                          points={shape.points}
+                          fill={shape.fill}
+                          closed={shape.closed}
+                          stroke="black"
                           strokeWidth={2}
-                          dash={[5, 5]}
                         />
-                      )}
+                      ))}
 
-                      {/* Puntos */}
-                      {Array.from({ length: points.length / 2 }).map((_, i) => {
-                        const x = points[i * 2];
-                        const y = points[i * 2 + 1];
-                        return (
-                          <React.Fragment key={`point-${i}`}>
-                            <Circle x={x} y={y} radius={5} fill="red" />
-                            <Text
-                              x={x + 10}
-                              y={y - 15}
-                              text={`${i + 1}: (${Math.round(x)},${Math.round(y)})`}
-                              fontSize={12}
-                              fill="#333"
-                            />
-                          </React.Fragment>
-                        );
-                      })}
-                    </Layer>
-                  </Stage>
+                    {/* Forma en progreso */}
+                    {points.length > 1 && (
+                      <Line
+                        points={points}
+                        stroke="red"
+                        strokeWidth={2}
+                        dash={[5, 5]}
+                      />
+                    )}
+
+                    {/* Puntos */}
+                    {Array.from({ length: points.length / 2 }).map((_, i) => {
+                      const x = points[i * 2];
+                      const y = points[i * 2 + 1];
+                      return (
+                        <React.Fragment key={`point-${i}`}>
+                          <Circle x={x} y={y} radius={5} fill="red" />
+                          <Text
+                            x={x + 10}
+                            y={y - 15}
+                            text={`${i + 1}: (${Math.round(x)},${Math.round(
+                              y
+                            )})`}
+                            fontSize={12}
+                            fill="#333"
+                          />
+                        </React.Fragment>
+                      );
+                    })}
+                  </Layer>
+                </Stage>
               </div>
             </ResizablePanel>
             <ResizableHandle withHandle />
