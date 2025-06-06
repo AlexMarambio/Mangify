@@ -94,7 +94,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
       const newShape: ComicShape = {
         id: Date.now(),
         points: [...points],
-        fill: `hsl(${Math.random() * 360}, 70%, 70%)`,
+        fill: "rgba(50, 50, 50, 0.99)",
         closed: true,
         metadata: {
           order: shapes.length + 1,
