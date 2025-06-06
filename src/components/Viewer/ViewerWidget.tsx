@@ -60,6 +60,8 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
     offsetX: 0,
     offsetY: 0,
   });
+  const editorWidth = 560; // <-- el ancho del PDF en el editor
+  const editorHeight = 688; // <-- el alto del PDF en el editor
 
   const pageConfig = config.pages.find((p) => p.page === currentPage);
   const { toggleAudio, isPaused } = usePageAudio(volume, pageConfig?.audioUrl);
@@ -167,12 +169,13 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
     <div className="bg-black min-h-screen">
       <div
         ref={containerRef}
-        className="relative w-full max-w-[650px] mx-auto"
+        className="relative w-full max-w-full sm:max-w-[650px] mx-auto"
         style={{
           width: "100%",
           position: "relative",
         }}
       >
+        {/* ...PDFFrame y Stage... */}
         <PDFFrame
           pdfUrl={pdfUrl}
           pageNumber={currentPage}
@@ -210,12 +213,11 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
                 return (
                   <Line
                     key={`${currentChapter}-${currentPage}-${shapeIndex}`}
-                    // SOLO escala, NO restes offset:
                     points={shape.points.map(
                       (point, idx) =>
                         idx % 2 === 0
-                          ? (point * stageWidth) / originalPdfSize.width // X
-                          : (point * stageHeight) / originalPdfSize.height // Y
+                          ? (point / editorWidth) * stageWidth // X
+                          : (point / editorHeight) * stageHeight // Y
                     )}
                     fill={shape.fill}
                     closed={shape.closed}
