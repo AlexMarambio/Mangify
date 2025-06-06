@@ -59,29 +59,29 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
   const [stageHeight, setStageHeight] = useState(650); // NUEVO
   const [currentChapter] = useState(1);
 
-  const updateTotalPanel = () => {
-    setTotalPanel(
-      (prevTotal) => prevTotal + getNumberOfShapes(currentChapter, currentPage)
-    );
-  };
+  // const updateTotalPanel = () => {
+  //   setTotalPanel(
+  //     (prevTotal) => prevTotal + getNumberOfShapes(currentChapter, currentPage)
+  //   );
+  // };
 
-  const nextPanel = () => {
-    setCurrentPanel((prevPanel) => {
-      const next = prevPanel + 1;
-      setPanelProgress((prevProgress) => ({
-        ...prevProgress,
-        [currentPage]: next,
-      }));
-      return next;
-    });
-  };
-  const resetPanel = () => {
-    setCurrentPanel(1);
-  };
+  // const nextPanel = () => {
+  //   setCurrentPanel((prevPanel) => {
+  //     const next = prevPanel + 1;
+  //     setPanelProgress((prevProgress) => ({
+  //       ...prevProgress,
+  //       [currentPage]: next,
+  //     }));
+  //     return next;
+  //   });
+  // };
+  // const resetPanel = () => {
+  //   setCurrentPanel(1);
+  // };
 
   // Carga la estructura de capítulos y páginas
   useEffect(() => {
-    const chapters = Object.keys(comicData.chapters).map(Number);
+    //const chapters = Object.keys(comicData.chapters).map(Number);
     // Removed setAvailableChapters as availableChapters is no longer used
 
     if (
