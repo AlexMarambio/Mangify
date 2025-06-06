@@ -26,7 +26,13 @@ interface PDFFrameProps {
   pdfUrl: string;
   pageNumber: number;
   onDocumentLoadSuccess: DocumentProps["onLoadSuccess"];
-  onSizeChange?: (size: { width: number; height: number }) => void; // NUEVO
+  onSizeChange?: (size: { width: number; height: number }) => void;
+  onPageOriginalSize?: (size: {
+    width: number;
+    height: number;
+    offsetX: number;
+    offsetY: number;
+  }) => void;
 }
 
 export default function PDFFrame({
@@ -34,6 +40,7 @@ export default function PDFFrame({
   pageNumber,
   onDocumentLoadSuccess,
   onSizeChange,
+  onPageOriginalSize,
 }: PDFFrameProps) {
   const [containerRef, width] = useContainerWidth();
   const pageRef = useRef<HTMLDivElement>(null);
@@ -57,7 +64,22 @@ export default function PDFFrame({
     >
       <Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess}>
         <div ref={pageRef}>
-          <Page pageNumber={pageNumber} width={width} renderTextLayer={false} />
+          <Page
+            pageNumber={pageNumber}
+            width={width}
+            renderTextLayer={false}
+            onLoadSuccess={(page) => {
+              if (onPageOriginalSize) {
+                const [x, y, w, h] = page.view;
+                onPageOriginalSize({
+                  width: w,
+                  height: h,
+                  offsetX: x,
+                  offsetY: y,
+                });
+              }
+            }}
+          />
         </div>
       </Document>
     </div>
