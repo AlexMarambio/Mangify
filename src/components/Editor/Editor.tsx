@@ -92,7 +92,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
       const newShape: ComicShape = {
         id: Date.now(),
         points: [...points],
-        fill: `hsl(${Math.random() * 360}, 70%, 70%)`,
+        fill: "rgba(50, 50, 50, 0.99)",
         closed: true,
         metadata: {
           order: shapes.length + 1,
@@ -206,16 +206,16 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
             <div
               style={{
                 position: "relative",
-                width: 600,
-                height: 800,
+                width: pdfSize.width, // Ancho por defecto si no se ha cargado
+                height: pdfSize.height, // Alto por defecto si no se ha cargado
                 margin: "0 auto", // Centra horizontalmente si quieres
               }}
             >
               <Manga pdfUrl={pdfUrl} config={config} setPdfSize={setPdfSize} />
 
               <Stage
-                width={600}
-                height={800}
+                width={pdfSize.width}
+                height={pdfSize.height}
                 margin="0 auto"
                 style={{
                   position: "absolute",
