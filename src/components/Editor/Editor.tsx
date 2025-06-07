@@ -9,7 +9,7 @@ import NavBar from "./Navbar";
 import Paginas from "./Paginas";
 import Musica from "./Musica";
 import Manga from "./Manga";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { viñetasGlobal } from "./Viñetas";
 import { Stage, Layer, Line, Circle, Text } from "react-konva";
 import { usePageContext } from "../../context/PageContext";
@@ -20,7 +20,25 @@ import { usePageContext } from "../../context/PageContext";
 // } from "../Editor2/timeline";
 import { Card, CardContent } from "../Timeline/Extra/card";
 // ...otros imports...
-import ComicEditor from "../../Pages/Lineatiempo"; // Ajusta la ruta si es necesario
+import { 
+  DndContext, 
+  DragOverlay, 
+  rectIntersection,
+  useSensor,
+  useSensors,
+  PointerSensor,
+  KeyboardSensor,
+} from "@dnd-kit/core"
+import { 
+  SortableContext, 
+  horizontalListSortingStrategy,
+  sortableKeyboardCoordinates
+} from "@dnd-kit/sortable"
+import { Plus, GripVertical } from "lucide-react"
+import { NodeCard } from "../Timeline/NodeCard"
+import { DeleteZone } from "../Timeline/DeleteZone"
+import { ComicProvider, useComic } from "../Timeline/ComicContext"
+import { useDragAndDrop } from "../../useDragAndDrop" // Ajusta la ruta si es necesario
 interface ShapeMetadata {
   order: number;
   chapter: number;
@@ -116,33 +134,69 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
     setPoints((prev) => prev.slice(0, -2));
   };
 
-  const exportComicData = () => {
-    const comicData: ComicData = {
-      metadata: {
-        title: "Mi Cómic",
-        author: "Tu Nombre",
-        created: new Date().toISOString(),
-      },
-      chapters: organizeByChapters(shapes),
-    };
+ const exportComicData = () => {
+  // Obtener los nodos del contexto del cómic
+  const nodes = getNodesFromData().map(node => ({
+    id: `node-${node.nodeIndex}`, // Asegurar que tenga id
+    name: `Nodo ${node.nodeIndex + 1}`,
+    mood: "neutral",
+    color: "bg-blue-500",
+    start:  node.nodeIndex * 60,
+    end:  (node.nodeIndex * 60) + 50
+  }));
 
-    // Copiar al portapapeles
-    const jsonData = JSON.stringify(comicData, null, 2);
-    navigator.clipboard.writeText(jsonData).catch((err) => {
-      console.error("Error al copiar al portapapeles:", err);
+  // Organizar las formas (shapes) por páginas
+  const pages: { [key: string]: any[] } = {};
+  
+  shapes.forEach(shape => {
+    const pageKey = shape.metadata.page.toString();
+    if (!pages[pageKey]) {
+      pages[pageKey] = [];
+    }
+
+    // Encontrar el nodo asociado a esta viñeta (simplificado - puedes mejorar esta lógica)
+    const associatedNode = nodes[0]; // Por defecto al primer nodo, ajusta según tu lógica
+    
+    pages[pageKey].push({
+      id: shape.id,
+      text: `Panel ${pages[pageKey].length + 1}`,
+      order: shape.metadata.order,
+      node: associatedNode.id,
+      points: shape.points,
+      fill: shape.fill,
+      closed: shape.closed
     });
+  });
 
-    // Descargar archivo
-    const blob = new Blob([jsonData], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `comic-chapter-${chapter}-page-${page}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-
-    alert(`Datos del cómic exportados!\nCapítulo: ${chapter}\nPágina: ${page}`);
+  // Crear el objeto final del cómic
+  const comicData = {
+    metadata: {
+      title: "Mi Cómic",
+      chapter: chapter.toString(),
+      author: "Tu Nombre",
+      created: new Date().toISOString()
+    },
+    nodes,
+    pages
   };
+
+  // Copiar al portapapeles
+  const jsonData = JSON.stringify(comicData, null, 2);
+  navigator.clipboard.writeText(jsonData).catch((err) => {
+    console.error("Error al copiar al portapapeles:", err);
+  });
+
+  // Descargar archivo
+  const blob = new Blob([jsonData], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `comic-${comicData.metadata.chapter}-${new Date().toISOString()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+
+  alert(`Datos del cómic exportados!\nCapítulo: ${chapter}`);
+};
 
   const organizeByChapters = (
     shapes: ComicShape[]
@@ -163,28 +217,33 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
 
     return chapters;
   };
+  const [activeTab, setActiveTab] = useState("nodos")
+  
+  // Obtenemos las funciones del contexto del cómic
+  const { addNewNode, addPanelToNode, getNodesFromData, reorderPanels, deletePanel, comicData } = useComic()
+  
+  // Obtenemos las funciones y estados del hook de drag and drop
+  const { activeId, activeDragType, overId, handleDragStart, handleDragOver, handleDragEnd } = useDragAndDrop()
 
-  //<------ Linea de tiempo ------>
-  // const [timelineData, setTimelineData] = useState<{
-  //   nodes: TimelineNode[];
-  //   music: TimelineMusic[];
-  // }>({
-  //   nodes: [],
-  //   music: [],
-  // });
+  // Configuramos los sensores para el drag and drop
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  )
 
-  // const handleTimelineChange = (
-  //   nodes: TimelineNode[],
-  //   music: TimelineMusic[]
-  // ) => {
-  //   setTimelineData({ nodes, music });
-  // };
+  const nodes = getNodesFromData()
+  const isDragging = activeId !== null
 
-  // const handleSave = () => {
-  //   console.log("Timeline data saved:", timelineData);
-  //   // Here you would typically save to a database or API
-  //   alert("¡Datos de línea de tiempo guardados en la consola!");
-  // };
+  useEffect(() => {
+    const handler = () => {
+      addPanelToNode(0); // Agrega viñeta al primer nodo
+    };
+    window.addEventListener("add-panel-to-first-node", handler);
+    return () => window.removeEventListener("add-panel-to-first-node", handler);
+  }, [addPanelToNode]);
+
 
   return (
     <div className="font-mono h-screen flex flex-col">
@@ -313,7 +372,98 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                 {/* Línea de tiempo */}
                 <Card className="h-full">
                   <CardContent className="overflow-y-auto pb-5">
-                    <ComicEditor />
+                    <div className="max-w-full mx-auto flex flex-col">
+                      {/* Barra superior con pestañas y botones de acción */}
+                      <div className="flex items-center justify-between mb-6">
+                        <div className="flex space-x-1">
+                          {["nodos", "viñetas", "música"].map((tab) => (
+                            <Button
+                              key={tab}
+                              onClick={() => setActiveTab(tab)}
+                              className={`px-4 py-2 font-medium capitalize`}
+                            >
+                              {tab === "nodos" && "🏗️"} {tab === "viñetas" && "📋"} {tab === "música" && "🎵"} {tab}
+                            </Button>
+                          ))}
+                        </div>
+
+                        {/* Botones para añadir viñetas y nodos */}
+                        <div className="flex space-x-2">
+                          <Button onClick={() => addPanelToNode(0)}>
+                            <Plus className="w-4 h-4 mr-2" />
+                            Añadir Viñeta
+                          </Button>
+                          <Button onClick={addNewNode}>
+                            <Plus className="w-4 h-4 mr-2" />
+                            Añadir Nodo
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Contenedor principal con funcionalidad de arrastrar y soltar */}
+                      <DndContext
+                        sensors={sensors}
+                        collisionDetection={rectIntersection}
+                        onDragStart={handleDragStart}
+                        onDragOver={handleDragOver}
+                        onDragEnd={handleDragEnd}
+                      >
+                        {/* Lista horizontal de nodos */}
+                        <div className="overflow-x-auto pb-2">
+                          <div className="flex space-x-6 min-w-max">
+                            <SortableContext
+                              items={nodes.map((_, index) => `node-${index}`)}
+                              strategy={horizontalListSortingStrategy}
+                            >
+                              {nodes.map((node) => (
+                                <NodeCard
+                                  key={`node-${node.nodeIndex}`}
+                                  nodeIndex={node.nodeIndex}
+                                  panels={node.panels}
+                                  musicType={node.musicType}
+                                  onAddPanel={addPanelToNode}
+                                  onReorderPanels={reorderPanels}
+                                  onDeletePanel={deletePanel}
+                                  isOver={overId === `node-droppable-${node.nodeIndex}`}
+                                />
+                              ))}
+                            </SortableContext>
+                          </div>
+                        </div>
+
+                        {/* Zona de eliminación que aparece al arrastrar */}
+                        {isDragging && (
+                          <div
+                            className="fixed z-50 bottom-0 left-0 right-0 h-20 transition-all duration-300 bg-red-500/20 border-t-2 border-red-500"
+                          >
+                            <DeleteZone isActive={isDragging} dragType={activeDragType} />
+                          </div>
+                        )}
+
+                        {/* Vista previa del elemento que se está arrastrando */}
+                        <DragOverlay>
+                          {activeId && activeDragType === "panel" ? (
+                            <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold shadow-2xl border-2 border-white">
+                              📄
+                            </div>
+                          ) : activeId && activeDragType === "node" ? (
+                            <div className="bg-slate-700 p-4 rounded-lg shadow-2xl border-2 border-blue-400">
+                              <div className="flex items-center space-x-2 text-white">
+                                <GripVertical className="w-4 h-4" />
+                                <span className="font-semibold">Nodo + Música</span>
+                              </div>
+                            </div>
+                          ) : null}
+                        </DragOverlay>
+                      </DndContext>
+
+                      {/* Debug JSON output 
+                      <div className="mt-8 p-4 bg-slate-900 rounded-lg">
+                        <h3 className="text-lg font-semibold mb-2">JSON Output:</h3>
+                        <pre className="text-sm text-slate-300 overflow-auto max-h-144">{JSON.stringify(comicData, null, 2)}</pre>
+                      </div> 
+                      */}
+                    </div>
                   </CardContent>
                 </Card>
               </div>
