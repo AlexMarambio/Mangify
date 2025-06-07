@@ -9,8 +9,12 @@ import React, { useState } from "react";
 import { Stage, Layer, Line, Circle, Text } from "react-konva";
 import { usePageContext } from "../../context/PageContext";
 import { viñetasGlobal } from "./Viñetas";
-import { Timeline, type TimelineNode, type TimelineMusic } from "../Editor2/timeline"
-import { Card, CardContent } from "../Editor2/card"
+import {
+  Timeline,
+  type TimelineNode,
+  type TimelineMusic,
+} from "../Editor2/timeline";
+import { Card, CardContent } from "../Editor2/card";
 
 interface ShapeMetadata {
   order: number;
@@ -48,7 +52,10 @@ interface ComicData {
 const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
   const { nodos, separador, musica } = useAppContext();
 
-  const [pdfSize, setPdfSize] = useState<{ width: number; height: number }>({width: 0,height: 0,});
+  const [pdfSize, setPdfSize] = useState<{ width: number; height: number }>({
+    width: 0,
+    height: 0,
+  });
 
   //creador de formas
   const [points, setPoints] = useState<number[]>([]);
@@ -57,7 +64,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
   const { currentPage: page } = usePageContext();
   const [panel, setPanel] = useState<number>(1);
 
-  const [activeMode, setActiveMode] = useState("nodes")
+  const [activeMode, setActiveMode] = useState("nodes");
 
   const handleStageClick = (e: any) => {
     const stage = e.currentTarget;
@@ -119,6 +126,14 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
       console.error("Error al copiar al portapapeles:", err);
     });
 
+    fetch("/api/saveConfig", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: jsonData,
+    });
+
     // Descargar archivo
     const blob = new Blob([jsonData], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -153,22 +168,25 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
 
   //<------ Linea de tiempo ------>
   const [timelineData, setTimelineData] = useState<{
-    nodes: TimelineNode[]
-    music: TimelineMusic[]
+    nodes: TimelineNode[];
+    music: TimelineMusic[];
   }>({
     nodes: [],
     music: [],
-  })
+  });
 
-  const handleTimelineChange = (nodes: TimelineNode[], music: TimelineMusic[]) => {
-    setTimelineData({ nodes, music })
-  }
+  const handleTimelineChange = (
+    nodes: TimelineNode[],
+    music: TimelineMusic[]
+  ) => {
+    setTimelineData({ nodes, music });
+  };
 
   const handleSave = () => {
-    console.log("Timeline data saved:", timelineData)
+    console.log("Timeline data saved:", timelineData);
     // Here you would typically save to a database or API
-    alert("¡Datos de línea de tiempo guardados en la consola!")
-  }
+    alert("¡Datos de línea de tiempo guardados en la consola!");
+  };
 
   return (
     <div className="font-mono h-screen flex flex-col">

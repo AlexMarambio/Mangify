@@ -2,6 +2,9 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
+//const { default: postcss } = require("postcss");
+
+const fs = require("fs");
 
 const app = express();
 app.use(cors());
@@ -28,7 +31,17 @@ const musicSchema = new mongoose.Schema({
 
 const Music = mongoose.model("Music", musicSchema, "music");
 
+const configSchema = new mongoose.Schema({
+  Manga: String,
+  configUrl: String,
+});
+
+const config = mongoose.model("Config", musicSchema, "config");
+
 // rutas GET
+//ruta estatica
+app.use("/mangas", express.static(path.join(__dirname, "public", "mangas"))); //cambiar a data
+
 app.get("/manga/:title", async (req, res) => {
   const title = req.params.title;
   const result = await Manga.find(
@@ -38,19 +51,44 @@ app.get("/manga/:title", async (req, res) => {
   res.json(result);
 });
 
-app.use("/music", express.static(path.join(__dirname, "public", "music")));
+app.use("/music", express.static(path.join(__dirname, "public", "music"))); //cambiar a data
 
 app.get("/music/:mood", async (req, res) => {
   const mood = req.params.mood;
   const songs = await Music.find(
     { Mood: new RegExp(`^${mood}$`, "i") },
-    { audioUrl: 1, _id: 0 }
+    { Title: 1, audioUrl: 1, _id: 0 }
   );
   res.json(songs);
 });
 
-// Archivos estáticos (PDFs, música)
-app.use("/mangas", express.static(path.join(__dirname, "public", "mangas")));
+app.use("/config", express.static(path.join(__dirname, "data", "config")));
+
+app.get("/loadconfig/:file", async (req, res) => {
+  //corregir y agregar el archivo a la base de datos
+  const file = await req.params.find(
+    { data: new RegExp(`^${file}$`, "i") },
+    { Url: 1, _id: 0 }
+  );
+  res.json(config);
+});
+
+//rutas POST
+app.post("/saveConfig", async (req, res) => {
+  const config = req.body;
+
+  const filePath = path.join(__dirname, "data", "config", "config.json");
+
+  fs.writeFile(filePath, JSON.stringify(config, null, 2), (err) => {
+    if (err) {
+      console.log("Fallo al escribir la data");
+      return res.status(500).json({ message: "Error al guardar el archivo" });
+    } else {
+      console.log("Archivo almacenado correctamente");
+      return res.status(200).json({ message: "Configuración guardada" });
+    }
+  });
+});
 
 app.listen(3001, () =>
   console.log("Servidor backend en http://localhost:3001")

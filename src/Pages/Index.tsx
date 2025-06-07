@@ -38,7 +38,8 @@ export default function Index() {
         <button
           onClick={() =>
             handleNavigation(
-              "/viewer?pdfUrl=/armadosMangify.pdf&configUrl=/testConfig.json"
+              "/viewer?pdfUrl=/api/armadosMangify.pdf&configUrl=/api/config/config.json"
+              //"/viewer?pdfUrl=/armadosMangify.pdf&configUrl=/testConfig.json"
             )
           }
           className="px-6 py-3 bg-stone-50 text-black rounded-lg shadow-xl shadow-stone-50/50 hover:scale-150 hover:translate-x-10 transition cursor-pointer"
