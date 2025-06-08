@@ -84,8 +84,36 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
   const [chapter, setChapter] = useState<number>(1);
   const { currentPage: page } = usePageContext();
   const [panel, setPanel] = useState<number>(1);
+  const { addNewNode, addPanelToNode } = useComic();
 
   const [activeMode, setActiveMode] = useState("nodes");
+
+  // Efecto para sincronizar formas con la línea de tiempo
+  useEffect(() => {
+    if (shapes.length === 0) {
+      // Si no hay formas, asegurarse de que no haya nodos en la línea de tiempo
+      const event = new CustomEvent('clear-timeline');
+      window.dispatchEvent(event);
+    } else {
+      // Si hay formas, asegurarse de que haya al menos un nodo
+      const event = new CustomEvent('sync-shapes', { 
+        detail: { shapes } 
+      });
+      window.dispatchEvent(event);
+    }
+  }, [shapes]);
+
+  // Efecto para escuchar eventos de eliminación de viñetas
+  useEffect(() => {
+    const handleDeletePanel = (event: CustomEvent) => {
+      const { panelId } = event.detail;
+      // Eliminar la forma correspondiente de la vista
+      setShapes((prevShapes) => prevShapes.filter((shape) => shape.id.toString() !== panelId));
+    };
+
+    window.addEventListener('delete-panel', handleDeletePanel as EventListener);
+    return () => window.removeEventListener('delete-panel', handleDeletePanel as EventListener);
+  }, []);
 
   const handleStageClick = (e: any) => {
     const stage = e.currentTarget;
@@ -97,12 +125,18 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
   };
 
   const deleteLastShape = () => {
+    // Elimina la última forma del canvas
     if (shapes.length > 0) {
       setShapes((prev) => {
         const newShapes = [...prev];
         newShapes.pop();
         return newShapes;
       });
+    }
+    // Elimina la última viñeta (panel) del primer nodo
+    if (nodes.length > 0 && nodes[0].panels.length > 0) {
+      const lastPanel = nodes[0].panels[nodes[0].panels.length - 1];
+      deletePanel(0, lastPanel.id);
     }
   };
 
@@ -125,8 +159,12 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
       setShapes((prev) => [...prev, newShape]);
       setPoints([]);
 
-      // Lanzar evento personalizado para agregar viñeta al primer nodo
-      window.dispatchEvent(new CustomEvent("add-panel-to-first-node"));
+      // Asegurarse de que haya un nodo en la línea de tiempo
+      if (shapes.length === 0) {
+        addNewNode();
+      }
+      // Agregar la viñeta al primer nodo
+      addPanelToNode(0);
     }
   };
 
@@ -220,7 +258,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
   const [activeTab, setActiveTab] = useState("nodos")
   
   // Obtenemos las funciones del contexto del cómic
-  const { addNewNode, addPanelToNode, getNodesFromData, reorderPanels, deletePanel, comicData } = useComic()
+  const { getNodesFromData, reorderPanels, deletePanel, comicData } = useComic()
   
   // Obtenemos las funciones y estados del hook de drag and drop
   const { activeId, activeDragType, overId, handleDragStart, handleDragOver, handleDragEnd } = useDragAndDrop()
@@ -393,6 +431,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                             <Plus className="w-4 h-4 mr-2" />
                             Añadir Viñeta
                           </Button>
+
                           <Button onClick={addNewNode}>
                             <Plus className="w-4 h-4 mr-2" />
                             Añadir Nodo

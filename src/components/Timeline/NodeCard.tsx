@@ -107,16 +107,6 @@ export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPa
               <DragHandle listeners={sortableListeners} attributes={sortableAttributes} />
               <h3 className="text-lg font-semibold">Nodo {nodeIndex + 1}</h3>
             </div>
-            <Button 
-              onClick={() => onAddPanel(nodeIndex)} 
-              size="sm" 
-              color="gray" 
-              outline 
-              className="text-xs"
-            >
-              <Plus className="w-3 h-3 mr-1" />
-              Viñeta
-            </Button>
           </div>
 
           <div className="flex items-center space-x-2 mb-4">
@@ -134,7 +124,7 @@ export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPa
                     {panels.map((panel, index) => (
                       <React.Fragment key={panel.id}>
                         <SortablePanel 
-                          panel={panel} 
+                          panel={{...panel, onDeletePanel}} 
                           nodeIndex={nodeIndex} 
                           panelIndex={index} 
                         />

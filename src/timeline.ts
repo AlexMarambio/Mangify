@@ -51,6 +51,7 @@ export interface Panel {
     createdAt: string
     musicType: string
   }
+  onDeletePanel?: (nodeIndex: number, panelId: string) => void
 }
 
 export interface ComicData {

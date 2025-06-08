@@ -42,44 +42,37 @@ function ComicEditorContent() {
   const nodes = getNodesFromData()
   const isDragging = activeId !== null
 
+  // Efecto para escuchar eventos de sincronización
   useEffect(() => {
-    const handler = () => {
-      addPanelToNode(0); // Agrega viñeta al primer nodo
+    const handleSyncShapes = (event: CustomEvent) => {
+      const { shapes } = event.detail;
+      // Aquí podrías actualizar el estado de la línea de tiempo basado en las formas
+      // Por ahora, solo nos aseguramos de que haya un nodo
+      if (nodes.length === 0 && shapes.length > 0) {
+        addNewNode();
+      }
     };
-    window.addEventListener("add-panel-to-first-node", handler);
-    return () => window.removeEventListener("add-panel-to-first-node", handler);
-  }, [addPanelToNode]);
+
+    const handleClearTimeline = () => {
+      // Limpiar todos los nodos de la línea de tiempo
+      nodes.forEach((_, index) => {
+        deletePanel(index, nodes[index].panels[0]?.id);
+      });
+    };
+
+    window.addEventListener('sync-shapes', handleSyncShapes as EventListener);
+    window.addEventListener('clear-timeline', handleClearTimeline);
+
+    return () => {
+      window.removeEventListener('sync-shapes', handleSyncShapes as EventListener);
+      window.removeEventListener('clear-timeline', handleClearTimeline);
+    };
+  }, [nodes, addNewNode, deletePanel]);
 
   return (
-      <div className="max-w-full mx-auto flex flex-col">
-        {/* Barra superior con pestañas y botones de acción */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex space-x-1">
-            {["nodos", "viñetas", "música"].map((tab) => (
-              <Button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 font-medium capitalize`}
-              >
-                {tab === "nodos" && "🏗️"} {tab === "viñetas" && "📋"} {tab === "música" && "🎵"} {tab}
-              </Button>
-            ))}
-          </div>
-
-          {/* Botones para añadir viñetas y nodos */}
-          <div className="flex space-x-2">
-            <Button onClick={() => addPanelToNode(0)}>
-              <Plus className="w-4 h-4 mr-2" />
-              Añadir Viñeta
-            </Button>
-            <Button onClick={addNewNode}>
-              <Plus className="w-4 h-4 mr-2" />
-              Añadir Nodo
-            </Button>
-          </div>
-        </div>
-
-        {/* Contenedor principal con funcionalidad de arrastrar y soltar */}
+    <div className="flex flex-col h-screen bg-gray-900">
+      {/* Contenido principal */}
+      <div className="flex-1 overflow-hidden">
         <DndContext
           sensors={sensors}
           collisionDetection={rectIntersection}
@@ -89,60 +82,39 @@ function ComicEditorContent() {
         >
           {/* Lista horizontal de nodos */}
           <div className="overflow-x-auto pb-2">
-            <div className="flex space-x-6 min-w-max">
-              <SortableContext
-                items={nodes.map((_, index) => `node-${index}`)}
-                strategy={horizontalListSortingStrategy}
-              >
-                {nodes.map((node) => (
-                  <NodeCard
-                    key={`node-${node.nodeIndex}`}
-                    nodeIndex={node.nodeIndex}
-                    panels={node.panels}
-                    musicType={node.musicType}
-                    onAddPanel={addPanelToNode}
-                    onReorderPanels={reorderPanels}
-                    onDeletePanel={deletePanel}
-                    isOver={overId === `node-droppable-${node.nodeIndex}`}
-                  />
-                ))}
-              </SortableContext>
-            </div>
+            {nodes.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-32 text-gray-400">
+                <p className="text-lg mb-2">No hay nodos ni viñetas</p>
+                <p className="text-sm">Agrega un nodo y/o viñeta para visualizar la línea de tiempo</p>
+              </div>
+            ) : (
+              <div className="flex space-x-6 min-w-max">
+                <SortableContext
+                  items={nodes.map((_, index) => `node-${index}`)}
+                  strategy={horizontalListSortingStrategy}
+                >
+                  {nodes.map((node) => (
+                    <NodeCard
+                      key={`node-${node.nodeIndex}`}
+                      nodeIndex={node.nodeIndex}
+                      panels={node.panels}
+                      musicType={node.musicType}
+                      onAddPanel={addPanelToNode}
+                      onReorderPanels={reorderPanels}
+                      onDeletePanel={deletePanel}
+                      isOver={overId === `node-droppable-${node.nodeIndex}`}
+                    />
+                  ))}
+                </SortableContext>
+              </div>
+            )}
           </div>
 
           {/* Zona de eliminación que aparece al arrastrar */}
-          {isDragging && (
-            <div
-              className="fixed z-50 bottom-0 left-0 right-0 h-20 transition-all duration-300 bg-red-500/20 border-t-2 border-red-500"
-            >
-              <DeleteZone isActive={isDragging} dragType={activeDragType} />
-            </div>
-          )}
-
-          {/* Vista previa del elemento que se está arrastrando */}
-          <DragOverlay>
-            {activeId && activeDragType === "panel" ? (
-              <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold shadow-2xl border-2 border-white">
-                📄
-              </div>
-            ) : activeId && activeDragType === "node" ? (
-              <div className="bg-slate-700 p-4 rounded-lg shadow-2xl border-2 border-blue-400">
-                <div className="flex items-center space-x-2 text-white">
-                  <GripVertical className="w-4 h-4" />
-                  <span className="font-semibold">Nodo + Música</span>
-                </div>
-              </div>
-            ) : null}
-          </DragOverlay>
+          <DeleteZone isActive={isDragging} dragType={activeDragType} />
         </DndContext>
-
-        {/* Debug JSON output 
-        <div className="mt-8 p-4 bg-slate-900 rounded-lg">
-          <h3 className="text-lg font-semibold mb-2">JSON Output:</h3>
-          <pre className="text-sm text-slate-300 overflow-auto max-h-144">{JSON.stringify(comicData, null, 2)}</pre>
-        </div> 
-        */}
       </div>
+    </div>
   )
 }
 

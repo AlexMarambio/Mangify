@@ -36,43 +36,10 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
     metadata: {
       title: "Mi Cómic",
       author: "Tu Nombre",
-      created: "2025-05-26T03:43:57.998Z",
+      created: new Date().toISOString(),
     },
     chapters: {
-      "1": {
-        "1": [
-          {
-            id: "viñeta-1",
-            points: [],
-            fill: "bg-emerald-500",
-            closed: true,
-            metadata: {
-              order: 10,
-              chapter: 1,
-              page: 1,
-              panel: 1,
-              createdAt: "2025-05-26T03:43:57.998Z",
-              musicType: "feliz",
-            },
-          },
-        ],
-        "2": [
-          {
-            id: "viñeta-2",
-            points: [],
-            fill: "bg-violet-500",
-            closed: true,
-            metadata: {
-              order: 70,
-              chapter: 1,
-              page: 1,
-              panel: 2,
-              createdAt: "2025-05-26T03:43:57.998Z",
-              musicType: "triste",
-            },
-          },
-        ],
-      },
+      "1": {}
     },
   });
 
