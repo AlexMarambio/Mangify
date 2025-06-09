@@ -285,7 +285,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
     switch (component) {
       case "PaginasManga":
         if (height <= 1280) {
-          return 30
+          return 20
         } else if (height > 1280) {
           return 30
         }
@@ -299,7 +299,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
         break
       case "MangaPanel":
         if (height <= 1280) {
-          return 50
+          return 60
         } else if (height > 1280) {
           return 60
         }
@@ -420,25 +420,25 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                           <div className="p-2 h-full flex items-center justify-center gap-2 z-20">
                             {/* Botones */}
                             <Button
-                              className="px-4 py-2 rounded-md transition-colors lg:text-xs 2xl:text-lg"
+                              className="px-4 py-2 rounded-md transition-colors text-xs"
                               onClick={finishShape}
                             >
                               Finalizar forma
                             </Button>
                             <Button
-                              className="px-4 py-2 rounded-md transition-colors lg:text-xs 2xl:text-lg"
+                              className="px-4 py-2 rounded-md transition-colors text-xs"
                               onClick={clearLastPoint}
                             >
                               Eliminar último punto
                             </Button>
                             <Button
-                              className="px-4 py-2 rounded-md transition-colors lg:text-xs 2xl:text-lg"
+                              className="px-4 py-2 rounded-md transition-colors text-xs"
                               onClick={deleteLastShape}
                             >
                               Eliminar última forma
                             </Button>
                             <Button
-                              className="px-4 py-2 rounded-md transition-colors lg:text-xs 2xl:text-lg"
+                              className="px-4 py-2 rounded-md transition-colors text-xs"
                               onClick={exportComicData}
                             >
                               Exportar cómic
@@ -448,12 +448,12 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
 
                         {/* Botones para añadir viñetas y nodos */}
                         <div className="flex space-x-2 ">
-                          <Button onClick={() => addPanelToNode(0)} className="lg:text-xs 2xl:text-lg">
+                          <Button onClick={() => addPanelToNode(0)} className="text-xs">
                             <Plus className="w-4 h-4 mr-2" />
                             Añadir Viñeta
                           </Button>
 
-                          <Button onClick={addNewNode} className="lg:text-xs 2xl:text-lg">
+                          <Button onClick={addNewNode} className="text-xs">
                             <Plus className="w-4 h-4 mr-2" />
                             Añadir Nodo
                           </Button>
