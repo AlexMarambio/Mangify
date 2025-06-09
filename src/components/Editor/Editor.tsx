@@ -13,11 +13,6 @@ import React, { useEffect, useState } from "react";
 import { viñetasGlobal } from "./Viñetas";
 import { Stage, Layer, Line, Circle, Text } from "react-konva";
 import { usePageContext } from "../../context/PageContext";
-// import {
-//   Timeline,
-//   type TimelineNode,
-//   type TimelineMusic,
-// } from "../Editor2/timeline";
 import { Card, CardContent } from "../Timeline/Extra/card";
 // ...otros imports...
 import { 
@@ -73,6 +68,7 @@ interface ComicData {
 }
 
 const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
+
   const [pdfSize, setPdfSize] = useState<{ width: number; height: number }>({
     width: 0,
     height: 0,
@@ -283,129 +279,136 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
   }, [addPanelToNode]);
 
 
+  // Ajuste del tamaño de los paneles según tamaño del viewport
+  const SizePanel = (component:string) => {
+    const height = window.innerHeight;
+    switch (component) {
+      case "PaginasManga":
+        if (height <= 1280) {
+          return 30
+        } else if (height > 1280) {
+          return 30
+        }
+        break
+      case "Musica":
+        if (height <= 1280) {
+          return 20
+        } else if (height > 1280) {
+          return 20
+        }
+        break
+      case "MangaPanel":
+        if (height <= 1280) {
+          return 50
+        } else if (height > 1280) {
+          return 60
+        }
+        break
+      case "ComicPanel":
+        if (height <= 1280) {
+          return 67
+        } else if (height > 1280) {
+          return 70
+        }
+        break
+      case "LineaTiempo":
+        if (height <= 1280) {
+          return 33
+        } else if (height > 1280) {
+          return 30
+        }
+        break
+    }
+  }
+
   return (
-    <div className="font-mono h-screen flex flex-col">
+    <div className="font-mono h-screen flex flex-col bg-black">
       <div className="h-[8%]">
         <NavBar />
       </div>
-      <Separator />
-      <ResizablePanelGroup direction="horizontal" className="font-mono h-[90%]">
-        <ResizablePanel defaultSize={20}>
+      <Separator/>
+      <ResizablePanelGroup direction="horizontal" className="font-mono h-[90%] w-full">
+        <ResizablePanel defaultSize={SizePanel("PaginasManga")}>
           {/* Seleccionador de páginas */}
           <Paginas pdfUrl={pdfUrl} config={config} />
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <Separator orientation="vertical" />
-        <ResizablePanel className="h-full" defaultSize={20}>
+        <Separator orientation="vertical"/>
+        <ResizablePanel className="h-full w-full" defaultSize={SizePanel("Musica")}>
           {/* Opciones de herramientas */}
-          <Musica activePage={0} />
+          <div className="w-full flex items-center justify-center">
+            <Musica activePage={0}/>
+          </div>
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel className="h-full w-full" defaultSize={70}>
+        <ResizablePanel className="h-full w-full" defaultSize={SizePanel("MangaPanel")}>
           <ResizablePanelGroup direction="vertical" className="w-full">
             {/* Página manga */}
-            <ResizablePanel defaultSize={60}>
+            <ResizablePanel defaultSize={SizePanel("ComicPanel")}>
               <div className="flex relative h-full items-center">
                 {/* CONTENEDOR RELATIVO PARA SUPERPOSICIÓN */}
-                <Manga
-                  pdfUrl={pdfUrl}
-                  //config={config}
-                  setPdfSize={setPdfSize}
-                />
+                  <Manga pdfUrl={pdfUrl} setPdfSize={setPdfSize} />
 
-                <Stage
-                  width={600}
-                  height={800}
-                  margin="0 auto"
-                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-                  onClick={handleStageClick}
-                >
-                  <Layer>
-                    {/* Formas completadas */}
-                    {shapes
-                      .filter(
-                        (shape) =>
-                          shape.metadata.chapter === chapter &&
-                          shape.metadata.page === page
-                      )
-                      .map((shape) => (
-                        <Line
-                          key={shape.id}
-                          points={shape.points}
-                          fill={shape.fill}
-                          closed={shape.closed}
-                          stroke="black"
-                          strokeWidth={2}
-                        />
-                      ))}
-
-                    {/* Forma en progreso */}
-                    {points.length > 1 && (
-                      <Line
-                        points={points}
-                        stroke="red"
-                        strokeWidth={2}
-                        dash={[5, 5]}
-                      />
-                    )}
-
-                    {/* Puntos */}
-                    {Array.from({ length: points.length / 2 }).map((_, i) => {
-                      const x = points[i * 2];
-                      const y = points[i * 2 + 1];
-                      return (
-                        <React.Fragment key={`point-${i}`}>
-                          <Circle x={x} y={y} radius={5} fill="red" />
-                          <Text
-                            x={x + 10}
-                            y={y - 15}
-                            text={`${i + 1}: (${Math.round(x)},${Math.round(
-                              y
-                            )})`}
-                            fontSize={12}
-                            fill="#333"
+                  <Stage
+                    width={600}
+                    height={800}
+                    margin="0 auto"
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                    onClick={handleStageClick}
+                  >
+                    <Layer>
+                      {/* Formas completadas */}
+                      {shapes
+                        .filter(
+                          (shape) =>
+                            shape.metadata.chapter === chapter &&
+                            shape.metadata.page === page
+                        )
+                        .map((shape) => (
+                          <Line
+                            key={shape.id}
+                            points={shape.points}
+                            fill={shape.fill}
+                            closed={shape.closed}
+                            stroke="black"
+                            strokeWidth={2}
                           />
-                        </React.Fragment>
-                      );
-                    })}
-                  </Layer>
-                </Stage>
+                        ))}
+
+                      {/* Forma en progreso */}
+                      {points.length > 1 && (
+                        <Line
+                          points={points}
+                          stroke="red"
+                          strokeWidth={2}
+                          dash={[5, 5]}
+                        />
+                      )}
+
+                      {/* Puntos */}
+                      {Array.from({ length: points.length / 2 }).map((_, i) => {
+                        const x = points[i * 2];
+                        const y = points[i * 2 + 1];
+                        return (
+                          <React.Fragment key={`point-${i}`}>
+                            <Circle x={x} y={y} radius={5} fill="red" />
+                            <Text
+                              x={x + 10}
+                              y={y - 15}
+                              text={`${i + 1}: (${Math.round(x)},${Math.round(y)})`}
+                              fontSize={12}
+                              fill="#333"
+                            />
+                          </React.Fragment>
+                        );
+                      })}
+                    </Layer>
+                  </Stage>
               </div>
             </ResizablePanel>
             <ResizableHandle withHandle />
             <Separator />
-            <ResizablePanel defaultSize={5}>
-              <div className="p-2 h-full flex items-center justify-center gap-2 z-20">
-                {/* Botones */}
-                <Button
-                  className="px-4 py-2 rounded-md transition-colors text-lg"
-                  onClick={finishShape}
-                >
-                  Finalizar forma
-                </Button>
-                <Button
-                  className="px-4 py-2 rounded-md transition-colors text-lg"
-                  onClick={clearLastPoint}
-                >
-                  Eliminar último punto
-                </Button>
-                <Button
-                  className="px-4 py-2 rounded-md transition-colors text-lg"
-                  onClick={deleteLastShape}
-                >
-                  Eliminar última forma
-                </Button>
-                <Button
-                  className="px-4 py-2 rounded-md transition-colors text-lg"
-                  onClick={exportComicData}
-                >
-                  Exportar cómic
-                </Button>
-              </div>
-            </ResizablePanel>
-            <ResizableHandle withHandle />
-            <Separator />
-            <ResizablePanel defaultSize={25} className="my-2">
+            <ResizablePanel defaultSize={SizePanel("LineaTiempo")}>
               <div className="w-full overflow-hidden">
                 {/* Línea de tiempo */}
                 <Card className="h-full">
@@ -414,25 +417,43 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                       {/* Barra superior con pestañas y botones de acción */}
                       <div className="flex items-center justify-between mb-6">
                         <div className="flex space-x-1">
-                          {["nodos", "viñetas", "música"].map((tab) => (
+                          <div className="p-2 h-full flex items-center justify-center gap-2 z-20">
+                            {/* Botones */}
                             <Button
-                              key={tab}
-                              onClick={() => setActiveTab(tab)}
-                              className={`px-4 py-2 font-medium capitalize`}
+                              className="px-4 py-2 rounded-md transition-colors lg:text-xs 2xl:text-lg"
+                              onClick={finishShape}
                             >
-                              {tab === "nodos" && "🏗️"} {tab === "viñetas" && "📋"} {tab === "música" && "🎵"} {tab}
+                              Finalizar forma
                             </Button>
-                          ))}
+                            <Button
+                              className="px-4 py-2 rounded-md transition-colors lg:text-xs 2xl:text-lg"
+                              onClick={clearLastPoint}
+                            >
+                              Eliminar último punto
+                            </Button>
+                            <Button
+                              className="px-4 py-2 rounded-md transition-colors lg:text-xs 2xl:text-lg"
+                              onClick={deleteLastShape}
+                            >
+                              Eliminar última forma
+                            </Button>
+                            <Button
+                              className="px-4 py-2 rounded-md transition-colors lg:text-xs 2xl:text-lg"
+                              onClick={exportComicData}
+                            >
+                              Exportar cómic
+                            </Button>
+                          </div>
                         </div>
 
                         {/* Botones para añadir viñetas y nodos */}
-                        <div className="flex space-x-2">
-                          <Button onClick={() => addPanelToNode(0)}>
+                        <div className="flex space-x-2 ">
+                          <Button onClick={() => addPanelToNode(0)} className="lg:text-xs 2xl:text-lg">
                             <Plus className="w-4 h-4 mr-2" />
                             Añadir Viñeta
                           </Button>
 
-                          <Button onClick={addNewNode}>
+                          <Button onClick={addNewNode} className="lg:text-xs 2xl:text-lg">
                             <Plus className="w-4 h-4 mr-2" />
                             Añadir Nodo
                           </Button>
