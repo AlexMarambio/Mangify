@@ -117,7 +117,7 @@ const MusicTrack: React.FC<MusicTrackProps> = ({ music, nodes, //width,
             }}
           >
             {/* Music title */}
-            <div className="px-2 text-xs font-semibold text-white truncate w-full text-center">{musicTrack.title}</div>
+            <div className="px-2 text-xs font-semibold text-white truncate w-full text-center">{musicTrack.musicType}</div>
 
             {/* Left resize handle */}
             <div

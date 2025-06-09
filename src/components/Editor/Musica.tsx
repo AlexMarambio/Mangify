@@ -1,3 +1,4 @@
+import MusicSearch from "./MusicSearch";
 // const Musica = () => {
 //     return (
 //         null
@@ -6,7 +7,7 @@
 // export default Musica
 
 interface MusicEditorProps {
-  activePage: number
+  activePage: number;
 }
 
 // interface Page {
@@ -15,6 +16,27 @@ interface MusicEditorProps {
 //   content: string
 // }
 
+/*
+
+ */
+const MusicEditor: React.FC<MusicEditorProps> = ({ activePage }) => {
+  return (
+    <div className="p-2 h-1 flex ">
+      <div className="mr-4 w-100 ">
+        <div className="h-flex bg-gray-900 text-white text-center border-2 border-blue-900">
+          <h2 className="text-lg font-semibold mb-4 p-1">Editor de Musica</h2>
+          <div className=" p-2 rounded">
+            <MusicSearch />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default MusicEditor;
+
+/*
 const MusicEditor: React.FC<MusicEditorProps> = ({ activePage }) => {
   return (
     <div className="p-4 h-full flex">
@@ -38,5 +60,4 @@ const MusicEditor: React.FC<MusicEditorProps> = ({ activePage }) => {
     </div>
   )
 }
-
-export default MusicEditor
+*/
