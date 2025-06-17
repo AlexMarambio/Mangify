@@ -374,58 +374,43 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
             </ResizablePanel>
             <ResizableHandle withHandle />
             <Separator />
-            <ResizablePanel defaultSize={5}>
-              <div className="p-2 h-full flex items-center justify-center gap-2 z-20">
-                {/* Botones */}
-                <Button
-                  className="px-4 py-2 rounded-md transition-colors text-lg"
-                  onClick={finishShape}
-                >
-                  Finalizar forma
-                </Button>
-                <Button
-                  className="px-4 py-2 rounded-md transition-colors text-lg"
-                  onClick={clearLastPoint}
-                >
-                  Eliminar último punto
-                </Button>
-                <Button
-                  className="px-4 py-2 rounded-md transition-colors text-lg"
-                  onClick={deleteLastShape}
-                >
-                  Eliminar última forma
-                </Button>
-                <Button
-                  className="px-4 py-2 rounded-md transition-colors text-lg"
-                  onClick={exportComicData}
-                >
-                  Exportar cómic
-                </Button>
-              </div>
-            </ResizablePanel>
-            <ResizableHandle withHandle />
-            <Separator />
             <ResizablePanel defaultSize={25} className="my-2">
               <div className="w-full overflow-hidden">
                 {/* Línea de tiempo */}
                 <Card className="h-full">
                   <CardContent className="overflow-y-auto pb-5">
                     <div className="max-w-full mx-auto flex flex-col">
-                      {/* Barra superior con pestañas y botones de acción */}
+                      {/* Barra superior con botones de acción */}
                       <div className="flex items-center justify-between mb-6">
-                        <div className="flex space-x-1">
-                          {["nodos", "viñetas", "música"].map((tab) => (
-                            <Button
-                              key={tab}
-                              onClick={() => setActiveTab(tab)}
-                              className={`px-4 py-2 font-medium capitalize`}
-                            >
-                              {tab === "nodos" && "🏗️"} {tab === "viñetas" && "📋"} {tab === "música" && "🎵"} {tab}
-                            </Button>
-                          ))}
+                        <div className="flex space-x-2">
+                          <Button
+                            className="px-4 py-2 rounded-md transition-colors text-lg"
+                            onClick={finishShape}
+                          >
+                            Finalizar forma
+                          </Button>
+                          <Button
+                            className="px-4 py-2 rounded-md transition-colors text-lg"
+                            onClick={clearLastPoint}
+                          >
+                            Eliminar último punto
+                          </Button>
+                          <Button
+                            className="px-4 py-2 rounded-md transition-colors text-lg"
+                            onClick={deleteLastShape}
+                          >
+                            Eliminar última forma
+                          </Button>
+                          <Button
+                            className="px-4 py-2 rounded-md transition-colors text-lg"
+                            onClick={exportComicData}
+                          >
+                            Exportar cómic
+                          </Button>
                         </div>
 
                         {/* Botones para añadir viñetas y nodos */}
+                        {/*
                         <div className="flex space-x-2">
                           <Button onClick={() => addPanelToNode(0)}>
                             <Plus className="w-4 h-4 mr-2" />
@@ -437,6 +422,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                             Añadir Nodo
                           </Button>
                         </div>
+                        */}
                       </div>
 
                       {/* Contenedor principal con funcionalidad de arrastrar y soltar */}
