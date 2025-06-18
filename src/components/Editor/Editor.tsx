@@ -138,9 +138,9 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
 
   const finishShape = () => {
     if (points.length >= 6) {
-      // Mínimo 3 puntos (x,y)
+      const newId = Date.now(); // O usa `const newId = `viñeta-${Date.now()}`;` si prefieres string
       const newShape: ComicShape = {
-        id: Date.now(),
+        id: newId,
         points: [...points],
         fill: "rgba(50, 50, 50, 0.99)",
         closed: true,
@@ -155,12 +155,8 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
       setShapes((prev) => [...prev, newShape]);
       setPoints([]);
 
-      // Asegurarse de que haya un nodo en la línea de tiempo
-      if (shapes.length === 0) {
-        addNewNode();
-      }
-      // Agregar la viñeta al primer nodo
-      addPanelToNode(0);
+      // Asegúrate de que addPanelToNode acepte el id
+      addPanelToNode(0, newId); // <-- PASA EL ID AQUÍ
     }
   };
 
@@ -169,33 +165,42 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
   };
 
  const exportComicData = () => {
-  // Obtener los nodos del contexto del cómic
-  const nodes = getNodesFromData().map(node => ({
-    id: `node-${node.nodeIndex}`, // Asegurar que tenga id
+  // Obtener los nodos reales del contexto del cómic
+  const nodes = getNodesFromData();
+
+  // Exportar solo los datos relevantes de los nodos
+  const nodesExport = nodes.map(node => ({
+    id: node.nodeKey,
     name: `Nodo ${node.nodeIndex + 1}`,
-    mood: "neutral",
-    color: "bg-blue-500",
-    start:  node.nodeIndex * 60,
-    end:  (node.nodeIndex * 60) + 50
+    mood: node.musicType === "feliz" ? "happy" : "sad",
+    color: node.panels[0]?.fill || "bg-emerald-500",
+    start: 0,
+    end: 50
   }));
 
-  // Organizar las formas (shapes) por páginas
+  // Organizar las formas (shapes) por páginas y asociar el nodo correcto
   const pages: { [key: string]: any[] } = {};
-  
+
   shapes.forEach(shape => {
     const pageKey = shape.metadata.page.toString();
     if (!pages[pageKey]) {
       pages[pageKey] = [];
     }
 
-    // Encontrar el nodo asociado a esta viñeta (simplificado - puedes mejorar esta lógica)
-    const associatedNode = nodes[0]; // Por defecto al primer nodo, ajusta según tu lógica
-    
+    // Buscar el nodo real al que pertenece esta viñeta
+    let associatedNodeKey = null;
+    for (const node of nodes) {
+      if (node.panels.some(panel => String(panel.id) === String(shape.id))) {
+        associatedNodeKey = node.nodeKey;
+        break;
+      }
+    }
+
     pages[pageKey].push({
       id: shape.id,
       text: `Panel ${pages[pageKey].length + 1}`,
       order: shape.metadata.order,
-      node: associatedNode.id,
+      node: associatedNodeKey ?? null,
       points: shape.points,
       fill: shape.fill,
       closed: shape.closed
@@ -210,7 +215,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
       author: "Tu Nombre",
       created: new Date().toISOString()
     },
-    nodes,
+    nodes: nodesExport,
     pages
   };
 

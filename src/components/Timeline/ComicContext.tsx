@@ -6,7 +6,7 @@ import type { ComicData, Panel, Node } from '../../timeline';
 interface ComicContextType {
   comicData: ComicData;
   addNewNode: () => void;
-  addPanelToNode: (nodeIndex: number) => void;
+  addPanelToNode: (nodeIndex: number, panelId?: string | number) => void;
   reorderPanels: (nodeIndex: number, newPanels: Panel[]) => void;
   deletePanel: (nodeIndex: number, panelId: string) => void;
   deleteNode: (nodeIndex: number) => void;
@@ -90,7 +90,7 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
   };
 
   // Añade una nueva viñeta a un nodo específico con un color aleatorio (o intento de)
-  const addPanelToNode = (nodeIndex: number) => {
+  const addPanelToNode = (nodeIndex: number, panelId?: string | number) => {
     const nodeKey = (nodeIndex + 1).toString();
     const chapter = comicData.chapters["1"];
     const currentPanels = chapter[nodeKey] || [];
@@ -99,7 +99,7 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
     const newPanel: Panel = {
-      id: `viñeta-${Date.now()}`,
+      id: panelId ? String(panelId) : `viñeta-${Date.now()}`, // Usa el id recibido o genera uno nuevo
       points: [],
       fill: randomColor,
       closed: true,
@@ -285,4 +285,4 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
   };
 
   return <ComicContext.Provider value={value}>{children}</ComicContext.Provider>;
-}; 
+};
