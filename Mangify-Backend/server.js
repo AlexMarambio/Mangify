@@ -10,10 +10,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const MongoUri =
+  "mongodb+srv://benja:colocolo@mangifycluster.c7knnmc.mongodb.net/nombreDB?retryWrites=true&w=majority";
+
 // MongoDB
-mongoose.connect("mongodb://localhost:27017/mangifydb", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+mongoose.connect(MongoUri, {
+  //  useNewUrlParser: true,
+  //  useUnifiedTopology: true,
 });
 
 // Schemas

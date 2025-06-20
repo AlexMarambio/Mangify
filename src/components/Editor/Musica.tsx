@@ -1,4 +1,4 @@
-import MusicSearch from "./MangaSearch";
+import MusicSearch from "../MusicSearch";
 // const Musica = () => {
 //     return (
 //         null
