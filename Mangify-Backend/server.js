@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 const MongoUri =
-  "mongodb+srv://benja:colocolo@mangifycluster.c7knnmc.mongodb.net/nombreDB?retryWrites=true&w=majority";
+  "mongodb+srv://benja:<password>@mangifycluster.c7knnmc.mongodb.net/nombreDB?retryWrites=true&w=majority";
 
 // MongoDB
 mongoose.connect(MongoUri, {
