@@ -154,7 +154,7 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
         />
         <Stage
           width={window.innerWidth}
-          height={window.innerHeight - 150}
+          height={window.innerHeight}
           style={{
             position: "absolute",
             top: 0,
@@ -172,7 +172,7 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
                 <Line
                   key={`${currentChapter}-${currentPage}-${index}`}
                   points={shape.points.map((point) => point * 1.155)}
-                  fill={shape.fill}
+                  fill={`rgba(50, 50, 50, 0.995)`}
                   closed={shape.closed}
                   stroke="black"
                   strokeWidth={2}

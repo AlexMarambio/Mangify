@@ -209,10 +209,9 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
             {/* Página manga */}
             <ResizablePanel defaultSize={60}>
               <div className="flex relative h-full items-center">
-                {/* CONTENEDOR RELATIVO PARA SUPERPOSICIÓN */}
                 <Manga
                   pdfUrl={pdfUrl}
-                  config={config}
+                  //config={config}
                   setPdfSize={setPdfSize}
                 />
 
