@@ -13,7 +13,7 @@ interface PaginasProps {
   config: Record<string, unknown>; // puedes ajustar el tipo según tu uso real
 }
 
-const Paginas = ({ pdfUrl, config }: PaginasProps) => {
+const Paginas = ({ pdfUrl }: PaginasProps) => {
   const { numPages, setNumPages, setCurrentPage } = usePageContext();
   const { theme } = useTheme();
 

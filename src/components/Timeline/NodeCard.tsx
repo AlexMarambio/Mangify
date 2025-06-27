@@ -10,7 +10,7 @@ import {
   useSortable
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { Button, Card } from "flowbite-react"
+import { Card } from "flowbite-react"
 import { Music, Plus } from "lucide-react"
 import { SortablePanel } from "./SortablePanel"
 import { DragHandle } from "./DragHandle"
@@ -95,7 +95,7 @@ export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPa
   return (
     <div className="flex flex-col space-y-2 flex-shrink-0" style={{ minWidth: `${minWidth}px` }}>
       <Card
-        className={`bg-red-500 ${getNodeColor()}  text-white border-0 ${isSortableDragging ? "shadow-2xl scale-105" : ""} ${
+        className={`${getNodeColor()}  text-white border-0 ${isSortableDragging ? "shadow-2xl scale-105" : ""} ${
           isDroppableOver ? "ring-4 ring-blue-400 ring-opacity-50 bg-opacity-80" : ""
         } transition-all duration-200`}
         ref={setNodeRef}
@@ -107,16 +107,6 @@ export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPa
               <DragHandle listeners={sortableListeners} attributes={sortableAttributes} />
               <h3 className="text-lg font-semibold">Nodo {nodeIndex + 1}</h3>
             </div>
-            <Button 
-              onClick={() => onAddPanel(nodeIndex)} 
-              size="sm" 
-              color="gray" 
-              outline 
-              className="text-xs"
-            >
-              <Plus className="w-3 h-3 mr-1" />
-              Viñeta
-            </Button>
           </div>
 
           <div className="flex items-center space-x-2 mb-4">
@@ -134,7 +124,7 @@ export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPa
                     {panels.map((panel, index) => (
                       <React.Fragment key={panel.id}>
                         <SortablePanel 
-                          panel={panel} 
+                          panel={{...panel, onDeletePanel}} 
                           nodeIndex={nodeIndex} 
                           panelIndex={index} 
                         />

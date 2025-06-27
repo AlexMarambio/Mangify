@@ -119,12 +119,14 @@ const HamburgerMenu: React.FC = () => {
                     Seleccionar manga
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="w-full 
+                <DialogContent className="
                   w-3xl max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl 
                   max-h-[90vh] 
                   transform transition-transform duration-300 
                   flex flex-col
-                  overflow-hidden">
+                  overflow-hidden
+                  bg-black
+                  border-white">
                   <DialogHeader>
                     <DialogTitle className="text-3xl">Selecciona el Manga a Editar</DialogTitle>
                     <DialogDescription className="text-xl">

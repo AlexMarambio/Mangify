@@ -1,220 +1,171 @@
-import { useState } from "react"
-import { Timeline, type TimelineNode, type TimelineMusic } from "../components/Editor2/timeline"
-//import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/Editor2/card"
-import { Save } from "lucide-react"
-import { Button } from "flowbite-react"
-import Viñetas2 from "../components/Timeline/Viñetas2"
-import { DndContext, closestCenter } from '@dnd-kit/core'
+// import { useState } from "react"
+// import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/Timeline/Extra/card"
+// import { Save } from "lucide-react"
+// import { Button } from "flowbite-react"
+// import Viñetas2 from "../components/Timeline/Viñetas2"
+// import { DndContext, closestCenter } from '@dnd-kit/core'
+// import { NodeCard } from "../components/Timeline/NodeCard"
+// import { DeleteZone } from "../components/Timeline/DeleteZone"
+// import { ComicProvider, useComic } from "../components/Timeline/ComicContext"
+// import { useDragAndDrop } from "../useDragAndDrop"
+// import { 
+//   useSensor,
+//   useSensors,
+//   PointerSensor,
+//   KeyboardSensor,
+// } from "@dnd-kit/core"
+// import { 
+//   SortableContext, 
+//   horizontalListSortingStrategy,
+//   sortableKeyboardCoordinates
+// } from "@dnd-kit/sortable"
 
-interface ComicVignette {
-  id: string;
-  points: number[];
-  fill: string;
-  closed: boolean;
-  metadata: {
-    order: number;
-    chapter: number;
-    page: number;
-    panel: number;
-    createdAt: string;
-    musicType?: string;
-  };
-}
+// interface ComicVignette {
+//   id: string;
+//   points: number[];
+//   fill: string;
+//   closed: boolean;
+//   metadata: {
+//     order: number;
+//     chapter: number;
+//     page: number;
+//     panel: number;
+//     createdAt: string;
+//     musicType?: string;
+//   };
+// }
 
-interface ComicData {
-  metadata: {
-    title: string
-    author: string
-    created: string
-  }
-  chapters: {
-    [key: string]: {
-      [key: string]: ComicVignette[]
-    }
-  }
-}
+// interface ComicData {
+//   metadata: {
+//     title: string
+//     author: string
+//     created: string
+//   }
+//   chapters: {
+//     [key: string]: {
+//       [key: string]: ComicVignette[]
+//     }
+//   }
+// }
 
-type Vignette = {
-  id: string;
-  color: string;
-  text: string;
-};
+// type Vignette = {
+//   id: string;
+//   color: string;
+//   text: string;
+// };
 
-export default function Home() {
-  const [timelineData, setTimelineData] = useState<{
-    nodes: TimelineNode[]
-    music: TimelineMusic[]
-  }>({
-    nodes: [],
-    music: [],
-  })
+// function TimeLineContent() {
+//   // Estado para la pestaña activa
+//   const [activeTab, setActiveTab] = useState("nodos")
+  
+//   // Obtenemos las funciones del contexto del cómic
+//   const { addNewNode, addPanelToNode, getNodesFromData, reorderPanels, deletePanel, comicData } = useComic()
+  
+//   // Obtenemos las funciones y estados del hook de drag and drop
+//   const { activeId, activeDragType, overId, handleDragStart, handleDragOver, handleDragEnd } = useDragAndDrop()
 
-  // Estado global para viñetas del lateral
-  const [sideVignettes, setSideVignettes] = useState<any[]>([])
+//   // Configuramos los sensores para el drag and drop
+//   const sensors = useSensors(
+//     useSensor(PointerSensor),
+//     useSensor(KeyboardSensor, {
+//       coordinateGetter: sortableKeyboardCoordinates,
+//     }),
+//   )
 
-  const generateComicData = () => {
-    const comicData: ComicData = {
-      metadata: {
-        title: "Mi Cómic",
-        author: "Tu Nombre",
-        created: new Date().toISOString(),
-      },
-      chapters: {},
-    };
+//   const nodes = getNodesFromData()
+//   const isDragging = activeId !== null
 
-    let lastMusicType: string | undefined = undefined;
+//   const handleSave = () => {
+//     const jsonData = JSON.stringify(comicData, null, 2)
+//     navigator.clipboard.writeText(jsonData).catch((err) => {
+//       console.error("Error al copiar al portapapeles:", err)
+//     })
+//     const blob = new Blob([jsonData], { type: "application/json" })
+//     const url = URL.createObjectURL(blob)
+//     const a = document.createElement("a")
+//     a.href = url
+//     a.download = "comic-timeline.json"
+//     a.click()
+//     URL.revokeObjectURL(url)
+//     alert("¡Datos de línea de tiempo guardados en formato de cómic!")
+//   }
 
-    timelineData.nodes.forEach((node) => {
-      const pageKey = node.pageNumber.toString();
-      const panelKey = node.panelNumber.toString();
-      if (!comicData.chapters[pageKey]) {
-        comicData.chapters[pageKey] = {};
-      }
-      if (!comicData.chapters[pageKey][panelKey]) {
-        comicData.chapters[pageKey][panelKey] = [];
-      }
+//   return (
+//     <main className="min-h-screen bg-gray-950 text-white p-4 md:p-8">
+//       <DndContext
+//         sensors={sensors}
+//         collisionDetection={closestCenter}
+//         onDragStart={handleDragStart}
+//         onDragOver={handleDragOver}
+//         onDragEnd={handleDragEnd}
+//       >
+//         <div className="max-w-6xl mx-auto space-y-8">
+//           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+//             <div>
+//               <h1 className="text-2xl md:text-3xl font-bold">Editor interactivo de Línea de Tiempo </h1>
+//               <p className="text-gray-400 mt-1">Crea y administra paneles con música para tu cómic</p>
+//             </div>
 
-      const sortedBullets = [...node.bulletPoints].sort((a, b) => a.position - b.position);
+//             <Button onClick={handleSave} className="bg-emerald-600 hover:bg-emerald-700">
+//               <Save size={16} className="mr-2" />
+//               Guardar Línea de Tiempo
+//             </Button>
+//           </div>
 
-      sortedBullets.forEach((bp) => {
-        const nodeMusic = timelineData.music.find(m => m.nodeId === node.id);
-        let musicType: string | undefined = undefined;
-        if (nodeMusic && nodeMusic.musicType !== lastMusicType) {
-          musicType = nodeMusic.musicType;
-          lastMusicType = nodeMusic.musicType;
-        }
-        const vignette = {
-          id: bp.id,
-          points: [],
-          fill: node.color,
-          closed: true,
-          metadata: {
-            order: bp.position,
-            chapter: 1,
-            page: node.pageNumber,
-            panel: node.panelNumber,
-            createdAt: new Date().toISOString(),
-            ...(musicType ? { musicType } : {})
-          }
-        };
-        comicData.chapters[pageKey][panelKey].push(vignette);
-      });
-    });
-    return comicData;
-  };
+//           <div className="flex flex-row gap-4">
+//             <div className="w-1/4">
+//               <Viñetas2 />
+//             </div>
+//             <div className="w-3/4">
+//               <Card className="bg-gray-900 border-gray-800">
+//                 <CardHeader>
+//                   <CardTitle>Timeline</CardTitle>
+//                   <CardDescription className="text-gray-400">
+//                     Arrastra paneles para reorganizarlos. Asigna música a cada panel arrastrando los elementos musicales o viñetas desde el lateral.
+//                   </CardDescription>
+//                 </CardHeader>
+//                 <CardContent className="p-4 max-h-[360px] overflow-y-auto">
+//                   <div className="overflow-x-auto pb-2">
+//                     <div className="flex space-x-6 min-w-max">
+//                       <SortableContext
+//                         items={nodes.map((_, index) => `node-${index}`)}
+//                         strategy={horizontalListSortingStrategy}
+//                       >
+//                         {nodes.map((node) => (
+//                           <NodeCard
+//                             key={`node-${node.nodeIndex}`}
+//                             nodeIndex={node.nodeIndex}
+//                             panels={node.panels}
+//                             musicType={node.musicType}
+//                             onAddPanel={addPanelToNode}
+//                             onReorderPanels={reorderPanels}
+//                             onDeletePanel={deletePanel}
+//                             isOver={overId === `node-droppable-${node.nodeIndex}`}
+//                           />
+//                         ))}
+//                       </SortableContext>
+//                     </div>
+//                   </div>
+//                 </CardContent>
+//               </Card>
+//             </div>
+//           </div>
 
-  const handleTimelineChange = (nodes: TimelineNode[], music: TimelineMusic[]) => {
-    setTimelineData({ nodes, music })
-  }
+//           {isDragging && (
+//             <div className="fixed z-50 bottom-0 left-0 right-0 h-20 transition-all duration-300 bg-red-500/20 border-t-2 border-red-500">
+//               <DeleteZone isActive={isDragging} dragType={activeDragType} />
+//             </div>
+//           )}
+//         </div>
+//       </DndContext>
+//     </main>
+//   )
+// }
 
-  const handleSave = () => {
-    const comicData = generateComicData();
-    // Copy to clipboard
-    const jsonData = JSON.stringify(comicData, null, 2)
-    navigator.clipboard.writeText(jsonData).catch((err) => {
-      console.error("Error al copiar al portapapeles:", err)
-    })
-    // Download file
-    const blob = new Blob([jsonData], { type: "application/json" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = "comic-timeline.json"
-    a.click()
-    URL.revokeObjectURL(url)
-    alert("¡Datos de línea de tiempo guardados en formato de cómic!")
-  }
-
-  // Handler para drop de viñetas externas en Timeline
-  const handleExternalVignetteDrop = (vignette: Vignette, nodeId: string) => {
-    // Elimina la viñeta del lateral
-    setSideVignettes((prev) => prev.filter((v) => v.id !== vignette.id));
-    // Agrega la viñeta al nodo destino
-    setTimelineData((prev) => {
-      const nodes = prev.nodes.map((node) => {
-        if (node.id === nodeId) {
-          return {
-            ...node,
-            bulletPoints: [
-              ...node.bulletPoints,
-              {
-                id: vignette.id,
-                text: vignette.text,
-                position: (node.start + node.end) / 2,
-                nodeId: node.id,
-                color: vignette.color,
-              },
-            ],
-          };
-        }
-        return node;
-      });
-      return { ...prev, nodes };
-    });
-  };
-
-  return (
-    <main className="min-h-screen bg-gray-950 text-white p-4 md:p-8">
-      <DndContext collisionDetection={closestCenter}>
-        <div className="max-w-6xl mx-auto space-y-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold">Editor interactivo de Línea de Tiempo </h1>
-              <p className="text-gray-400 mt-1">Crea y administra paneles con música para tu cómic</p>
-            </div>
-
-            <Button onClick={handleSave} className="bg-emerald-600 hover:bg-emerald-700">
-              <Save size={16} className="mr-2" />
-              Guardar Línea de Tiempo
-            </Button>
-          </div>
-
-          <div className="flex flex-row gap-4">
-            <div className="w-1/4">
-              <Viñetas2 sideVignettes={sideVignettes} setSideVignettes={setSideVignettes} />
-            </div>
-            <div className="w-3/4">
-              <Card className="bg-gray-900 border-gray-800">
-                <CardHeader>
-                  <CardTitle>Timeline</CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Arrastra paneles para reorganizarlos. Asigna música a cada panel arrastrando los elementos musicales o viñetas desde el lateral.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="p-4 max-h-[360px] overflow-y-auto">
-                  <Timeline onChange={handleTimelineChange} sideVignettes={sideVignettes} setSideVignettes={setSideVignettes} onExternalVignetteDrop={handleExternalVignetteDrop} />
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="bg-gray-900 border-gray-800">
-              <CardHeader>
-                <CardTitle>Instrucciones</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="list-disc pl-5 space-y-2 text-gray-300">
-                  <li>Arrastra los bordes de los paneles para cambiarlos de tamaño</li>
-                  <li>Arrastra los elementos musicales para asignarlos a los paneles</li>
-                  <li>Usa la barra de herramientas para agregar nuevos paneles</li>
-                  <li>La línea de tiempo se ajusta automáticamente al tamaño de la pantalla</li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gray-900 border-gray-800">
-              <CardHeader>
-                <CardTitle>Timeline Data</CardTitle>
-              </CardHeader>
-              <CardContent className="max-h-80 overflow-auto">
-                <pre className="text-xs text-gray-300 whitespace-pre-wrap">{JSON.stringify(generateComicData(), null, 2)}</pre>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </DndContext>
-    </main>
-  )
-}
+// export default function TimeLine() {
+//   return (
+//     <ComicProvider>
+//       <TimeLineContent />
+//     </ComicProvider>
+//   )
+// }
