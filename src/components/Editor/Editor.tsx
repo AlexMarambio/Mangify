@@ -74,6 +74,9 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
   });
 
   //creador de formas
+  const [firstPoint, setFirstPoint] = useState<{ x: number; y: number } | null>(
+    null
+  );
   const [points, setPoints] = useState<number[]>([]);
   const [shapes, setShapes] = useState<ComicShape[]>([]);
   const [chapter, setChapter] = useState<number>(1);
@@ -116,13 +119,32 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
       );
   }, []);
 
+  const isNearFirstPoint = (x: number, y: number, threshold = 10): boolean => {
+    if (!firstPoint) return false;
+    const dx = x - firstPoint.x;
+    const dy = y - firstPoint.y;
+    return Math.sqrt(dx * dx + dy * dy) <= threshold;
+  };
+
   const handleStageClick = (e: any) => {
     const stage = e.currentTarget;
     const pointerPosition = stage.getPointerPosition();
-    if (pointerPosition) {
-      const { x, y } = pointerPosition;
-      setPoints((prev) => [...prev, x, y]);
+    if (!pointerPosition) return;
+
+    const { x, y } = pointerPosition;
+
+    if (!firstPoint) {
+      // Primer punto
+      setFirstPoint({ x, y });
+    } else if (isNearFirstPoint(x, y)) {
+      // Si está cerca del primero: cerrar la figura
+      finishShape();
+      setFirstPoint(null);
+      setPoints([]); // opcional: limpiar puntos si ya terminaste
+      return;
     }
+
+    setPoints((prev) => [...prev, x, y]);
   };
 
   const deleteLastShape = () => {
@@ -158,6 +180,8 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
         },
       };
       setShapes((prev) => [...prev, newShape]);
+      setPoints([]);
+      setFirstPoint(null);
       setPoints([]);
 
       // Asegúrate de que addPanelToNode acepte el id
@@ -380,8 +404,8 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                 <Manga pdfUrl={pdfUrl} setPdfSize={setPdfSize} />
 
                 <Stage
-                  width={600}
-                  height={800}
+                  width={455}
+                  height={555}
                   margin="0 auto"
                   className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
                   onClick={handleStageClick}
@@ -451,12 +475,6 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                         <div className="flex space-x-1">
                           <div className="p-2 h-full flex items-center justify-center gap-2 z-20">
                             {/* Botones */}
-                            <Button
-                              className="px-4 py-2 rounded-md transition-colors text-xs"
-                              onClick={finishShape}
-                            >
-                              Finalizar forma
-                            </Button>
                             <Button
                               className="px-4 py-2 rounded-md transition-colors text-xs"
                               onClick={clearLastPoint}
