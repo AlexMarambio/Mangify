@@ -13,27 +13,32 @@ import React, { useEffect, useState } from "react";
 import { viñetasGlobal } from "./Viñetas";
 import { Stage, Layer, Line, Circle, Text } from "react-konva";
 import { usePageContext } from "../../context/PageContext";
+// import {
+//   Timeline,
+//   type TimelineNode,
+//   type TimelineMusic,
+// } from "../Editor2/timeline";
 import { Card, CardContent } from "../Timeline/Extra/card";
 // ...otros imports...
-import {
-  DndContext,
-  DragOverlay,
+import { 
+  DndContext, 
+  DragOverlay, 
   rectIntersection,
   useSensor,
   useSensors,
   PointerSensor,
   KeyboardSensor,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
+} from "@dnd-kit/core"
+import { 
+  SortableContext, 
   horizontalListSortingStrategy,
-  sortableKeyboardCoordinates,
-} from "@dnd-kit/sortable";
-import { Plus, GripVertical } from "lucide-react";
-import { NodeCard } from "../Timeline/NodeCard";
-import { DeleteZone } from "../Timeline/DeleteZone";
-import { ComicProvider, useComic } from "../Timeline/ComicContext";
-import { useDragAndDrop } from "../../useDragAndDrop"; // Ajusta la ruta si es necesario
+  sortableKeyboardCoordinates
+} from "@dnd-kit/sortable"
+import { Plus, GripVertical } from "lucide-react"
+import { NodeCard } from "../Timeline/NodeCard"
+import { DeleteZone } from "../Timeline/DeleteZone"
+import { ComicProvider, useComic } from "../Timeline/ComicContext"
+import { useDragAndDrop } from "../../useDragAndDrop" // Ajusta la ruta si es necesario
 interface ShapeMetadata {
   order: number;
   chapter: number;
@@ -87,12 +92,12 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
   useEffect(() => {
     if (shapes.length === 0) {
       // Si no hay formas, asegurarse de que no haya nodos en la línea de tiempo
-      const event = new CustomEvent("clear-timeline");
+      const event = new CustomEvent('clear-timeline');
       window.dispatchEvent(event);
     } else {
       // Si hay formas, asegurarse de que haya al menos un nodo
-      const event = new CustomEvent("sync-shapes", {
-        detail: { shapes },
+      const event = new CustomEvent('sync-shapes', { 
+        detail: { shapes } 
       });
       window.dispatchEvent(event);
     }
@@ -103,17 +108,11 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
     const handleDeletePanel = (event: CustomEvent) => {
       const { panelId } = event.detail;
       // Eliminar la forma correspondiente de la vista
-      setShapes((prevShapes) =>
-        prevShapes.filter((shape) => shape.id.toString() !== panelId)
-      );
+      setShapes((prevShapes) => prevShapes.filter((shape) => shape.id.toString() !== panelId));
     };
 
-    window.addEventListener("delete-panel", handleDeletePanel as EventListener);
-    return () =>
-      window.removeEventListener(
-        "delete-panel",
-        handleDeletePanel as EventListener
-      );
+    window.addEventListener('delete-panel', handleDeletePanel as EventListener);
+    return () => window.removeEventListener('delete-panel', handleDeletePanel as EventListener);
   }, []);
 
   const handleStageClick = (e: any) => {
@@ -123,127 +122,6 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
       const { x, y } = pointerPosition;
       setPoints((prev) => [...prev, x, y]);
     }
-  };
-
-  const deleteLastShape = () => {
-    // Elimina la última forma del canvas
-    if (shapes.length > 0) {
-      setShapes((prev) => {
-        const newShapes = [...prev];
-        newShapes.pop();
-        return newShapes;
-      });
-    }
-    // Elimina la última viñeta (panel) del primer nodo
-    if (nodes.length > 0 && nodes[0].panels.length > 0) {
-      const lastPanel = nodes[0].panels[nodes[0].panels.length - 1];
-      deletePanel(0, lastPanel.id);
-    }
-  };
-
-  const finishShape = () => {
-    if (points.length >= 6) {
-      const newId = Date.now(); // O usa `const newId = `viñeta-${Date.now()}`;` si prefieres string
-      const newShape: ComicShape = {
-        id: newId,
-        points: [...points],
-        fill: "rgba(50, 50, 50, 0.99)",
-        closed: true,
-        metadata: {
-          order: shapes.length + 1,
-          chapter,
-          page,
-          panel: viñetasGlobal,
-          createdAt: new Date().toISOString(),
-        },
-      };
-      setShapes((prev) => [...prev, newShape]);
-      setPoints([]);
-
-      // Asegúrate de que addPanelToNode acepte el id
-      addPanelToNode(0, newId); // <-- PASA EL ID AQUÍ
-    }
-  };
-
-  const clearLastPoint = () => {
-    setPoints((prev) => prev.slice(0, -2));
-  };
-
-  const exportComicData = () => {
-    // Obtener los nodos reales del contexto del cómic
-    const nodes = getNodesFromData();
-
-    // Exportar solo los datos relevantes de los nodos
-    const nodesExport = nodes.map((node) => ({
-      id: node.nodeKey,
-      name: `Nodo ${node.nodeIndex + 1}`,
-      mood: node.musicType === "feliz" ? "happy" : "sad",
-      color: node.panels[0]?.fill || "bg-emerald-500",
-      start: 0,
-      end: 50,
-    }));
-
-    // Organizar las formas (shapes) por páginas y asociar el nodo correcto
-    const pages: { [key: string]: any[] } = {};
-
-    shapes.forEach((shape) => {
-      const pageKey = shape.metadata.page.toString();
-      if (!pages[pageKey]) {
-        pages[pageKey] = [];
-      }
-
-      // Buscar el nodo real al que pertenece esta viñeta
-      let associatedNodeKey = null;
-      for (const node of nodes) {
-        if (
-          node.panels.some((panel) => String(panel.id) === String(shape.id))
-        ) {
-          associatedNodeKey = node.nodeKey;
-          break;
-        }
-      }
-
-      pages[pageKey].push({
-        id: shape.id,
-        text: `Panel ${pages[pageKey].length + 1}`,
-        order: shape.metadata.order,
-        node: associatedNodeKey ?? null,
-        points: shape.points,
-        fill: shape.fill,
-        closed: shape.closed,
-      });
-    });
-
-    // Crear el objeto final del cómic
-    const comicData = {
-      metadata: {
-        title: "Mi Cómic",
-        chapter: chapter.toString(),
-        author: "Tu Nombre",
-        created: new Date().toISOString(),
-      },
-      nodes: nodesExport,
-      pages,
-    };
-
-    // Copiar al portapapeles
-    const jsonData = JSON.stringify(comicData, null, 2);
-    navigator.clipboard.writeText(jsonData).catch((err) => {
-      console.error("Error al copiar al portapapeles:", err);
-    });
-
-    // Descargar archivo
-    const blob = new Blob([jsonData], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `comic-${
-      comicData.metadata.chapter
-    }-${new Date().toISOString()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-
-    alert(`Datos del cómic exportados!\nCapítulo: ${chapter}`);
   };
 
   const organizeByChapters = (
@@ -265,32 +143,25 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
 
     return chapters;
   };
-  const [activeTab, setActiveTab] = useState("nodos");
 
+  const [activeTab, setActiveTab] = useState("nodos")
+  
   // Obtenemos las funciones del contexto del cómic
-  const { getNodesFromData, reorderPanels, deletePanel, comicData } =
-    useComic();
-
+  const { getNodesFromData, reorderPanels, deletePanel, comicData } = useComic()
+  
   // Obtenemos las funciones y estados del hook de drag and drop
-  const {
-    activeId,
-    activeDragType,
-    overId,
-    handleDragStart,
-    handleDragOver,
-    handleDragEnd,
-  } = useDragAndDrop();
+  const { activeId, activeDragType, overId, handleDragStart, handleDragOver, handleDragEnd } = useDragAndDrop()
 
   // Configuramos los sensores para el drag and drop
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+    }),
+  )
 
-  const nodes = getNodesFromData();
-  const isDragging = activeId !== null;
+  const nodes = getNodesFromData()
+  const isDragging = activeId !== null
 
   useEffect(() => {
     const handler = () => {
@@ -300,84 +171,42 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
     return () => window.removeEventListener("add-panel-to-first-node", handler);
   }, [addPanelToNode]);
 
-  // Ajuste del tamaño de los paneles según tamaño del viewport
-  const SizePanel = (component: string) => {
-    const height = window.innerHeight;
-    switch (component) {
-      case "PaginasManga":
-        if (height <= 1280) {
-          return 20;
-        } else if (height > 1280) {
-          return 30;
-        }
-        break;
-      case "Musica":
-        if (height <= 1280) {
-          return 20;
-        } else if (height > 1280) {
-          return 20;
-        }
-        break;
-      case "MangaPanel":
-        if (height <= 1280) {
-          return 60;
-        } else if (height > 1280) {
-          return 60;
-        }
-        break;
-      case "ComicPanel":
-        if (height <= 1280) {
-          return 67;
-        } else if (height > 1280) {
-          return 70;
-        }
-        break;
-      case "LineaTiempo":
-        if (height <= 1280) {
-          return 33;
-        } else if (height > 1280) {
-          return 30;
-        }
-        break;
-    }
-  };
 
   return (
-    <div className="font-mono h-screen flex flex-col bg-black">
+    <div className="font-mono h-screen flex flex-col">
       <div className="h-[8%]">
-        <NavBar />
+        <NavBar 
+          points={points}
+          setPoints={setPoints}
+          shapes={shapes}
+          setShapes={setShapes}
+          chapter={chapter}
+        />
       </div>
       <Separator />
-      <ResizablePanelGroup
-        direction="horizontal"
-        className="font-mono h-[90%] w-full"
-      >
-        <ResizablePanel defaultSize={SizePanel("PaginasManga")}>
+      <ResizablePanelGroup direction="horizontal" className="font-mono h-[90%]">
+        <ResizablePanel defaultSize={20}>
           {/* Seleccionador de páginas */}
           <Paginas pdfUrl={pdfUrl} config={config} />
         </ResizablePanel>
         <ResizableHandle withHandle />
         <Separator orientation="vertical" />
-        <ResizablePanel
-          className="h-full w-full"
-          defaultSize={SizePanel("Musica")}
-        >
+        <ResizablePanel className="h-full" defaultSize={20}>
           {/* Opciones de herramientas */}
-          <div className="w-full flex items-center justify-center">
-            <Musica activePage={0} />
-          </div>
+          <Musica activePage={0} />
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel
-          className="h-full w-full"
-          defaultSize={SizePanel("MangaPanel")}
-        >
+        <ResizablePanel className="h-full w-full" defaultSize={70}>
           <ResizablePanelGroup direction="vertical" className="w-full">
             {/* Página manga */}
-            <ResizablePanel defaultSize={SizePanel("ComicPanel")}>
+            <ResizablePanel defaultSize={60}>
               <div className="flex relative h-full items-center">
                 {/* CONTENEDOR RELATIVO PARA SUPERPOSICIÓN */}
-                <Manga pdfUrl={pdfUrl} setPdfSize={setPdfSize} />
+                <Manga
+                  pdfUrl={pdfUrl}
+                  //config={config}
+                  setPdfSize={setPdfSize}
+                />
 
                 <Stage
                   width={600}
@@ -440,61 +269,12 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
             </ResizablePanel>
             <ResizableHandle withHandle />
             <Separator />
-            <ResizablePanel defaultSize={SizePanel("LineaTiempo")}>
+            <ResizablePanel defaultSize={25} className="my-2">
               <div className="w-full overflow-hidden">
                 {/* Línea de tiempo */}
                 <Card className="h-full">
                   <CardContent className="overflow-y-auto pb-5">
                     <div className="max-w-full mx-auto flex flex-col">
-                      {/* Barra superior con pestañas y botones de acción */}
-                      <div className="flex items-center justify-between mb-6">
-                        <div className="flex space-x-1">
-                          <div className="p-2 h-full flex items-center justify-center gap-2 z-20">
-                            {/* Botones */}
-                            <Button
-                              className="px-4 py-2 rounded-md transition-colors text-xs"
-                              onClick={finishShape}
-                            >
-                              Finalizar forma
-                            </Button>
-                            <Button
-                              className="px-4 py-2 rounded-md transition-colors text-xs"
-                              onClick={clearLastPoint}
-                            >
-                              Eliminar último punto
-                            </Button>
-                            <Button
-                              className="px-4 py-2 rounded-md transition-colors text-xs"
-                              onClick={deleteLastShape}
-                            >
-                              Eliminar última forma
-                            </Button>
-                            <Button
-                              className="px-4 py-2 rounded-md transition-colors text-xs"
-                              onClick={exportComicData}
-                            >
-                              Exportar cómic
-                            </Button>
-                          </div>
-                        </div>
-
-                        {/* Botones para añadir viñetas y nodos */}
-                        <div className="flex space-x-2 ">
-                          <Button
-                            onClick={() => addPanelToNode(0)}
-                            className="text-xs"
-                          >
-                            <Plus className="w-4 h-4 mr-2" />
-                            Añadir Viñeta
-                          </Button>
-
-                          <Button onClick={addNewNode} className="text-xs">
-                            <Plus className="w-4 h-4 mr-2" />
-                            Añadir Nodo
-                          </Button>
-                        </div>
-                      </div>
-
                       {/* Contenedor principal con funcionalidad de arrastrar y soltar */}
                       <DndContext
                         sensors={sensors}
@@ -505,37 +285,49 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                       >
                         {/* Lista horizontal de nodos */}
                         <div className="overflow-x-auto pb-2">
-                          <div className="flex space-x-6 min-w-max">
-                            <SortableContext
-                              items={nodes.map((_, index) => `node-${index}`)}
-                              strategy={horizontalListSortingStrategy}
-                            >
-                              {nodes.map((node) => (
-                                <NodeCard
-                                  key={`node-${node.nodeIndex}`}
-                                  nodeIndex={node.nodeIndex}
-                                  panels={node.panels}
-                                  musicType={node.musicType}
-                                  onAddPanel={addPanelToNode}
-                                  onReorderPanels={reorderPanels}
-                                  onDeletePanel={deletePanel}
-                                  isOver={
-                                    overId ===
-                                    `node-droppable-${node.nodeIndex}`
-                                  }
-                                />
-                              ))}
-                            </SortableContext>
-                          </div>
+                          {nodes.length === 0 ? (
+                            <div className="w-full flex justify-center items-center py-8">
+                              <div className="px-8 py-6 rounded-2xl shadow-lg border-4 border-violet-500 bg-gradient-to-r from-violet-500 via-blue-500 to-blue-400 flex flex-col items-center animate-fade-in">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-2 text-white drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span className="text-xl font-bold text-white text-center drop-shadow-lg">
+                                    
+                                </span>
+                                <span className="text-base text-white/90 mt-1 text-center">
+                                  Crea una viñeta para poder visualizar la línea de tiempo
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex space-x-6 min-w-max">
+                              <SortableContext
+                                items={nodes.map((_, index) => `node-${index}`)}
+                                strategy={horizontalListSortingStrategy}
+                              >
+                                {nodes.map((node) => (
+                                  <NodeCard
+                                    key={`node-${node.nodeIndex}`}
+                                    nodeIndex={node.nodeIndex}
+                                    panels={node.panels}
+                                    musicType={node.musicType}
+                                    onAddPanel={addPanelToNode}
+                                    onReorderPanels={reorderPanels}
+                                    onDeletePanel={deletePanel}
+                                    isOver={overId === `node-droppable-${node.nodeIndex}`}
+                                  />
+                                ))}
+                              </SortableContext>
+                            </div>
+                          )}
                         </div>
 
                         {/* Zona de eliminación que aparece al arrastrar */}
                         {isDragging && (
-                          <div className="fixed z-50 bottom-0 left-0 right-0 h-20 transition-all duration-300 bg-red-500/20 border-t-2 border-red-500">
-                            <DeleteZone
-                              isActive={isDragging}
-                              dragType={activeDragType}
-                            />
+                          <div
+                            className="fixed z-50 bottom-0 left-0 right-0 h-20 transition-all duration-300 bg-red-500/20 border-t-2 border-red-500"
+                          >
+                            <DeleteZone isActive={isDragging} dragType={activeDragType} />
                           </div>
                         )}
 
@@ -549,9 +341,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                             <div className="bg-slate-700 p-4 rounded-lg shadow-2xl border-2 border-blue-400">
                               <div className="flex items-center space-x-2 text-white">
                                 <GripVertical className="w-4 h-4" />
-                                <span className="font-semibold">
-                                  Nodo + Música
-                                </span>
+                                <span className="font-semibold">Nodo + Música</span>
                               </div>
                             </div>
                           ) : null}
