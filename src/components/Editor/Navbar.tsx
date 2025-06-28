@@ -59,9 +59,12 @@ const NavBar = ({
 
   const finishShape = () => {
     if (points.length >= 6) {
+      // Generar un ID único que se usará tanto para la forma como para el panel
+      const shapeId = Date.now();
+      
       // Mínimo 3 puntos (x,y)
       const newShape: ComicShape = {
-        id: Date.now(),
+        id: shapeId,
         points: [...points],
         fill: "rgba(50, 50, 50, 0.99)",
         closed: true,
@@ -76,12 +79,14 @@ const NavBar = ({
       setShapes((prev) => [...prev, newShape]);
       setPoints([]);
 
-      // Asegurarse de que haya un nodo en la línea de tiempo
-      if (shapes.length === 0) {
+      // Verificar si ya existe un nodo en la línea de tiempo
+      const nodes = getNodesFromData();
+      if (nodes.length === 0) {
+        // Solo crear un nuevo nodo si no existe ninguno
         addNewNode();
       }
-      // Agregar la viñeta al primer nodo
-      addPanelToNode(0);
+      // Agregar la viñeta al primer nodo con el mismo ID
+      addPanelToNode(0, shapeId.toString());
     }
   };
 

@@ -108,7 +108,10 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
     const handleDeletePanel = (event: CustomEvent) => {
       const { panelId } = event.detail;
       // Eliminar la forma correspondiente de la vista
-      setShapes((prevShapes) => prevShapes.filter((shape) => shape.id.toString() !== panelId));
+      setShapes((prevShapes) => prevShapes.filter((shape) => {
+        // Comparar tanto el ID como string como número para mayor compatibilidad
+        return shape.id.toString() !== panelId && shape.id !== parseInt(panelId);
+      }));
     };
 
     window.addEventListener('delete-panel', handleDeletePanel as EventListener);
@@ -287,14 +290,14 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                         <div className="overflow-x-auto pb-2">
                           {nodes.length === 0 ? (
                             <div className="w-full flex justify-center items-center py-8">
-                              <div className="px-8 py-6 rounded-2xl shadow-lg border-4 border-violet-500 bg-gradient-to-r from-violet-500 via-blue-500 to-blue-400 flex flex-col items-center animate-fade-in">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-2 text-white drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                              <div className="px-8 py-6 rounded-2xl shadow-lg border-4 border-border bg-card flex flex-col items-center animate-fade-in">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-2 text-foreground drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <span className="text-xl font-bold text-white text-center drop-shadow-lg">
+                                <span className="text-xl font-bold text-foreground text-center drop-shadow-lg">
                                     
                                 </span>
-                                <span className="text-base text-white/90 mt-1 text-center">
+                                <span className="text-base text-muted-foreground mt-1 text-center">
                                   Crea una viñeta para poder visualizar la línea de tiempo
                                 </span>
                               </div>

@@ -124,7 +124,7 @@ export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPa
                     {panels.map((panel, index) => (
                       <React.Fragment key={panel.id}>
                         <SortablePanel 
-                          panel={{...panel, onDeletePanel}} 
+                          panel={panel} 
                           nodeIndex={nodeIndex} 
                           panelIndex={index} 
                         />
