@@ -183,6 +183,10 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
     const nodeKey = (nodeIndex + 1).toString();
     const chapter = comicData.chapters["1"];
     const newChapter = { ...chapter };
+    
+    // Obtener los paneles del nodo que se va a eliminar para disparar eventos
+    const panelsToDelete = chapter[nodeKey] || [];
+    
     delete newChapter[nodeKey];
 
     const remainingNodes = Object.keys(newChapter).sort((a, b) => Number.parseInt(a) - Number.parseInt(b));
@@ -200,6 +204,13 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
         "1": reorderedChapter,
       },
     }));
+
+    // Disparar eventos para eliminar las formas visuales correspondientes
+    panelsToDelete.forEach(panel => {
+      window.dispatchEvent(new CustomEvent('delete-panel', { 
+        detail: { panelId: panel.id }
+      }));
+    });
   };
 
   // Mueve una viñeta de un nodo a otro y actualiza los metadatos

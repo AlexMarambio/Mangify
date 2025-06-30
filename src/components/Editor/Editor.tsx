@@ -13,6 +13,11 @@ import React, { useEffect, useState } from "react";
 import { viñetasGlobal } from "./Viñetas";
 import { Stage, Layer, Line, Circle, Text } from "react-konva";
 import { usePageContext } from "../../context/PageContext";
+// import {
+//   Timeline,
+//   type TimelineNode,
+//   type TimelineMusic,
+// } from "../Editor2/timeline";
 import { Card, CardContent } from "../Timeline/Extra/card";
 // ...otros imports...
 import {
@@ -107,7 +112,12 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
       const { panelId } = event.detail;
       // Eliminar la forma correspondiente de la vista
       setShapes((prevShapes) =>
-        prevShapes.filter((shape) => shape.id.toString() !== panelId)
+        prevShapes.filter((shape) => {
+          // Comparar tanto el ID como string como número para mayor compatibilidad
+          return (
+            shape.id.toString() !== panelId && shape.id !== parseInt(panelId)
+          );
+        })
       );
     };
 
@@ -289,6 +299,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
 
     return chapters;
   };
+
   const [activeTab, setActiveTab] = useState("nodos");
 
   // Obtenemos las funciones del contexto del cómic
@@ -330,84 +341,41 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
     return () => window.removeEventListener("add-panel-to-first-node", handler);
   }, [addPanelToNode]);
 
-  // Ajuste del tamaño de los paneles según tamaño del viewport
-  const SizePanel = (component: string) => {
-    const height = window.innerHeight;
-    switch (component) {
-      case "PaginasManga":
-        if (height <= 1280) {
-          return 20;
-        } else if (height > 1280) {
-          return 30;
-        }
-        break;
-      case "Musica":
-        if (height <= 1280) {
-          return 20;
-        } else if (height > 1280) {
-          return 20;
-        }
-        break;
-      case "MangaPanel":
-        if (height <= 1280) {
-          return 60;
-        } else if (height > 1280) {
-          return 60;
-        }
-        break;
-      case "ComicPanel":
-        if (height <= 1280) {
-          return 67;
-        } else if (height > 1280) {
-          return 70;
-        }
-        break;
-      case "LineaTiempo":
-        if (height <= 1280) {
-          return 33;
-        } else if (height > 1280) {
-          return 30;
-        }
-        break;
-    }
-  };
-
   return (
-    <div className="font-mono h-screen flex flex-col bg-black">
+    <div className="font-mono h-screen flex flex-col">
       <div className="h-[8%]">
-        <NavBar />
+        <NavBar
+          points={points}
+          setPoints={setPoints}
+          shapes={shapes}
+          setShapes={setShapes}
+          chapter={chapter}
+        />
       </div>
       <Separator />
-      <ResizablePanelGroup
-        direction="horizontal"
-        className="font-mono h-[90%] w-full"
-      >
-        <ResizablePanel defaultSize={SizePanel("PaginasManga")}>
+      <ResizablePanelGroup direction="horizontal" className="font-mono h-[90%]">
+        <ResizablePanel defaultSize={20}>
           {/* Seleccionador de páginas */}
           <Paginas pdfUrl={pdfUrl} config={config} />
         </ResizablePanel>
         <ResizableHandle withHandle />
         <Separator orientation="vertical" />
-        <ResizablePanel
-          className="h-full w-full"
-          defaultSize={SizePanel("Musica")}
-        >
+        <ResizablePanel className="h-full" defaultSize={20}>
           {/* Opciones de herramientas */}
-          <div className="w-full flex items-center justify-center">
-            <Musica activePage={0} />
-          </div>
+          <Musica activePage={0} />
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel
-          className="h-full w-full"
-          defaultSize={SizePanel("MangaPanel")}
-        >
+        <ResizablePanel className="h-full w-full" defaultSize={70}>
           <ResizablePanelGroup direction="vertical" className="w-full">
             {/* Página manga */}
-            <ResizablePanel defaultSize={SizePanel("ComicPanel")}>
+            <ResizablePanel defaultSize={60}>
               <div className="flex relative h-full items-center">
                 {/* CONTENEDOR RELATIVO PARA SUPERPOSICIÓN */}
-                <Manga pdfUrl={pdfUrl} setPdfSize={setPdfSize} />
+                <Manga
+                  pdfUrl={pdfUrl}
+                  //config={config}
+                  setPdfSize={setPdfSize}
+                />
 
                 <Stage
                   width={455}
@@ -470,7 +438,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
             </ResizablePanel>
             <ResizableHandle withHandle />
             <Separator />
-            <ResizablePanel defaultSize={SizePanel("LineaTiempo")}>
+            <ResizablePanel defaultSize={25} className="my-2">
               <div className="w-full overflow-hidden">
                 {/* Línea de tiempo */}
                 <Card className="h-full">
@@ -529,28 +497,54 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                       >
                         {/* Lista horizontal de nodos */}
                         <div className="overflow-x-auto pb-2">
-                          <div className="flex space-x-6 min-w-max">
-                            <SortableContext
-                              items={nodes.map((_, index) => `node-${index}`)}
-                              strategy={horizontalListSortingStrategy}
-                            >
-                              {nodes.map((node) => (
-                                <NodeCard
-                                  key={`node-${node.nodeIndex}`}
-                                  nodeIndex={node.nodeIndex}
-                                  panels={node.panels}
-                                  musicType={node.musicType}
-                                  onAddPanel={addPanelToNode}
-                                  onReorderPanels={reorderPanels}
-                                  onDeletePanel={deletePanel}
-                                  isOver={
-                                    overId ===
-                                    `node-droppable-${node.nodeIndex}`
-                                  }
-                                />
-                              ))}
-                            </SortableContext>
-                          </div>
+                          {nodes.length === 0 ? (
+                            <div className="w-full flex justify-center items-center py-8">
+                              <div className="px-8 py-6 rounded-2xl shadow-lg border-4 border-border bg-card flex flex-col items-center animate-fade-in">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-12 w-12 mb-2 text-foreground drop-shadow-lg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                  />
+                                </svg>
+                                <span className="text-xl font-bold text-foreground text-center drop-shadow-lg"></span>
+                                <span className="text-base text-muted-foreground mt-1 text-center">
+                                  Crea una viñeta para poder visualizar la línea
+                                  de tiempo
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex space-x-6 min-w-max">
+                              <SortableContext
+                                items={nodes.map((_, index) => `node-${index}`)}
+                                strategy={horizontalListSortingStrategy}
+                              >
+                                {nodes.map((node) => (
+                                  <NodeCard
+                                    key={`node-${node.nodeIndex}`}
+                                    nodeIndex={node.nodeIndex}
+                                    panels={node.panels}
+                                    musicType={node.musicType}
+                                    onAddPanel={addPanelToNode}
+                                    onReorderPanels={reorderPanels}
+                                    onDeletePanel={deletePanel}
+                                    isOver={
+                                      overId ===
+                                      `node-droppable-${node.nodeIndex}`
+                                    }
+                                  />
+                                ))}
+                              </SortableContext>
+                            </div>
+                          )}
                         </div>
 
                         {/* Zona de eliminación que aparece al arrastrar */}
