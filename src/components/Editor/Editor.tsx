@@ -317,6 +317,12 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
   const isDragging = activeId !== null;
 
   useEffect(() => {
+    setShapes([]);
+    setPoints([]);
+    setFirstPoint(null);
+  }, [pdfUrl]);
+
+  useEffect(() => {
     const handler = () => {
       addPanelToNode(0); // Agrega viñeta al primer nodo
     };
