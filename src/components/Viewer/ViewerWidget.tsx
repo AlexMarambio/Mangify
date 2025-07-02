@@ -227,7 +227,7 @@ export default function ViewerWidget({ pdfUrl }: ViewerWidgetProps) {
       try {
         const response = await fetch(
           //"https://backend.example.com/mood-music-map"
-          "http://localhost:3001/musicFull"
+          "http://3.228.194.184:3001/musicFull"
         ); // el mood debe venir /public/...
         const data = await response.json();
         console.log("Rutas de música obtenidas:", data);
