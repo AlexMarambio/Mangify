@@ -41,7 +41,7 @@ interface ComicNode {
   end: number;
 }
 
-interface ComicData {
+export interface ComicData {
   metadata: ComicMetadata;
   nodes: ComicNode[];
   pages: {
@@ -59,23 +59,22 @@ export interface ViewerConfig {
 }
 
 interface ViewerWidgetProps {
-  config: ViewerConfig;
   pdfUrl: string;
 }
 
-export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
+export default function ViewerWidget({ pdfUrl }: ViewerWidgetProps) {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [comicData, setComicData] = useState<ComicData | null>(null);
 
   useEffect(() => {
     // Intentar cargar desde localStorage
-    const local = localStorage.getItem('comic-latest');
+    const local = localStorage.getItem("comic-latest");
     if (local) {
       try {
         setComicData(JSON.parse(local));
         return;
       } catch (e) {
-        console.error('Error al parsear comic-latest de localStorage', e);
+        console.error("Error al parsear comic-latest de localStorage", e);
       }
     }
     // Si no hay en localStorage, usar el import por defecto
@@ -90,7 +89,7 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
   const [showAudioPanel, setShowAudioPanel] = useState(false);
   const [totalPagesPanel, setTotalPanel] = useState<number>(0);
   const [totalCurrentPanel, setTotalCurrentPanel] = useState<number>(0);
-  const pageConfig = config.pages.find((p) => p.page === currentPage);
+  const pageConfig = comicData?.pages[currentPage.toString()];
   const [completedPages, setCompletedPages] = useState<Set<number>>(new Set());
 
   const [panelProgress, setPanelProgress] = useState<{
@@ -115,7 +114,7 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
   const [previousVolume, setPreviousVolume] = useState(volume);
 
   //const pageConfig = config.pages.find((p) => p.page === currentPage);
-  const { toggleAudio, isPaused } = usePageAudio(volume, pageConfig?.audioUrl);
+  const { toggleAudio, isPaused } = usePageAudio(volume);
   const [isPageLoading, setIsPageLoading] = useState(true);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
@@ -217,6 +216,74 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
       console.error("Error al obtener el número de formas:", error);
       return 0;
     }
+  };
+
+  const [moodMusicMap, setMoodMusicMap] = useState<{ [mood: string]: string }>(
+    {}
+  );
+
+  useEffect(() => {
+    const fetchMoodMusicMap = async () => {
+      try {
+        const response = await fetch(
+          "https://backend.example.com/mood-music-map"
+        ); // el mood debe venir /public/...
+        const data = await response.json();
+        setMoodMusicMap(data);
+      } catch (error) {
+        console.error(
+          "Error al obtener las rutas de música desde el backend:",
+          error
+        );
+      }
+    };
+
+    fetchMoodMusicMap();
+  }, []);
+
+  const [currentMood, setCurrentMood] = useState<string | null>(null);
+  const [audioInstance, setAudioInstance] = useState<HTMLAudioElement | null>(
+    null
+  );
+
+  const playMoodMusic = (mood: string) => {
+    if (currentMood === mood) return;
+
+    const audioUrl = moodMusicMap[mood];
+    if (audioUrl) {
+      if (audioInstance) {
+        audioInstance.pause();
+        audioInstance.currentTime = 0;
+      }
+
+      const newAudio = new Audio(audioUrl);
+      newAudio.volume = volume;
+      newAudio.play();
+      setAudioInstance(newAudio);
+      setCurrentMood(mood);
+    }
+  };
+
+  useEffect(() => {
+    if (comicData && currentPanel) {
+      const currentShape = getCurrentShapes()[currentPanel - 1];
+      if (currentShape) {
+        const node = comicData.nodes.find((n) => n.id === currentShape.node);
+        if (node) {
+          playMoodMusic(node.mood);
+        }
+      }
+    }
+  }, [currentPanel, comicData]);
+
+  useEffect(() => {
+    if (audioInstance) {
+      audioInstance.volume = volume; // Actualiza el volumen dinámicamente
+    }
+  }, [volume, audioInstance]);
+
+  const handleVolumeChange = (newVolume: number) => {
+    setVolume(newVolume);
   };
 
   if (!comicData) return <div>Cargando cómic...</div>;
@@ -420,7 +487,7 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
                 max={1}
                 step={0.01}
                 value={[volume]}
-                onValueChange={([v]) => setVolume(v)}
+                onValueChange={([v]) => handleVolumeChange(v)}
                 className="w-24 cursor-pointer"
               />
               <span className="ml-2 text-neutral-400 text-xs w-8 text-right">
