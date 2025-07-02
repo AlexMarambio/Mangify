@@ -67,18 +67,32 @@ app.get("/manga/:title", async (req, res) => {
 
 app.use("/musica", express.static(path.join(__dirname, "public", "music")));
 
-// Ruta dinámica para buscar música por mood
-app.get("/music/:mood", async (req, res) => {
-  const mood = req.params.mood.trim().toLowerCase();
+app.get("/musicFull", async (req, res) => {
+  try {
+    const allMoods = await Music.distinct("Mood");
+    const uniqueMoods = [
+      ...new Set(allMoods.map((m) => m.trim().toLowerCase())),
+    ];
 
-  const songs = await Music.find(
-    //{ Mood: { $elemMatch: { $regex: new RegExp(`^${mood}$`, "i") } } }, //este consiera que es un []
-    { Mood: { $in: [new RegExp(`^${mood}$`, "i")] } },
-    //{ Mood: { $in: [/^drama$/i] } },
-    //{ Mood: new RegExp(`^${mood}$`, "i") },//el og
-    { Title: 1, audioUrl: 1, _id: 0 }
-  );
-  res.json(songs);
+    const moodUrlPairs = await Promise.all(
+      uniqueMoods.map(async (mood) => {
+        const result = await Music.aggregate([
+          { $match: { Mood: { $in: [new RegExp(`^${mood}$`, "i")] } } },
+          { $sample: { size: 1 } },
+          { $project: { audioUrl: 1, _id: 0 } },
+        ]);
+        return result[0] ? { [mood]: result[0].audioUrl } : null;
+      })
+    );
+
+    // Combinar en un solo objeto y eliminar nulos
+    const moodUrlObject = Object.assign({}, ...moodUrlPairs.filter(Boolean));
+
+    res.json(moodUrlObject);
+  } catch (err) {
+    console.error("Error en /musicFull:", err);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
 });
 
 app.get("/musiclink/:mood", async (req, res) => {
