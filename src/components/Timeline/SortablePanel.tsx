@@ -2,6 +2,7 @@ import React, { useState } from "react"
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { type Panel } from "../../timeline"
+import { useComic } from "./ComicContext"
 
 interface SortablePanelProps {
   panel: Panel
@@ -12,6 +13,7 @@ interface SortablePanelProps {
 export function SortablePanel({ panel, nodeIndex, panelIndex }: SortablePanelProps) {
   const [showContextMenu, setShowContextMenu] = useState(false)
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 })
+  const { deletePanel } = useComic()
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: panel.id,
@@ -37,14 +39,14 @@ export function SortablePanel({ panel, nodeIndex, panelIndex }: SortablePanelPro
   }
 
   const handleDelete = () => {
-    // @ts-ignore - onDeletePanel is passed through props but not typed
-    if (panel.onDeletePanel) {
-      panel.onDeletePanel(nodeIndex, panel.id)
-      // Disparar evento personalizado para sincronizar con la vista
-      window.dispatchEvent(new CustomEvent('delete-panel', { 
-        detail: { panelId: panel.id }
-      }));
-    }
+    // Usar la función deletePanel del contexto
+    deletePanel(nodeIndex, panel.id)
+    
+    // Disparar evento personalizado para sincronizar con la vista del editor
+    window.dispatchEvent(new CustomEvent('delete-panel', { 
+      detail: { panelId: panel.id }
+    }));
+    
     setShowContextMenu(false)
   }
 
@@ -63,10 +65,10 @@ export function SortablePanel({ panel, nodeIndex, panelIndex }: SortablePanelPro
         {...attributes}
         {...listeners}
         onContextMenu={handleContextMenu}
-        className="flex items-center justify-center w-12 h-12 rounded-full text-white font-bold cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
+        className="flex m-2 items-center justify-center w-8 h-8 rounded-full text-white text-xs font-bold cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
       >
         <div
-          className={`w-full h-full rounded-full flex items-center justify-center ${panel.fill} border-2 border-white/20 shadow-lg`}
+          className={`w-full h-full rounded-full flex items-center justify-center ${panel.fill} border border-white/20 shadow-md`}
         >
           {panelIndex + 1}
         </div>
@@ -74,7 +76,7 @@ export function SortablePanel({ panel, nodeIndex, panelIndex }: SortablePanelPro
 
       {showContextMenu && (
         <div
-          className="fixed bg-white rounded-lg shadow-lg py-1 z-50"
+          className="fixed bg-card border border-border rounded-lg shadow-lg py-1 z-50 min-w-[100px]"
           style={{
             top: contextMenuPosition.y,
             left: contextMenuPosition.x,
@@ -82,9 +84,9 @@ export function SortablePanel({ panel, nodeIndex, panelIndex }: SortablePanelPro
         >
           <button
             onClick={handleDelete}
-            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
+            className="w-full px-3 py-1.5 text-left text-xs text-destructive hover:bg-accent hover:text-accent-foreground transition-colors"
           >
-            Eliminar
+            🗑️ Eliminar
           </button>
         </div>
       )}

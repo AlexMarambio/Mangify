@@ -86,6 +86,8 @@ export interface NodeCardProps {
   onReorderPanels: (nodeIndex: number, newPanels: Panel[]) => void
   onDeletePanel: (nodeIndex: number, panelId: string) => void
   isOver: boolean
+  selected?: boolean
+  onSelect?: () => void
 }
 
 export interface DeleteZoneProps {

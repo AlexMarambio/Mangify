@@ -4,14 +4,14 @@ import MangaCard from "./MangaCard";
 import mangas from "../../../constants/mangas.ts";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../../../context/AppContext.tsx";
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -19,11 +19,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
- // Asegúrate de que la ruta sea correcta
+} from "@/components/ui/dialog";
+// Asegúrate de que la ruta sea correcta
 
 const HamburgerMenu: React.FC = () => {
-  const {setPdfUrl} = useAppContext();
+  const { setPdfUrl } = useAppContext();
   const navigate = useNavigate();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -34,7 +34,6 @@ const HamburgerMenu: React.FC = () => {
   const iconRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const secondModalRef = useRef<HTMLDivElement>(null);
-  
 
   const toggleMenu = () => setIsOpen((prev) => !prev);
 
@@ -96,61 +95,78 @@ const HamburgerMenu: React.FC = () => {
   }, [isSecondModalOpen]);
 
   const handleSelectManga = (pdfUrl: string) => {
-    setPdfUrl(pdfUrl);         // Guardamos la URL en contexto
-    setIsSecondModalOpen(false);  // Cerramos modal
+    setPdfUrl(pdfUrl); // Guardamos la URL en contexto
+    setIsSecondModalOpen(false); // Cerramos modal
   };
   return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button className={`cursor-pointer ${isOpen ? "open" : ""} w-32 h-12 text-3xl`} onClick={toggleMenu}>
-            Menu
-          </Button>
-        </DropdownMenuTrigger>
-        {/* Menú hamburguesa */}
-        <DropdownMenuContent className="mx-2 w-full">
-          <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <Button onClick={() => navigate('/')} className=" text-xl w-full"> Home </Button>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Dialog>
-                <DialogTrigger>
-                  <Button className="mb-2 mt-2 mx-2 w-full text-xl" /*onClick={() => {setIsSecondModalOpen(true);setIsOpen(false);}}*/>
-                    Seleccionar manga
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="w-full 
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          className={`cursor-pointer ${
+            isOpen ? "open" : ""
+          } w-32 h-12 text-3xl`}
+          onClick={toggleMenu}
+        >
+          Menu
+        </Button>
+      </DropdownMenuTrigger>
+      {/* Menú hamburguesa */}
+      <DropdownMenuContent className="mx-2 w-full">
+        <DropdownMenuGroup>
+          <DropdownMenuItem>
+            <Button onClick={() => navigate("/")} className=" text-xl w-full">
+              {" "}
+              Home{" "}
+            </Button>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Dialog>
+              <DialogTrigger>
+                <Button
+                  className="mb-2 mt-2 mx-2 w-full text-xl" /*onClick={() => {setIsSecondModalOpen(true);setIsOpen(false);}}*/
+                >
+                  Seleccionar manga
+                </Button>
+              </DialogTrigger>
+              <DialogContent
+                className="
                   w-3xl max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl 
                   max-h-[90vh] 
                   transform transition-transform duration-300 
                   flex flex-col
-                  overflow-hidden">
-                  <DialogHeader>
-                    <DialogTitle className="text-3xl">Selecciona el Manga a Editar</DialogTitle>
-                    <DialogDescription className="text-xl">
-                      Elige un manga de la lista para editarlo.
-                    </DialogDescription>
-                  </DialogHeader>
-                  {/* Contenedor scrollable para las cards */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4 mb-2 sm:mb-4 p-2 sm:p-4 overflow-y-auto">
-                    {mangas.map((manga) => (
-                      <MangaCard
-                        key={manga.title}
-                        title={manga.title}
-                        imageUrl={manga.imageUrl}
-                        onClick={() => {
-                          console.log("Seleccionaste:", manga.title);
-                          handleSelectManga(manga.pdfUrl);
-                        }}
-                      />
-                    ))}
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
+                  overflow-hidden
+                  bg-black
+                  border-white"
+              >
+                <DialogHeader>
+                  <DialogTitle className="text-3xl">
+                    Selecciona el Manga a Editar
+                  </DialogTitle>
+                  <DialogDescription className="text-xl">
+                    Elige un manga de la lista para editarlo.
+                  </DialogDescription>
+                </DialogHeader>
+                {/* Contenedor scrollable para las cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4 mb-2 sm:mb-4 p-2 sm:p-4 overflow-y-auto">
+                  {mangas.map((manga) => (
+                    <MangaCard
+                      key={manga.title}
+                      title={manga.title}
+                      imageUrl={manga.imageUrl}
+                      onClick={() => {
+                        console.log("Seleccionaste:", manga.title);
+                        handleSelectManga(manga.pdfUrl);
+                        localStorage.removeItem("comic-latest");
+                      }}
+                    />
+                  ))}
+                </div>
+              </DialogContent>
+            </Dialog>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
       </DropdownMenuContent>
-      </DropdownMenu>
+    </DropdownMenu>
   );
 };
 
