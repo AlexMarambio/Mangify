@@ -9,16 +9,25 @@ const fs = require("fs");
 const app = express();
 app.use(cors());
 app.use(express.json());
+const User = "benja";
+const Password = "colocolo";
 
 const MongoUri =
-  "mongodb+srv://benja:<password>@mangifycluster.c7knnmc.mongodb.net/nombreDB?retryWrites=true&w=majority";
+  "mongodb+srv://" +
+  User +
+  ":" +
+  Password +
+  "@mangifycluster.c7knnmc.mongodb.net/mangifydb?retryWrites=true&w=majority&appName=Mangify";
 
 // MongoDB
-mongoose.connect(MongoUri, {
+mongoose
+  .connect(MongoUri)
+  //, {
   //  useNewUrlParser: true,
   //  useUnifiedTopology: true,
-});
-
+  //});
+  .then(() => console.log("✅ Conectado a MongoDB correctamente")) //no subir así
+  .catch((err) => console.error("❌ Error conectando a MongoDB:", err)); //no subir así
 // Schemas
 const mangaSchema = new mongoose.Schema({
   Title: String,
@@ -28,7 +37,9 @@ const Manga = mongoose.model("Manga", mangaSchema, "mangas");
 
 const musicSchema = new mongoose.Schema({
   Title: String,
-  Mood: String,
+  Autor: String,
+  Mood: [String],
+  Loop: Boolean,
   audioUrl: String,
 });
 
@@ -39,7 +50,7 @@ const configSchema = new mongoose.Schema({
   configUrl: String,
 });
 
-const config = mongoose.model("Config", musicSchema, "config");
+const config = mongoose.model("Config", configSchema, "config");
 
 // rutas GET
 //ruta estatica
@@ -54,27 +65,46 @@ app.get("/manga/:title", async (req, res) => {
   res.json(result);
 });
 
-app.use("/music", express.static(path.join(__dirname, "public", "music"))); //cambiar a data
+app.use("/musica", express.static(path.join(__dirname, "public", "music")));
 
+// Ruta dinámica para buscar música por mood
 app.get("/music/:mood", async (req, res) => {
-  const mood = req.params.mood;
+  const mood = req.params.mood.trim().toLowerCase();
+
   const songs = await Music.find(
-    { Mood: new RegExp(`^${mood}$`, "i") },
+    //{ Mood: { $elemMatch: { $regex: new RegExp(`^${mood}$`, "i") } } }, //este consiera que es un []
+    { Mood: { $in: [new RegExp(`^${mood}$`, "i")] } },
+    //{ Mood: { $in: [/^drama$/i] } },
+    //{ Mood: new RegExp(`^${mood}$`, "i") },//el og
     { Title: 1, audioUrl: 1, _id: 0 }
   );
   res.json(songs);
 });
 
+app.get("/musiclink/:mood", async (req, res) => {
+  const mood = req.params.mood.trim().toLowerCase();
+  const songs = await Music.find(
+    { Mood: { $in: [new RegExp(`^${mood}$`, "i")] } },
+    { audioUrl: 1, _id: 0 }
+  );
+  res.json(songs);
+});
+
+app.get("/debug/music", async (req, res) => {
+  const all = await Music.find({}, { Title: 1, Mood: 1, _id: 0 });
+  res.json(all);
+});
+
 app.use("/config", express.static(path.join(__dirname, "data", "config")));
 
-app.get("/loadconfig/:file", async (req, res) => {
-  //corregir y agregar el archivo a la base de datos
-  const file = await req.params.find(
-    { data: new RegExp(`^${file}$`, "i") },
-    { Url: 1, _id: 0 }
-  );
-  res.json(config);
-});
+//app.get("/loadconfig/:file", async (req, res) => {
+//  //corregir y agregar el archivo a la base de datos
+//  const file = await req.params.find(
+//    { data: new RegExp(`^${file}$`, "i") },
+//    { Url: 1, _id: 0 }
+//  );
+//  res.json(config);
+//});
 
 //rutas POST
 app.post("/saveConfig", async (req, res) => {
