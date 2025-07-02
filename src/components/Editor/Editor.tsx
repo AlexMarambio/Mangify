@@ -377,19 +377,18 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
       </div>
       <Separator />
       <ResizablePanelGroup direction="horizontal" className="font-mono h-[90%]">
-        <ResizablePanel defaultSize={20}>
+        <ResizablePanel defaultSize={15}>
           {/* Seleccionador de páginas */}
           <Paginas pdfUrl={pdfUrl} config={config} />
         </ResizablePanel>
-        <ResizableHandle withHandle className="[&>div]:h-12"/>
         <Separator orientation="vertical" />
         <ResizableHandle withHandle className="[&>div]:h-12"/>
         <ResizablePanel className="h-full w-full" defaultSize={80}>
           <ResizablePanelGroup direction="vertical" className="w-full">
             {/* Página manga */}
-            <ResizablePanel defaultSize={73}>
+            <ResizablePanel defaultSize={75}>
               <ResizablePanelGroup direction="horizontal" className="h-full">
-                <ResizablePanel defaultSize={75}>
+                <ResizablePanel defaultSize={78}>
                   <div className="flex relative h-full items-center">
                     {/* CONTENEDOR RELATIVO PARA SUPERPOSICIÓN */}
                     <Manga
@@ -464,7 +463,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                   <Card className="h-full">
                     <CardContent className="flex flex-col justify-center items-center space-y-4 h-full">
                       {/* Botones para añadir viñetas y nodos */}
-                      <Button onClick={addNewNode} className="w-[90%] min-h-[2.5rem] flex items-center justify-center"
+                      <Button onClick={addNewNode} className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer"
                         style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}>
                         <Plus 
                           className="mr-2 flex-shrink-0" 
@@ -474,21 +473,21 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                       </Button>
                       {/* Botones */}
                       <Button
-                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center"
+                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer"
                         style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)'}}
                         onClick={clearLastPoint}
                       >
-                        <span className="truncate">Eliminar último punto</span>
+                        <span className="truncate">Borrar último punto</span>
                       </Button>
                       <Button
-                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center"
+                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer"
                         style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}
                         onClick={deleteLastShape}
                       >
-                        <span className="truncate">Eliminar última forma</span>
+                        <span className="truncate">Borrar última forma</span>
                       </Button>
                       <Button
-                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center"
+                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer"
                         style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}
                         onClick={exportComicData}
                       >
@@ -496,21 +495,21 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                       </Button>
                       <Button 
                         onClick={clearLastPoint}
-                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center"
+                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer"
                         style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}
                       >
                         <span className="truncate">Eliminar Punto</span>
                       </Button>
                       <Button 
                         onClick={deleteLastShape}
-                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center"
+                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer"
                         style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}
                       >
                         <span className="truncate">Eliminar Forma</span>
                       </Button>
                       <Button 
                         onClick={exportComicData}
-                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center"
+                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer"
                         style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}
                       >
                         <span className="truncate">Exportar</span>
@@ -521,7 +520,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
               </ResizablePanelGroup>
             </ResizablePanel>
             <ResizableHandle withHandle className="[&>div]:h-12"/>
-            <ResizablePanel defaultSize={27} className="my-2">
+            <ResizablePanel defaultSize={18} className="my-2">
               <div className="w-full overflow-hidden">
                 {/* Línea de tiempo */}
                 <Card className="h-full">

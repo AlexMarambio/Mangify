@@ -65,10 +65,10 @@ export function SortablePanel({ panel, nodeIndex, panelIndex }: SortablePanelPro
         {...attributes}
         {...listeners}
         onContextMenu={handleContextMenu}
-        className="flex items-center justify-center w-12 h-12 rounded-full text-white font-bold cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
+        className="flex m-2 items-center justify-center w-8 h-8 rounded-full text-white text-xs font-bold cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
       >
         <div
-          className={`w-full h-full rounded-full flex items-center justify-center ${panel.fill} border-2 border-white/20 shadow-lg`}
+          className={`w-full h-full rounded-full flex items-center justify-center ${panel.fill} border border-white/20 shadow-md`}
         >
           {panelIndex + 1}
         </div>
@@ -76,7 +76,7 @@ export function SortablePanel({ panel, nodeIndex, panelIndex }: SortablePanelPro
 
       {showContextMenu && (
         <div
-          className="fixed bg-card border border-border rounded-lg shadow-lg py-1 z-50 min-w-[120px]"
+          className="fixed bg-card border border-border rounded-lg shadow-lg py-1 z-50 min-w-[100px]"
           style={{
             top: contextMenuPosition.y,
             left: contextMenuPosition.x,
@@ -84,7 +84,7 @@ export function SortablePanel({ panel, nodeIndex, panelIndex }: SortablePanelPro
         >
           <button
             onClick={handleDelete}
-            className="w-full px-4 py-2 text-left text-sm text-destructive hover:bg-accent hover:text-accent-foreground transition-colors"
+            className="w-full px-3 py-1.5 text-left text-xs text-destructive hover:bg-accent hover:text-accent-foreground transition-colors"
           >
             🗑️ Eliminar
           </button>
