@@ -438,7 +438,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                           const y = points[i * 2 + 1];
                           return (
                             <React.Fragment key={`point-${i}`}>
-                              <Circle x={x} y={y} radius={5} fill={i === 0 ? "#38bdf8" : "red"} />
+                              <Circle x={x} y={y} radius={5} fill={i === 0 ? "blue" : "red"} />
                               <Text
                                 x={x + 10}
                                 y={y - 15}
