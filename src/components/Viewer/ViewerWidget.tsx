@@ -62,6 +62,11 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
   });
   const editorWidth = 560; // <-- el ancho del PDF en el editor
   const editorHeight = 688; // <-- el alto del PDF en el editor
+  const [totalPagesPanel, setTotalPanel] = useState<number>(0);
+  const [totalCurrentPanel, setTotalCurrentPanel] = useState<number>(0);
+  const [panelProgress, setPanelProgress] = useState<{
+    [page: number]: number;
+  }>({});
 
   const pageConfig = config.pages.find((p) => p.page === currentPage);
   const { toggleAudio, isPaused } = usePageAudio(volume, pageConfig?.audioUrl);
@@ -72,32 +77,32 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [stageWidth, setStageWidth] = useState(650);
-  const [stageHeight, setStageHeight] = useState(650); // NUEVO
+  const [stageHeight, setStageHeight] = useState(650);
   const [currentChapter] = useState(1);
 
-  // const updateTotalPanel = () => {
-  //   setTotalPanel(
-  //     (prevTotal) => prevTotal + getNumberOfShapes(currentChapter, currentPage)
-  //   );
-  // };
+  const updateTotalPanel = () => {
+    setTotalPanel(
+      (prevTotal) => prevTotal + getNumberOfShapes(currentChapter, currentPage)
+    );
+  };
 
-  // const nextPanel = () => {
-  //   setCurrentPanel((prevPanel) => {
-  //     const next = prevPanel + 1;
-  //     setPanelProgress((prevProgress) => ({
-  //       ...prevProgress,
-  //       [currentPage]: next,
-  //     }));
-  //     return next;
-  //   });
-  // };
-  // const resetPanel = () => {
-  //   setCurrentPanel(1);
-  // };
+  const nextPanel = () => {
+    setCurrentPanel((prevPanel) => {
+      const next = prevPanel + 1;
+      setPanelProgress((prevProgress) => ({
+        ...prevProgress,
+        [currentPage]: next,
+      }));
+      return next;
+    });
+  };
+  const resetPanel = () => {
+    setCurrentPanel(1);
+  };
 
   // Carga la estructura de capítulos y páginas
   useEffect(() => {
-    //const chapters = Object.keys(comicData.chapters).map(Number);
+    const chapters = Object.keys(comicData.chapters).map(Number);
     // Removed setAvailableChapters as availableChapters is no longer used
 
     if (
@@ -113,6 +118,11 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
       // Removed setAvailablePages as availablePages is no longer used
     }
   }, [currentChapter]);
+
+  useEffect(() => {
+    const progress = panelProgress[currentPage] ?? 1;
+    setCurrentPanel(progress);
+  }, [currentPage]);
 
   useEffect(() => {
     const updateWidth = () => {
@@ -240,8 +250,12 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
           className={currentPage <= 1 ? "cursor-not-allowed" : "cursor-pointer"}
           onClick={() => {
             if (currentPage > 1) {
-              setCurrentPage((p) => p - 1);
-              setCurrentPanel(1);
+              setCurrentPage((p) => {
+                const prevPage = Math.max(p - 1, 1);
+                // Restaurar el panel guardado o 1
+                setCurrentPanel(panelProgress[prevPage] ?? 1);
+                return prevPage;
+              });
             }
           }}
           disabled={currentPage <= 1}
@@ -256,10 +270,13 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
           className="mx-1 cursor-pointer"
           onClick={() => {
             const totalShapes = getNumberOfShapes(currentChapter, currentPage);
-            if (currentPanel === totalShapes) {
+            // Si no hay formas o ya se mostraron todas, avanza de página y resetea panel
+            if (totalShapes === 0 || currentPanel > totalShapes) {
               if (currentPage < (numPages ?? Number.MAX_SAFE_INTEGER)) {
-                setCurrentPage((p) => p + 1);
-                setCurrentPanel(1);
+                setCurrentPage((p) => {
+                  setCurrentPanel(1);
+                  return p + 1;
+                });
               }
             } else {
               setFadingPanel(currentPanel);
@@ -276,7 +293,14 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
                 if (progress < 1) {
                   requestAnimationFrame(animate);
                 } else {
-                  setCurrentPanel((prevPanel) => prevPanel + 1);
+                  setCurrentPanel((prevPanel) => {
+                    const nextPanel = prevPanel + 1;
+                    setPanelProgress((prevProgress) => ({
+                      ...prevProgress,
+                      [currentPage]: nextPanel,
+                    }));
+                    return nextPanel;
+                  });
                   setFadingPanel(null);
                   setFadeOpacity(1);
                 }
