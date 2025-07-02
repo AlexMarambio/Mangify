@@ -8,16 +8,25 @@ const Viewer = () => {
 
   useEffect(() => {
     // Obtener parámetros de la URL
-    const params = new URLSearchParams(window.location.search);
-    const pdfUrlParam = params.get("pdfUrl");
-    const configUrlParam = params.get("configUrl");
+    const json = localStorage.getItem("comic-latest");
+    let pdfUrl: string | null = null;
+    if (json) {
+      try {
+        const comicData = JSON.parse(json);
+        pdfUrl = comicData.metadata.title; // Asumiendo que el PDF está en metadata.title
+      } catch (error) {
+        console.error("Error al parsear comic-latest:", error);
+      }
+    }
 
-    if (!pdfUrlParam || !configUrlParam) {
+    if (!pdfUrl) {
       console.error("Faltan parámetros: pdfUrl o configUrl");
       return;
     }
 
-    setPdfUrl(pdfUrlParam);
+    console.log("PDF URL:", pdfUrl);
+
+    setPdfUrl(pdfUrl);
 
     // Cargar configuración
     //   const fetchConfig = async () => {
