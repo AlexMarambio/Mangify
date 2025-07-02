@@ -235,7 +235,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
           ? "acción"
           : node.musicType === "tensión"
           ? "tensión"
-          : "neutral", //sino neutral
+          : "feliz", //sino neutral
 
       color: node.panels[0]?.fill || "bg-emerald-500",
       start: 0,
@@ -514,30 +514,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                         <FileDown className="w-4 h-4 mr-2" />
                         Exportar cómic
                       </Button>
-                      <Button
-                        onClick={clearLastPoint}
-                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer"
-                        style={{ fontSize: "clamp(0.6rem, 2vw, 0.875rem)" }}
-                      >
-                        <Minus className="w-4 h-4 mr-2" />
-                        Eliminar Punto
-                      </Button>
-                      <Button
-                        onClick={deleteLastShape}
-                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer"
-                        style={{ fontSize: "clamp(0.6rem, 2vw, 0.875rem)" }}
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Eliminar Forma
-                      </Button>
-                      <Button
-                        onClick={exportComicData}
-                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer"
-                        style={{ fontSize: "clamp(0.6rem, 2vw, 0.875rem)" }}
-                      >
-                        <Save className="w-4 h-4 mr-2" />
-                        Exportar
-                      </Button>
+                      
                     </CardContent>
                   </Card>
                 </ResizablePanel>

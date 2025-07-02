@@ -1,0 +1,20 @@
+{
+  "totalPages": 3,
+  "pages": [
+    {
+      "page": 1,
+      "audioUrl": "/music/Unforgettable.mp3",
+      "style": "suspense"
+    },
+    {
+      "page": 2,
+      "audioUrl": "/music/Righteous.mp3",
+      "style": "intense"
+    },
+    {
+      "page": 3,
+      "audioUrl": "/music/Where_Have_You_Been.mp3",
+      "style": "relax"
+    }
+  ]
+}

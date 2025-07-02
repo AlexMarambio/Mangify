@@ -230,6 +230,7 @@ export default function ViewerWidget({ pdfUrl }: ViewerWidgetProps) {
           "http://localhost:3001/musicFull"
         ); // el mood debe venir /public/...
         const data = await response.json();
+        console.log("Rutas de música obtenidas:", data);
         setMoodMusicMap(data);
       } catch (error) {
         console.error(
@@ -260,6 +261,7 @@ export default function ViewerWidget({ pdfUrl }: ViewerWidgetProps) {
     if (currentMood === mood) return; // No cambiar música si el mood es el mismo
 
     const audioUrl = moodMusicMap[mood];
+    console.log("Reproduciendo música para el mood:", mood, audioUrl);
     if (audioUrl) {
       if (audioInstance) {
         audioInstance.pause();

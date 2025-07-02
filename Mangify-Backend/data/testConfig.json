@@ -1,0 +1,21 @@
+{
+    "totalPages": 3,
+    "pages": [
+      {
+        "page": 1,
+        "audioUrl": "/music/Tension/Drama 1.mp3",
+        "style": "suspense"
+      },
+      {
+        "page": 2,
+        "audioUrl": "/music/Tension/Righteous.mp3",
+        "style": "intense"
+      },
+      {
+        "page": 3,
+        "audioUrl": "/music/Tension/Where_Have_You_Been.mp3",
+        "style": "relax"
+      }
+    ]
+  }
+  
