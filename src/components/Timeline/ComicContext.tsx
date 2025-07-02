@@ -13,7 +13,8 @@ interface ComicContextType {
   movePanelToNode: (panelId: string, fromNodeIndex: number, toNodeIndex: number) => void;
   reorderNodes: (activeIndex: number, overIndex: number) => void;
   getNodesFromData: () => Node[];
-  updateMusicType: (nodeIndex: number, newMusicType: string) => void; 
+  updateMusicType: (nodeIndex: number, newMusicType: string) => void;
+  clearNodes: () => void; 
 }
 
 const ComicContext = createContext<ComicContextType | undefined>(undefined);
@@ -361,6 +362,16 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
     }));
   };
 
+  const clearNodes = () => {
+    setComicData((prev) => ({
+      ...prev,
+      chapters: {
+        ...prev.chapters,
+        "1": {},
+      },
+    }));
+  };
+
   const value = {
     comicData,
     addNewNode,
@@ -372,6 +383,7 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
     reorderNodes,
     getNodesFromData,
     updateMusicType,
+    clearNodes,
   };
 
   return <ComicContext.Provider value={value}>{children}</ComicContext.Provider>;
