@@ -116,6 +116,7 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
 
   //const pageConfig = config.pages.find((p) => p.page === currentPage);
   const { toggleAudio, isPaused } = usePageAudio(volume, pageConfig?.audioUrl);
+  const [isPageLoading, setIsPageLoading] = useState(true);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     setNumPages(numPages);
@@ -196,9 +197,9 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
   }, [currentPage]);
 
   // Obtiene las figuras para la página actual
-  const getCurrentShapes = (): ComicShape[] => {
-    if (!comicData) return [];
+  const getCurrentShapes = (page: number = currentPage): ComicShape[] => {
     try {
+      if (!comicData) return [];
       const pageShapes = comicData.pages[page.toString()];
       return pageShapes ?? [];
     } catch (error) {
