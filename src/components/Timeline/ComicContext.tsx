@@ -6,7 +6,7 @@ import type { ComicData, Panel, Node } from '../../timeline';
 interface ComicContextType {
   comicData: ComicData;
   addNewNode: () => void;
-  addPanelToNode: (nodeIndex: number) => void;
+  addPanelToNode: (nodeIndex: number, panelId?: string | number) => void;
   reorderPanels: (nodeIndex: number, newPanels: Panel[]) => void;
   deletePanel: (nodeIndex: number, panelId: string) => void;
   deleteNode: (nodeIndex: number) => void;
@@ -36,43 +36,10 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
     metadata: {
       title: "Mi Cómic",
       author: "Tu Nombre",
-      created: "2025-05-26T03:43:57.998Z",
+      created: new Date().toISOString(),
     },
     chapters: {
-      "1": {
-        "1": [
-          {
-            id: "viñeta-1",
-            points: [],
-            fill: "bg-emerald-500",
-            closed: true,
-            metadata: {
-              order: 10,
-              chapter: 1,
-              page: 1,
-              panel: 1,
-              createdAt: "2025-05-26T03:43:57.998Z",
-              musicType: "feliz",
-            },
-          },
-        ],
-        "2": [
-          {
-            id: "viñeta-2",
-            points: [],
-            fill: "bg-violet-500",
-            closed: true,
-            metadata: {
-              order: 70,
-              chapter: 1,
-              page: 1,
-              panel: 2,
-              createdAt: "2025-05-26T03:43:57.998Z",
-              musicType: "triste",
-            },
-          },
-        ],
-      },
+      "1": {}
     },
   });
 
@@ -123,7 +90,7 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
   };
 
   // Añade una nueva viñeta a un nodo específico con un color aleatorio (o intento de)
-  const addPanelToNode = (nodeIndex: number) => {
+  const addPanelToNode = (nodeIndex: number, panelId?: string | number) => {
     const nodeKey = (nodeIndex + 1).toString();
     const chapter = comicData.chapters["1"];
     const currentPanels = chapter[nodeKey] || [];
@@ -132,7 +99,7 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
     const newPanel: Panel = {
-      id: `viñeta-${Date.now()}`,
+      id: panelId ? String(panelId) : `viñeta-${Date.now()}`, // Usa el id recibido o genera uno nuevo
       points: [],
       fill: randomColor,
       closed: true,
@@ -216,6 +183,10 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
     const nodeKey = (nodeIndex + 1).toString();
     const chapter = comicData.chapters["1"];
     const newChapter = { ...chapter };
+    
+    // Obtener los paneles del nodo que se va a eliminar para disparar eventos
+    const panelsToDelete = chapter[nodeKey] || [];
+    
     delete newChapter[nodeKey];
 
     const remainingNodes = Object.keys(newChapter).sort((a, b) => Number.parseInt(a) - Number.parseInt(b));
@@ -233,6 +204,13 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
         "1": reorderedChapter,
       },
     }));
+
+    // Disparar eventos para eliminar las formas visuales correspondientes
+    panelsToDelete.forEach(panel => {
+      window.dispatchEvent(new CustomEvent('delete-panel', { 
+        detail: { panelId: panel.id }
+      }));
+    });
   };
 
   // Mueve una viñeta de un nodo a otro y actualiza los metadatos
@@ -318,4 +296,4 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
   };
 
   return <ComicContext.Provider value={value}>{children}</ComicContext.Provider>;
-}; 
+};

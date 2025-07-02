@@ -9,18 +9,36 @@ import NavBar from "./Navbar";
 import Paginas from "./Paginas";
 import Musica from "./Musica";
 import Manga from "./Manga";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { viñetasGlobal } from "./Viñetas";
 import { Stage, Layer, Line, Circle, Text } from "react-konva";
 import { usePageContext } from "../../context/PageContext";
-import {
-  Timeline,
-  type TimelineNode,
-  type TimelineMusic,
-} from "../Editor2/timeline";
-import { Card, CardContent } from "../Editor2/card";
+// import {
+//   Timeline,
+//   type TimelineNode,
+//   type TimelineMusic,
+// } from "../Editor2/timeline";
+import { Card, CardContent } from "../Timeline/Extra/card";
 // ...otros imports...
-import ComicEditor from "../../Pages/Lineatiempo"; // Ajusta la ruta si es necesario
+import {
+  DndContext,
+  DragOverlay,
+  rectIntersection,
+  useSensor,
+  useSensors,
+  PointerSensor,
+  KeyboardSensor,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  horizontalListSortingStrategy,
+  sortableKeyboardCoordinates,
+} from "@dnd-kit/sortable";
+import { Plus, GripVertical } from "lucide-react";
+import { NodeCard } from "../Timeline/NodeCard";
+import { DeleteZone } from "../Timeline/DeleteZone";
+import { ComicProvider, useComic } from "../Timeline/ComicContext";
+import { useDragAndDrop } from "../../useDragAndDrop"; // Ajusta la ruta si es necesario
 interface ShapeMetadata {
   order: number;
   chapter: number;
@@ -61,24 +79,86 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
   });
 
   //creador de formas
+  const [firstPoint, setFirstPoint] = useState<{ x: number; y: number } | null>(
+    null
+  );
   const [points, setPoints] = useState<number[]>([]);
   const [shapes, setShapes] = useState<ComicShape[]>([]);
   const [chapter, setChapter] = useState<number>(1);
   const { currentPage: page } = usePageContext();
   const [panel, setPanel] = useState<number>(1);
+  const { addNewNode, addPanelToNode } = useComic();
 
   const [activeMode, setActiveMode] = useState("nodes");
+
+  // Efecto para sincronizar formas con la línea de tiempo
+  useEffect(() => {
+    if (shapes.length === 0) {
+      // Si no hay formas, asegurarse de que no haya nodos en la línea de tiempo
+      const event = new CustomEvent("clear-timeline");
+      window.dispatchEvent(event);
+    } else {
+      // Si hay formas, asegurarse de que haya al menos un nodo
+      const event = new CustomEvent("sync-shapes", {
+        detail: { shapes },
+      });
+      window.dispatchEvent(event);
+    }
+  }, [shapes]);
+
+  // Efecto para escuchar eventos de eliminación de viñetas
+  useEffect(() => {
+    const handleDeletePanel = (event: CustomEvent) => {
+      const { panelId } = event.detail;
+      // Eliminar la forma correspondiente de la vista
+      setShapes((prevShapes) =>
+        prevShapes.filter((shape) => {
+          // Comparar tanto el ID como string como número para mayor compatibilidad
+          return (
+            shape.id.toString() !== panelId && shape.id !== parseInt(panelId)
+          );
+        })
+      );
+    };
+
+    window.addEventListener("delete-panel", handleDeletePanel as EventListener);
+    return () =>
+      window.removeEventListener(
+        "delete-panel",
+        handleDeletePanel as EventListener
+      );
+  }, []);
+
+  const isNearFirstPoint = (x: number, y: number, threshold = 10): boolean => {
+    if (!firstPoint) return false;
+    const dx = x - firstPoint.x;
+    const dy = y - firstPoint.y;
+    return Math.sqrt(dx * dx + dy * dy) <= threshold;
+  };
 
   const handleStageClick = (e: any) => {
     const stage = e.currentTarget;
     const pointerPosition = stage.getPointerPosition();
-    if (pointerPosition) {
-      const { x, y } = pointerPosition;
-      setPoints((prev) => [...prev, x, y]);
+    if (!pointerPosition) return;
+
+    const { x, y } = pointerPosition;
+
+    if (!firstPoint) {
+      // Primer punto
+      setFirstPoint({ x, y });
+    } else if (isNearFirstPoint(x, y)) {
+      // Si está cerca del primero: cerrar la figura
+      finishShape();
+      setFirstPoint(null);
+      setPoints([]); // opcional: limpiar puntos si ya terminaste
+      return;
     }
+
+    setPoints((prev) => [...prev, x, y]);
   };
 
   const deleteLastShape = () => {
+    // Elimina la última forma del canvas
     if (shapes.length > 0) {
       setShapes((prev) => {
         const newShapes = [...prev];
@@ -86,15 +166,20 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
         return newShapes;
       });
     }
+    // Elimina la última viñeta (panel) del primer nodo
+    if (nodes.length > 0 && nodes[0].panels.length > 0) {
+      const lastPanel = nodes[0].panels[nodes[0].panels.length - 1];
+      deletePanel(0, lastPanel.id);
+    }
   };
 
   const finishShape = () => {
     if (points.length >= 6) {
-      // Mínimo 3 puntos (x,y)
+      const newId = Date.now(); // O usa `const newId = `viñeta-${Date.now()}`;` si prefieres string
       const newShape: ComicShape = {
-        id: Date.now(),
+        id: newId,
         points: [...points],
-        fill: `hsl(${Math.random() * 360}, 70%, 70%)`,
+        fill: "rgba(50, 50, 50, 0.99)",
         closed: true,
         metadata: {
           order: shapes.length + 1,
@@ -106,9 +191,11 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
       };
       setShapes((prev) => [...prev, newShape]);
       setPoints([]);
+      setFirstPoint(null);
+      setPoints([]);
 
-      // Lanzar evento personalizado para agregar viñeta al primer nodo
-      window.dispatchEvent(new CustomEvent("add-panel-to-first-node"));
+      // Asegúrate de que addPanelToNode acepte el id
+      addPanelToNode(0, newId); // <-- PASA EL ID AQUÍ
     }
   };
 
@@ -117,13 +204,60 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
   };
 
   const exportComicData = () => {
-    const comicData: ComicData = {
+    // Obtener los nodos reales del contexto del cómic
+    const nodes = getNodesFromData();
+
+    // Exportar solo los datos relevantes de los nodos
+    const nodesExport = nodes.map((node) => ({
+      id: node.nodeKey,
+      name: `Nodo ${node.nodeIndex + 1}`,
+      mood: node.musicType === "feliz" ? "happy" : "sad",
+      color: node.panels[0]?.fill || "bg-emerald-500",
+      start: 0,
+      end: 50,
+    }));
+
+    // Organizar las formas (shapes) por páginas y asociar el nodo correcto
+    const pages: { [key: string]: any[] } = {};
+
+    shapes.forEach((shape) => {
+      const pageKey = shape.metadata.page.toString();
+      if (!pages[pageKey]) {
+        pages[pageKey] = [];
+      }
+
+      // Buscar el nodo real al que pertenece esta viñeta
+      let associatedNodeKey = null;
+      for (const node of nodes) {
+        if (
+          node.panels.some((panel) => String(panel.id) === String(shape.id))
+        ) {
+          associatedNodeKey = node.nodeKey;
+          break;
+        }
+      }
+
+      pages[pageKey].push({
+        id: shape.id,
+        text: `Panel ${pages[pageKey].length + 1}`,
+        order: shape.metadata.order,
+        node: associatedNodeKey ?? null,
+        points: shape.points,
+        fill: shape.fill,
+        closed: shape.closed,
+      });
+    });
+
+    // Crear el objeto final del cómic
+    const comicData = {
       metadata: {
         title: "Mi Cómic",
+        chapter: chapter.toString(),
         author: "Tu Nombre",
         created: new Date().toISOString(),
       },
-      chapters: organizeByChapters(shapes),
+      nodes: nodesExport,
+      pages,
     };
 
     // Copiar al portapapeles
@@ -137,11 +271,13 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `comic-chapter-${chapter}-page-${page}.json`;
+    a.download = `comic-${
+      comicData.metadata.chapter
+    }-${new Date().toISOString()}.json`;
     a.click();
     URL.revokeObjectURL(url);
 
-    alert(`Datos del cómic exportados!\nCapítulo: ${chapter}\nPágina: ${page}`);
+    alert(`Datos del cómic exportados!\nCapítulo: ${chapter}`);
   };
 
   const organizeByChapters = (
@@ -164,32 +300,57 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
     return chapters;
   };
 
-  //<------ Linea de tiempo ------>
-  const [timelineData, setTimelineData] = useState<{
-    nodes: TimelineNode[];
-    music: TimelineMusic[];
-  }>({
-    nodes: [],
-    music: [],
-  });
+  const [activeTab, setActiveTab] = useState("nodos");
 
-  const handleTimelineChange = (
-    nodes: TimelineNode[],
-    music: TimelineMusic[]
-  ) => {
-    setTimelineData({ nodes, music });
-  };
+  // Obtenemos las funciones del contexto del cómic
+  const { getNodesFromData, reorderPanels, deletePanel, comicData } =
+    useComic();
 
-  const handleSave = () => {
-    console.log("Timeline data saved:", timelineData);
-    // Here you would typically save to a database or API
-    alert("¡Datos de línea de tiempo guardados en la consola!");
-  };
+  // Obtenemos las funciones y estados del hook de drag and drop
+  const {
+    activeId,
+    activeDragType,
+    overId,
+    handleDragStart,
+    handleDragOver,
+    handleDragEnd,
+  } = useDragAndDrop();
+
+  // Configuramos los sensores para el drag and drop
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const nodes = getNodesFromData();
+  const isDragging = activeId !== null;
+
+  useEffect(() => {
+    setShapes([]);
+    setPoints([]);
+    setFirstPoint(null);
+  }, [pdfUrl]);
+
+  useEffect(() => {
+    const handler = () => {
+      addPanelToNode(0); // Agrega viñeta al primer nodo
+    };
+    window.addEventListener("add-panel-to-first-node", handler);
+    return () => window.removeEventListener("add-panel-to-first-node", handler);
+  }, [addPanelToNode]);
 
   return (
     <div className="font-mono h-screen flex flex-col">
       <div className="h-[8%]">
-        <NavBar />
+        <NavBar
+          points={points}
+          setPoints={setPoints}
+          shapes={shapes}
+          setShapes={setShapes}
+          chapter={chapter}
+        />
       </div>
       <Separator />
       <ResizablePanelGroup direction="horizontal" className="font-mono h-[90%]">
@@ -212,13 +373,13 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                 {/* CONTENEDOR RELATIVO PARA SUPERPOSICIÓN */}
                 <Manga
                   pdfUrl={pdfUrl}
-                  config={config}
+                  //config={config}
                   setPdfSize={setPdfSize}
                 />
 
                 <Stage
-                  width={600}
-                  height={800}
+                  width={455}
+                  height={555}
                   margin="0 auto"
                   className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
                   onClick={handleStageClick}
@@ -277,43 +438,151 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
             </ResizablePanel>
             <ResizableHandle withHandle />
             <Separator />
-            <ResizablePanel defaultSize={5}>
-              <div className="p-2 h-full flex items-center justify-center gap-2 z-20">
-                {/* Botones */}
-                <Button
-                  className="px-4 py-2 rounded-md transition-colors text-lg"
-                  onClick={finishShape}
-                >
-                  Finalizar forma
-                </Button>
-                <Button
-                  className="px-4 py-2 rounded-md transition-colors text-lg"
-                  onClick={clearLastPoint}
-                >
-                  Eliminar último punto
-                </Button>
-                <Button
-                  className="px-4 py-2 rounded-md transition-colors text-lg"
-                  onClick={deleteLastShape}
-                >
-                  Eliminar última forma
-                </Button>
-                <Button
-                  className="px-4 py-2 rounded-md transition-colors text-lg"
-                  onClick={exportComicData}
-                >
-                  Exportar cómic
-                </Button>
-              </div>
-            </ResizablePanel>
-            <ResizableHandle withHandle />
-            <Separator />
             <ResizablePanel defaultSize={25} className="my-2">
               <div className="w-full overflow-hidden">
                 {/* Línea de tiempo */}
                 <Card className="h-full">
                   <CardContent className="overflow-y-auto pb-5">
-                    <ComicEditor />
+                    <div className="max-w-full mx-auto flex flex-col">
+                      {/* Barra superior con pestañas y botones de acción */}
+                      <div className="flex items-center justify-between mb-6">
+                        <div className="flex space-x-1">
+                          <div className="p-2 h-full flex items-center justify-center gap-2 z-20">
+                            {/* Botones */}
+                            <Button
+                              className="px-4 py-2 rounded-md transition-colors text-xs"
+                              onClick={clearLastPoint}
+                            >
+                              Eliminar último punto
+                            </Button>
+                            <Button
+                              className="px-4 py-2 rounded-md transition-colors text-xs"
+                              onClick={deleteLastShape}
+                            >
+                              Eliminar última forma
+                            </Button>
+                            <Button
+                              className="px-4 py-2 rounded-md transition-colors text-xs"
+                              onClick={exportComicData}
+                            >
+                              Exportar cómic
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Botones para añadir viñetas y nodos */}
+                        <div className="flex space-x-2 ">
+                          <Button
+                            onClick={() => addPanelToNode(0)}
+                            className="text-xs"
+                          >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Añadir Viñeta
+                          </Button>
+
+                          <Button onClick={addNewNode} className="text-xs">
+                            <Plus className="w-4 h-4 mr-2" />
+                            Añadir Nodo
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Contenedor principal con funcionalidad de arrastrar y soltar */}
+                      <DndContext
+                        sensors={sensors}
+                        collisionDetection={rectIntersection}
+                        onDragStart={handleDragStart}
+                        onDragOver={handleDragOver}
+                        onDragEnd={handleDragEnd}
+                      >
+                        {/* Lista horizontal de nodos */}
+                        <div className="overflow-x-auto pb-2">
+                          {nodes.length === 0 ? (
+                            <div className="w-full flex justify-center items-center py-8">
+                              <div className="px-8 py-6 rounded-2xl shadow-lg border-4 border-border bg-card flex flex-col items-center animate-fade-in">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-12 w-12 mb-2 text-foreground drop-shadow-lg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                  />
+                                </svg>
+                                <span className="text-xl font-bold text-foreground text-center drop-shadow-lg"></span>
+                                <span className="text-base text-muted-foreground mt-1 text-center">
+                                  Crea una viñeta para poder visualizar la línea
+                                  de tiempo
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex space-x-6 min-w-max">
+                              <SortableContext
+                                items={nodes.map((_, index) => `node-${index}`)}
+                                strategy={horizontalListSortingStrategy}
+                              >
+                                {nodes.map((node) => (
+                                  <NodeCard
+                                    key={`node-${node.nodeIndex}`}
+                                    nodeIndex={node.nodeIndex}
+                                    panels={node.panels}
+                                    musicType={node.musicType}
+                                    onAddPanel={addPanelToNode}
+                                    onReorderPanels={reorderPanels}
+                                    onDeletePanel={deletePanel}
+                                    isOver={
+                                      overId ===
+                                      `node-droppable-${node.nodeIndex}`
+                                    }
+                                  />
+                                ))}
+                              </SortableContext>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Zona de eliminación que aparece al arrastrar */}
+                        {isDragging && (
+                          <div className="fixed z-50 bottom-0 left-0 right-0 h-20 transition-all duration-300 bg-red-500/20 border-t-2 border-red-500">
+                            <DeleteZone
+                              isActive={isDragging}
+                              dragType={activeDragType}
+                            />
+                          </div>
+                        )}
+
+                        {/* Vista previa del elemento que se está arrastrando */}
+                        <DragOverlay>
+                          {activeId && activeDragType === "panel" ? (
+                            <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold shadow-2xl border-2 border-white">
+                              📄
+                            </div>
+                          ) : activeId && activeDragType === "node" ? (
+                            <div className="bg-slate-700 p-4 rounded-lg shadow-2xl border-2 border-blue-400">
+                              <div className="flex items-center space-x-2 text-white">
+                                <GripVertical className="w-4 h-4" />
+                                <span className="font-semibold">
+                                  Nodo + Música
+                                </span>
+                              </div>
+                            </div>
+                          ) : null}
+                        </DragOverlay>
+                      </DndContext>
+
+                      {/* Debug JSON output 
+                      <div className="mt-8 p-4 bg-slate-900 rounded-lg">
+                        <h3 className="text-lg font-semibold mb-2">JSON Output:</h3>
+                        <pre className="text-sm text-slate-300 overflow-auto max-h-144">{JSON.stringify(comicData, null, 2)}</pre>
+                      </div> 
+                      */}
+                    </div>
                   </CardContent>
                 </Card>
               </div>

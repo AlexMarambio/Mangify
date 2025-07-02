@@ -16,7 +16,7 @@ export function DeleteZone({ isActive, dragType }: DeleteZoneProps) {
   return (
     <div
       ref={setNodeRef}
-      className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 transition-all duration-300 ${
+      className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 transition-all duration-300 z-1000 ${
         isActive ? "scale-100 opacity-100" : "scale-75 opacity-0 pointer-events-none"
       }`}
     >
