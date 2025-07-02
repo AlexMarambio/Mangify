@@ -15,8 +15,11 @@ import { Music, Plus } from "lucide-react"
 import { SortablePanel } from "./SortablePanel"
 import { DragHandle } from "./DragHandle"
 import { type NodeCardProps } from "../../timeline"
+import { useComic } from "./ComicContext"
+
 
 export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPanels, onDeletePanel, isOver, selected, onSelect }: NodeCardProps & { selected?: boolean, onSelect?: () => void }) {
+  const { updateMusicType } = useComic(); // <--- Agrega esto
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -143,7 +146,15 @@ export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPa
           {/* Integrated Music Section */}
           <div className="flex items-center justify-center space-x-2 p-1 rounded-lg bg-white mt-1 mb-0">
             <Music className="w-4 h-4 text-black" />
-            <span className="font-medium capitalize text-black">{musicType}</span>
+            <select
+              className="font-medium capitalize text-black bg-transparent outline-none"
+              value={musicType}
+              onChange={(e) => updateMusicType(nodeIndex, e.target.value)}
+            >
+              <option value="feliz">Feliz</option>
+              <option value="triste">Triste</option>
+              <option value="neutral">Neutral</option>
+            </select>
           </div>
         </div>
       </Card>

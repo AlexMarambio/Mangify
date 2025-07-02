@@ -212,7 +212,20 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
     const nodesExport = nodes.map((node) => ({
       id: node.nodeKey,
       name: `Nodo ${node.nodeIndex + 1}`,
-      mood: node.musicType === "feliz" ? "happy" : "sad",
+      //mood: node.musicType === "feliz" ? "happy" : "sad",
+      mood: 
+        node.musicType === "feliz"
+          ? "feliz"
+          : node.musicType === "triste"
+          ? "triste"
+          : node.musicType === "drama"
+          ? "drama"
+          : node.musicType === "acción"
+          ? "acción"
+          : node.musicType === "tensión"
+          ? "tensión"
+          : "neutral", //sino neutral
+
       color: node.panels[0]?.fill || "bg-emerald-500",
       start: 0,
       end: 50,
@@ -409,24 +422,27 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                         )}
 
                         {/* Puntos */}
-                        {Array.from({ length: points.length / 2 }).map((_, i) => {
-                          const x = points[i * 2];
-                          const y = points[i * 2 + 1];
-                          return (
-                            <React.Fragment key={`point-${i}`}>
-                              <Circle x={x} y={y} radius={5} fill="red" />
-                              <Text
-                                x={x + 10}
-                                y={y - 15}
-                                text={`${i + 1}: (${Math.round(x)},${Math.round(
-                                  y
-                                )})`}
-                                fontSize={12}
-                                fill="#333"
-                              />
-                            </React.Fragment>
-                          );
-                        })}
+                        {Array.from({ length: points.length / 2 }).map(
+                          (_, i) => {
+                            const x = points[i * 2];
+                            const y = points[i * 2 + 1];
+                            return (
+                              <React.Fragment key={`point-${i}`}>
+                                <Circle x={x} y={y} radius={5} fill="red" />
+                                <Text
+                                  x={x + 10}
+                                  y={y - 15}
+                                  text={`${i + 1}: (${Math.round(x)},${Math.round(
+                                    y
+                                  )})`}
+                                  fontSize={12}
+                                  fill="#333"
+                                />
+                              </React.Fragment>
+                            );
+                          }
+                        )}
+                        {/* Fin puntos figura en progreso */}
                       </Layer>
                     </Stage>
                   </div>

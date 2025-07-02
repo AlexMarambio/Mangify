@@ -13,6 +13,7 @@ interface ComicContextType {
   movePanelToNode: (panelId: string, fromNodeIndex: number, toNodeIndex: number) => void;
   reorderNodes: (activeIndex: number, overIndex: number) => void;
   getNodesFromData: () => Node[];
+  updateMusicType: (nodeIndex: number, newMusicType: string) => void; 
 }
 
 const ComicContext = createContext<ComicContextType | undefined>(undefined);
@@ -276,6 +277,33 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
     }));
   };
 
+  // Actualiza el tipo de música de un nodo específico
+  const updateMusicType = (nodeIndex: number, newMusicType: string) => {
+    const nodeKey = (nodeIndex + 1).toString();
+    const chapter = comicData.chapters["1"];
+    const panels = chapter[nodeKey] || [];
+
+    // Actualizamos la propiedad musicType en el metadata de cada panel de ese nodo
+    const updatedPanels = panels.map((panel) => ({
+      ...panel,
+      metadata: {
+        ...panel.metadata,
+        musicType: newMusicType,
+      },
+    }));
+
+    setComicData((prev) => ({
+      ...prev,
+      chapters: {
+        ...prev.chapters,
+        "1": {
+          ...prev.chapters["1"],
+          [nodeKey]: updatedPanels,
+        },
+      },
+    }));
+  };
+
   const value = {
     comicData,
     addNewNode,
@@ -286,6 +314,7 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
     movePanelToNode,
     reorderNodes,
     getNodesFromData,
+    updateMusicType,
   };
 
   return <ComicContext.Provider value={value}>{children}</ComicContext.Provider>;
