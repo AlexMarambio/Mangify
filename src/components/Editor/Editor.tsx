@@ -267,14 +267,15 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
       console.error("Error al copiar al portapapeles:", err);
     });
 
+    // Guardar en localStorage
+    localStorage.setItem('comic-latest', jsonData);
+
     // Descargar archivo
     const blob = new Blob([jsonData], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `comic-${
-      comicData.metadata.chapter
-    }-${new Date().toISOString()}.json`;
+    a.download = "comic-latest.json";
     a.click();
     URL.revokeObjectURL(url);
 

@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import PDFFrame from "../PDFFrame";
 import { usePageAudio } from "./AudioServer";
-import comicDataJson from "./comic-1-2025-06-27T23_47_14.673Z.json";
+import defaultComicDataJson from "./comic-latest.json";
 import { Stage, Layer, Line } from "react-konva";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -65,8 +65,23 @@ interface ViewerWidgetProps {
 
 export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
   const [numPages, setNumPages] = useState<number | null>(null);
+  const [comicData, setComicData] = useState<ComicData | null>(null);
 
-  const comicData: ComicData = comicDataJson;
+  useEffect(() => {
+    // Intentar cargar desde localStorage
+    const local = localStorage.getItem('comic-latest');
+    if (local) {
+      try {
+        setComicData(JSON.parse(local));
+        return;
+      } catch (e) {
+        console.error('Error al parsear comic-latest de localStorage', e);
+      }
+    }
+    // Si no hay en localStorage, usar el import por defecto
+    setComicData(defaultComicDataJson as ComicData);
+  }, []);
+
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [volume, setVolume] = useState<number>(0.5);
   const [currentPanel, setCurrentPanel] = useState<number>(1);
@@ -125,6 +140,7 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
 
   // Carga la estructura de capítulos y páginas
   useEffect(() => {
+    if (!comicData) return;
     //const chapters = Object.keys(comicData.chapters).map(Number);
     // Removed setAvailableChapters as availableChapters is no longer used
 
@@ -138,7 +154,7 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
       ).map(Number);
       // Removed setAvailablePages as availablePages is no longer used
     }
-  }, [currentChapter]);
+  }, [currentChapter, comicData]);
 
   useEffect(() => {
     const progress = panelProgress[currentPage] ?? 1;
@@ -155,6 +171,7 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
 
   // Obtiene las figuras para la página actual
   const getCurrentShapes = (): ComicShape[] => {
+    if (!comicData) return [];
     try {
       const pageShapes = comicData.pages[currentPage.toString()];
       return pageShapes ?? [];
@@ -165,6 +182,7 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
   };
 
   const getNumberOfShapes = (page: number): number => {
+    if (!comicData) return 0;
     try {
       const pageShapes = comicData.pages[page.toString()];
       return pageShapes ? pageShapes.length : 0;
@@ -173,6 +191,8 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
       return 0;
     }
   };
+
+  if (!comicData) return <div>Cargando cómic...</div>;
 
   return (
     <div className="bg-black min-h-screen">
