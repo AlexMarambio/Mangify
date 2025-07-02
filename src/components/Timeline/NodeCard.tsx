@@ -1,30 +1,51 @@
-import React from "react"
-import { 
-  DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent, useDroppable
-} from "@dnd-kit/core"
-import { 
-  SortableContext, 
-  horizontalListSortingStrategy, 
+import React, { useState } from "react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  useDroppable,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  horizontalListSortingStrategy,
   arrayMove,
   sortableKeyboardCoordinates,
-  useSortable
-} from "@dnd-kit/sortable"
-import { CSS } from "@dnd-kit/utilities"
-import { Card } from "@/components/ui/card"
-import { Music, Plus } from "lucide-react"
-import { SortablePanel } from "./SortablePanel"
-import { DragHandle } from "./DragHandle"
-import { type NodeCardProps } from "../../timeline"
+  useSortable,
+} from "@dnd-kit/sortable";
+import { useComic } from "./ComicContext"; // <-- IMPORTA el hook aquí
+import { CSS } from "@dnd-kit/utilities";
+import { Card } from "flowbite-react";
+import { Music } from "lucide-react";
+import { SortablePanel } from "./SortablePanel";
+import { DragHandle } from "./DragHandle";
+import { type NodeCardProps } from "../../timeline";
+import Mood from "./Mood";
 
-export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPanels, onDeletePanel, isOver }: NodeCardProps) {
+export function NodeCard({
+  nodeIndex,
+  panels,
+  musicType: initialMusicType,
+  onAddPanel,
+  onReorderPanels,
+  onDeletePanel,
+  isOver,
+}: NodeCardProps) {
+  const [musicType, setMusicType] = useState(initialMusicType);
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  )
+    })
+  );
 
-  // Sortable for node reordering
+  // Obtener updateMusicType del contexto usando el hook
+  const { updateMusicType } = useComic();
+
+  // Sortable para reordenar nodos
   const {
     attributes: sortableAttributes,
     listeners: sortableListeners,
@@ -40,63 +61,70 @@ export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPa
       panels,
       musicType,
     },
-  })
+  });
 
-  // Droppable for receiving panels
-  const { setNodeRef: setDroppableNodeRef, isOver: isDroppableOver } = useDroppable({
-    id: `node-droppable-${nodeIndex}`,
-    data: {
-      type: "node-droppable",
-      nodeIndex,
-    },
-  })
+  const { setNodeRef: setDroppableNodeRef, isOver: isDroppableOver } =
+    useDroppable({
+      id: `node-droppable-${nodeIndex}`,
+      data: {
+        type: "node-droppable",
+        nodeIndex,
+      },
+    });
 
-  // Combine refs
   const setNodeRef = (node: HTMLElement | null) => {
-    setSortableNodeRef(node)
-    setDroppableNodeRef(node)
-  }
+    setSortableNodeRef(node);
+    setDroppableNodeRef(node);
+  };
 
   const nodeStyle = {
     transform: CSS.Transform.toString(sortableTransform),
     transition: sortableTransition,
     opacity: isSortableDragging ? 0.7 : 1,
     zIndex: isSortableDragging ? 1000 : 1,
-  }
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event
+    const { active, over } = event;
 
     if (active.id !== over?.id) {
-      const oldIndex = panels.findIndex((panel) => panel.id === active.id)
-      const newIndex = panels.findIndex((panel) => panel.id === over?.id)
+      const oldIndex = panels.findIndex((panel) => panel.id === active.id);
+      const newIndex = panels.findIndex((panel) => panel.id === over?.id);
 
       if (oldIndex !== -1 && newIndex !== -1) {
-        const newPanels = arrayMove(panels, oldIndex, newIndex)
-        onReorderPanels(nodeIndex, newPanels)
+        const newPanels = arrayMove(panels, oldIndex, newIndex);
+        onReorderPanels(nodeIndex, newPanels);
       }
     }
-  }
+  };
 
   const getNodeColor = () => {
     if (panels.length > 0) {
-      return panels[0].fill === "bg-emerald-500" ? "bg-emerald-600" : "bg-violet-600"
+      return panels[0].fill === "bg-emerald-500"
+        ? "bg-emerald-600"
+        : "bg-violet-600";
     }
-    return "bg-gray-600"
-  }
+    return "bg-gray-600";
+  };
 
   const getMusicColor = () => {
-    return musicType === "feliz" ? "bg-emerald-500" : "bg-violet-500"
-  }
+    return musicType === "feliz" ? "bg-emerald-500" : "bg-violet-500";
+  };
 
-  // Calculate minimum width based on panel count
-  const minWidth = Math.max(320, 200 + panels.length * 60)
+  const minWidth = Math.max(320, 200 + panels.length * 60);
 
   return (
-    <div className="flex flex-col space-y-2 flex-shrink-0" style={{ minWidth: `${minWidth}px` }}>
+    <div
+      className="flex flex-col space-y-2 flex-shrink-0"
+      style={{ minWidth: `${minWidth}px` }}
+    >
       <Card
-        className={`text-white  ${isSortableDragging ? "shadow-2xl scale-105" : ""} ${
-          isDroppableOver ? "ring-4 ring-blue-400 ring-opacity-50 bg-opacity-80" : ""
+        className={`${getNodeColor()}  text-white border-0 ${
+          isSortableDragging ? "shadow-2xl scale-105" : ""
+        } ${
+          isDroppableOver
+            ? "ring-4 ring-blue-400 ring-opacity-50 bg-opacity-80"
+            : ""
         } transition-all duration-200`}
         ref={setNodeRef}
         style={nodeStyle}
@@ -104,29 +132,32 @@ export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPa
         <div className="p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
-              <DragHandle listeners={sortableListeners} attributes={sortableAttributes} />
+              <DragHandle
+                listeners={sortableListeners}
+                attributes={sortableAttributes}
+              />
               <h3 className="text-lg font-semibold">Nodo {nodeIndex + 1}</h3>
             </div>
           </div>
 
           <div className="flex items-center space-x-2 mb-4">
             <div className="flex-1 overflow-x-auto">
-              <DndContext 
-                sensors={sensors} 
-                collisionDetection={closestCenter} 
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
                 onDragEnd={handleDragEnd}
               >
-                <SortableContext 
-                  items={panels.map((p) => p.id)} 
+                <SortableContext
+                  items={panels.map((p) => p.id)}
                   strategy={horizontalListSortingStrategy}
                 >
                   <div className="flex items-center space-x-4 min-w-max pb-2 m-1">
                     {panels.map((panel, index) => (
                       <React.Fragment key={panel.id}>
-                        <SortablePanel 
-                          panel={panel} 
-                          nodeIndex={nodeIndex} 
-                          panelIndex={index} 
+                        <SortablePanel
+                          panel={panel}
+                          nodeIndex={nodeIndex}
+                          panelIndex={index}
                         />
                         {index < panels.length - 1 && (
                           <div className="w-8 h-0.5 bg-white/50 flex-shrink-0" />
@@ -139,13 +170,22 @@ export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPa
             </div>
           </div>
 
-          {/* Integrated Music Section */}
-          <div className={`flex items-center justify-center space-x-2 p-2 rounded-lg bg-white`}>
-            <Music className="w-4 h-4 text-black" />
-            <span className="font-medium capitalize text-black">{musicType}</span>
+          {/* Sección de música integrada */}
+          <div
+            className={`flex items-center justify-center space-x-2 p-2 rounded-lg ${getMusicColor()}`}
+          >
+            <Music className="w-4 h-4" />
+            <span className="font-medium capitalize">{musicType}</span>
+            <Mood
+              value={musicType}
+              onChange={(newMood) => {
+                setMusicType(newMood); // Actualiza estado local
+                updateMusicType(nodeIndex, newMood); // Actualiza contexto global
+              }}
+            />
           </div>
         </div>
       </Card>
     </div>
-  )
+  );
 }

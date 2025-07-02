@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState } from 'react';
-import type { ReactNode } from 'react';
-import type { ComicData, Panel, Node } from '../../timeline';
+import React, { createContext, useContext, useState } from "react";
+import type { ReactNode } from "react";
+import type { ComicData, Panel, Node } from "../../timeline";
 
 // Todas las funciones disponibles
 interface ComicContextType {
@@ -10,7 +10,11 @@ interface ComicContextType {
   reorderPanels: (nodeIndex: number, newPanels: Panel[]) => void;
   deletePanel: (nodeIndex: number, panelId: string) => void;
   deleteNode: (nodeIndex: number) => void;
-  movePanelToNode: (panelId: string, fromNodeIndex: number, toNodeIndex: number) => void;
+  movePanelToNode: (
+    panelId: string,
+    fromNodeIndex: number,
+    toNodeIndex: number
+  ) => void;
   reorderNodes: (activeIndex: number, overIndex: number) => void;
   getNodesFromData: () => Node[];
 }
@@ -21,7 +25,7 @@ const ComicContext = createContext<ComicContextType | undefined>(undefined);
 export const useComic = () => {
   const context = useContext(ComicContext);
   if (!context) {
-    throw new Error('useComic debe ser usado dentro de un ComicProvider');
+    throw new Error("useComic debe ser usado dentro de un ComicProvider");
   }
   return context;
 };
@@ -39,7 +43,7 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
       created: new Date().toISOString(),
     },
     chapters: {
-      "1": {}
+      "1": {},
     },
   });
 
@@ -52,7 +56,7 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
         nodeIndex: Number.parseInt(nodeKey) - 1,
         nodeKey,
         panels: chapter[nodeKey],
-        musicType: chapter[nodeKey][0]?.metadata.musicType || "feliz",
+        musicType: chapter[nodeKey][0]?.metadata.musicType || "neutral",
       }));
   };
 
@@ -73,7 +77,7 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
         page: 1,
         panel: 1,
         createdAt: new Date().toISOString(),
-        musicType: "feliz",
+        musicType: "Neutral",
       },
     };
 
@@ -95,7 +99,13 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
     const chapter = comicData.chapters["1"];
     const currentPanels = chapter[nodeKey] || [];
 
-    const colors = ["bg-emerald-500", "bg-violet-500", "bg-blue-500", "bg-red-500", "bg-yellow-500"];
+    const colors = [
+      "bg-emerald-500",
+      "bg-violet-500",
+      "bg-blue-500",
+      "bg-red-500",
+      "bg-yellow-500",
+    ];
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
     const newPanel: Panel = {
@@ -109,7 +119,7 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
         page: 1,
         panel: currentPanels.length + 1,
         createdAt: new Date().toISOString(),
-        musicType: currentPanels[0]?.metadata.musicType || "feliz",
+        musicType: currentPanels[0]?.metadata.musicType || "neutral",
       },
     };
 
@@ -157,8 +167,10 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
     const chapter = comicData.chapters["1"];
     const currentPanels = chapter[nodeKey] || [];
 
-    const filteredPanels = currentPanels.filter((panel) => panel.id !== panelId);
-    
+    const filteredPanels = currentPanels.filter(
+      (panel) => panel.id !== panelId
+    );
+
     // Si no quedan viñetas en el nodo, eliminar el nodo completo
     if (filteredPanels.length === 0) {
       deleteNode(nodeIndex);
@@ -191,13 +203,15 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
     const nodeKey = (nodeIndex + 1).toString();
     const chapter = comicData.chapters["1"];
     const newChapter = { ...chapter };
-    
+
     // Obtener los paneles del nodo que se va a eliminar para disparar eventos
     const panelsToDelete = chapter[nodeKey] || [];
-    
+
     delete newChapter[nodeKey];
 
-    const remainingNodes = Object.keys(newChapter).sort((a, b) => Number.parseInt(a) - Number.parseInt(b));
+    const remainingNodes = Object.keys(newChapter).sort(
+      (a, b) => Number.parseInt(a) - Number.parseInt(b)
+    );
     const reorderedChapter: { [key: string]: Panel[] } = {};
 
     remainingNodes.forEach((oldKey, index) => {
@@ -214,15 +228,21 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
     }));
 
     // Disparar eventos para eliminar las formas visuales correspondientes
-    panelsToDelete.forEach(panel => {
-      window.dispatchEvent(new CustomEvent('delete-panel', { 
-        detail: { panelId: panel.id }
-      }));
+    panelsToDelete.forEach((panel) => {
+      window.dispatchEvent(
+        new CustomEvent("delete-panel", {
+          detail: { panelId: panel.id },
+        })
+      );
     });
   };
 
   // Mueve una viñeta de un nodo a otro y actualiza los metadatos
-  const movePanelToNode = (panelId: string, fromNodeIndex: number, toNodeIndex: number) => {
+  const movePanelToNode = (
+    panelId: string,
+    fromNodeIndex: number,
+    toNodeIndex: number
+  ) => {
     const fromNodeKey = (fromNodeIndex + 1).toString();
     const toNodeKey = (toNodeIndex + 1).toString();
     const chapter = comicData.chapters["1"];
@@ -233,20 +253,36 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
     const panelToMove = fromPanels.find((panel) => panel.id === panelId);
     if (!panelToMove) return;
 
-    const updatedFromPanels = fromPanels.filter((panel) => panel.id !== panelId);
+    const updatedFromPanels = fromPanels.filter(
+      (panel) => panel.id !== panelId
+    );
     const updatedToPanels = [
       ...toPanels,
-      { ...panelToMove, metadata: { ...panelToMove.metadata, musicType: toPanels[0]?.metadata.musicType || "feliz" } },
+      {
+        ...panelToMove,
+        metadata: {
+          ...panelToMove.metadata,
+          musicType: toPanels[0]?.metadata.musicType || "neutral",
+        },
+      },
     ];
 
     const reorderedFromPanels = updatedFromPanels.map((panel, index) => ({
       ...panel,
-      metadata: { ...panel.metadata, panel: index + 1, order: (index + 1) * 10 },
+      metadata: {
+        ...panel.metadata,
+        panel: index + 1,
+        order: (index + 1) * 10,
+      },
     }));
 
     const reorderedToPanels = updatedToPanels.map((panel, index) => ({
       ...panel,
-      metadata: { ...panel.metadata, panel: index + 1, order: (index + 1) * 10 },
+      metadata: {
+        ...panel.metadata,
+        panel: index + 1,
+        order: (index + 1) * 10,
+      },
     }));
 
     setComicData((prev) => ({
@@ -265,13 +301,15 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
   // Reordena los nodos intercambiando sus posiciones
   const reorderNodes = (activeIndex: number, overIndex: number) => {
     const chapter = comicData.chapters["1"];
-    const nodeKeys = Object.keys(chapter).sort((a, b) => Number.parseInt(a) - Number.parseInt(b));
-    
+    const nodeKeys = Object.keys(chapter).sort(
+      (a, b) => Number.parseInt(a) - Number.parseInt(b)
+    );
+
     const activeNodePanels = chapter[nodeKeys[activeIndex]];
     const overNodePanels = chapter[nodeKeys[overIndex]];
-    
+
     const newChapter: { [key: string]: Panel[] } = {};
-    
+
     nodeKeys.forEach((key, index) => {
       if (index === activeIndex) {
         newChapter[key] = overNodePanels;
@@ -291,6 +329,33 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
     }));
   };
 
+  const updateMusicType = (nodeIndex: number, newMusicType: string) => {
+    const nodeKey = (nodeIndex + 1).toString();
+    const chapter = comicData.chapters["1"];
+    const panels = chapter[nodeKey] || [];
+
+    // Actualizamos la propiedad musicType en el metadata de cada panel de ese nodo
+    const updatedPanels = panels.map((panel) => ({
+      ...panel,
+      metadata: {
+        ...panel.metadata,
+        musicType: newMusicType,
+      },
+    }));
+
+    // Actualizamos el estado comicData reemplazando solo los panels modificados
+    setComicData((prev) => ({
+      ...prev,
+      chapters: {
+        ...prev.chapters,
+        "1": {
+          ...prev.chapters["1"],
+          [nodeKey]: updatedPanels,
+        },
+      },
+    }));
+  };
+
   const value = {
     comicData,
     addNewNode,
@@ -301,7 +366,10 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
     movePanelToNode,
     reorderNodes,
     getNodesFromData,
+    updateMusicType,
   };
 
-  return <ComicContext.Provider value={value}>{children}</ComicContext.Provider>;
+  return (
+    <ComicContext.Provider value={value}>{children}</ComicContext.Provider>
+  );
 };

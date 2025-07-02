@@ -211,7 +211,19 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
     const nodesExport = nodes.map((node) => ({
       id: node.nodeKey,
       name: `Nodo ${node.nodeIndex + 1}`,
-      mood: node.musicType === "feliz" ? "happy" : "sad",
+      //mood: node.musicType === "feliz" ? "happy" : "sad",
+      mood:
+        node.musicType === "feliz"
+          ? "feliz"
+          : node.musicType === "triste"
+          ? "triste"
+          : node.musicType === "drama"
+          ? "drama"
+          : node.musicType === "acción"
+          ? "acción"
+          : node.musicType === "tensión"
+          ? "tensión"
+          : "neutral", //sino neutral
       color: node.panels[0]?.fill || "bg-emerald-500",
       start: 0,
       end: 50,
@@ -346,7 +358,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
   return (
     <div className="font-mono h-screen flex flex-col">
       <div className="h-[8%]">
-        <NavBar/>
+        <NavBar />
       </div>
       <Separator />
       <ResizablePanelGroup direction="horizontal" className="font-mono h-[90%]">
@@ -354,9 +366,9 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
           {/* Seleccionador de páginas */}
           <Paginas pdfUrl={pdfUrl} config={config} />
         </ResizablePanel>
-        <ResizableHandle withHandle className="[&>div]:h-12"/>
+        <ResizableHandle withHandle className="[&>div]:h-12" />
         <Separator orientation="vertical" />
-        <ResizableHandle withHandle className="[&>div]:h-12"/>
+        <ResizableHandle withHandle className="[&>div]:h-12" />
         <ResizablePanel className="h-full w-full" defaultSize={80}>
           <ResizablePanelGroup direction="vertical" className="w-full">
             {/* Página manga */}
@@ -407,29 +419,31 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                         )}
 
                         {/* Puntos */}
-                        {Array.from({ length: points.length / 2 }).map((_, i) => {
-                          const x = points[i * 2];
-                          const y = points[i * 2 + 1];
-                          return (
-                            <React.Fragment key={`point-${i}`}>
-                              <Circle x={x} y={y} radius={5} fill="red" />
-                              <Text
-                                x={x + 10}
-                                y={y - 15}
-                                text={`${i + 1}: (${Math.round(x)},${Math.round(
-                                  y
-                                )})`}
-                                fontSize={12}
-                                fill="#333"
-                              />
-                            </React.Fragment>
-                          );
-                        })}
+                        {Array.from({ length: points.length / 2 }).map(
+                          (_, i) => {
+                            const x = points[i * 2];
+                            const y = points[i * 2 + 1];
+                            return (
+                              <React.Fragment key={`point-${i}`}>
+                                <Circle x={x} y={y} radius={5} fill="red" />
+                                <Text
+                                  x={x + 10}
+                                  y={y - 15}
+                                  text={`${i + 1}: (${Math.round(
+                                    x
+                                  )},${Math.round(y)})`}
+                                  fontSize={12}
+                                  fill="#333"
+                                />
+                              </React.Fragment>
+                            );
+                          }
+                        )}
                       </Layer>
                     </Stage>
                   </div>
                 </ResizablePanel>
-                <Separator orientation="vertical"/>
+                <Separator orientation="vertical" />
                 <ResizablePanel defaultSize={25}>
                   <Card className="h-full">
                     <CardContent className="flex flex-col justify-center items-center space-y-4 h-full">
@@ -464,19 +478,19 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                       >
                         Exportar cómic
                       </Button>
-                      <Button 
+                      <Button
                         onClick={clearLastPoint}
                         className="px-4 py-2 rounded-md transition-colors text-xs w-[90%]"
                       >
                         Eliminar Punto
                       </Button>
-                      <Button 
+                      <Button
                         onClick={deleteLastShape}
                         className="px-4 py-2 rounded-md transition-colors text-xs w-[90%]"
                       >
                         Eliminar Forma
                       </Button>
-                      <Button 
+                      <Button
                         onClick={exportComicData}
                         className="px-4 py-2 rounded-md transition-colors text-xs w-[90%]"
                       >
@@ -487,7 +501,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                 </ResizablePanel>
               </ResizablePanelGroup>
             </ResizablePanel>
-            <ResizableHandle withHandle className="[&>div]:h-12"/>
+            <ResizableHandle withHandle className="[&>div]:h-12" />
             <ResizablePanel defaultSize={27} className="my-2">
               <div className="w-full overflow-hidden">
                 {/* Línea de tiempo */}
