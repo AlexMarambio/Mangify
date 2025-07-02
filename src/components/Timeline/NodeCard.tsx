@@ -116,15 +116,9 @@ export function NodeCard({
       style={{ minWidth: `${minWidth}px` }}
     >
       <Card
-        className={`text-white p-0.5 ${
-          isSortableDragging ? "shadow-xl scale-105" : ""
-        } ${
-          isDroppableOver
-            ? "ring-2 ring-blue-400 ring-opacity-50 bg-opacity-80"
-            : ""
-        } ${
-          selected ? "ring-2 ring-blue-400" : ""
-        } transition-all duration-200`}
+        className={`text-white p-0.5 ${isSortableDragging ? "shadow-xl scale-105" : ""} ${
+          isDroppableOver ? "ring-2 ring-blue-400 ring-opacity-50 bg-opacity-80" : ""
+        } transition-all duration-200 ${selected ? "ring ring-white" : ""}`}
         ref={setNodeRef}
         style={nodeStyle}
         onClick={onSelect}
@@ -133,14 +127,10 @@ export function NodeCard({
           {/* Header compacto */}
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center space-x-0.5">
-              <DragHandle
-                listeners={sortableListeners}
-                attributes={sortableAttributes}
-              />
+              <DragHandle listeners={sortableListeners} attributes={sortableAttributes} />
               <h3 className="text-xs font-medium">Nodo {nodeIndex + 1}</h3>
             </div>
           </div>
-
           {/* Paneles compactos */}
           <div className="flex items-center space-x-0.5 mb-1">
             <div className="flex-1 overflow-x-auto">

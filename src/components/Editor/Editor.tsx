@@ -466,21 +466,12 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                         Añadir Nodo
                       </Button>
                       {/* Botones */}
-                      <Button className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer" style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)'}} onClick={clearLastPoint}>
-                        <CornerDownLeft className="w-4 h-4 mr-2" />
-                        <span className="truncate">Borrar último punto</span>
-                      </Button>
-                      <Button className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer" style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }} onClick={deleteLastShape}>
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        <span className="truncate">Borrar última forma</span>
-                      </Button>
-                      <Button className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer" style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }} onClick={exportComicData}>
-                        <FileDown className="w-4 h-4 mr-2" />
-                        Exportar cómic
-                      </Button>
-                      <Button onClick={clearLastPoint} className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer" style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}>
-                        <Minus className="w-4 h-4 mr-2" />
-                        Eliminar Punto
+                      <Button 
+                        onClick={clearLastPoint}
+                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer"
+                        style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}
+                      >
+                        <span className="truncate">Eliminar Punto</span>
                       </Button>
                       <Button onClick={deleteLastShape} className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer" style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}>
                         <Trash2 className="w-4 h-4 mr-2" />
@@ -496,7 +487,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
               </ResizablePanelGroup>
             </ResizablePanel>
             <ResizableHandle withHandle className="[&>div]:h-12"/>
-            <ResizablePanel defaultSize={18} className="my-2">
+            <ResizablePanel defaultSize={18} className="flex my-2 items-center">
               <div className="w-full overflow-hidden">
                 {/* Línea de tiempo */}
                 <Card className="h-full">
