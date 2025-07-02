@@ -287,9 +287,9 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
 
     // Copiar al portapapeles
     const jsonData = JSON.stringify(comicData, null, 2);
-    navigator.clipboard.writeText(jsonData).catch((err) => {
-      console.error("Error al copiar al portapapeles:", err);
-    });
+    // navigator.clipboard.writeText(jsonData).catch((err) => {
+    //   console.error("Error al copiar al portapapeles:", err);
+    // });
 
     // Guardar en localStorage
     localStorage.setItem("comic-latest", jsonData);
