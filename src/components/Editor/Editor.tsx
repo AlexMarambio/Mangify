@@ -99,7 +99,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
   const { currentPage: page } = usePageContext();
   const [panel, setPanel] = useState<number>(1);
   const { addNewNode, addPanelToNode } = useComic();
-
+  const { clearNodes } = useComic();
   const [activeMode, setActiveMode] = useState("nodes");
 
   // Efecto para sincronizar formas con la línea de tiempo
@@ -346,6 +346,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
 
   useEffect(() => {
     setShapes([]);
+    clearNodes(); // Limpiar nodos al cambiar el PDF
     setPoints([]);
     setFirstPoint(null);
   }, [pdfUrl]);

@@ -48,22 +48,23 @@ const Paginas = ({ pdfUrl }: PaginasProps) => {
   const SelectPage = () => {
     return (
       Array.from({ length: numPages }, (_, i) => (
-        <div key={i + 1} className="row-span-1 flex h-[10%] w-full">
+        <div key={i + 1} className="row-span-1 flex h-[80px] w-full min-h-[80px]">
           <Button
             onClick={() => setCurrentPage(i + 1)}
             className={`flex h-full w-full justify-center items-center gap-4 my-1 px-2 cursor-pointer ${
               currentPage === i + 1 
-                ? 'text-black hover:text-white' 
+                ? 'bg-white text-black hover:text-black' 
                 : `bg-transparent text-white hover:text-black`
             }`}
           >
-            <div className="relative w-12 h-full flex-shrink-0">
+            <div className="relative w-12 h-16 flex-shrink-0">
               {!loadedPages.has(i + 1) && (
                 <div className="absolute inset-0 bg-gray-200 animate-pulse rounded"></div>
               )}
               <Document 
                 file={pdfUrl} 
                 className="inline-block"
+                loading=""
               >
                 <Page
                   pageNumber={i + 1}
@@ -87,7 +88,7 @@ const Paginas = ({ pdfUrl }: PaginasProps) => {
 
   const LoadingSkeleton = () => (
     Array.from({ length: 5 }, (_, i) => (
-      <div key={`skeleton-${i}`} className="row-span-1 flex h-[10%] w-full">
+      <div key={`skeleton-${i}`} className="row-span-1 flex h-[80px] w-full min-h-[80px]">
         <div className="flex h-full w-full justify-center items-center gap-4 my-1 px-2">
           <div className="w-12 h-16 bg-gray-200 animate-pulse rounded flex-shrink-0"></div>
           <div className="w-6 h-6 bg-gray-200 animate-pulse rounded flex-shrink-0"></div>
@@ -109,7 +110,7 @@ const Paginas = ({ pdfUrl }: PaginasProps) => {
           </div>
         ) : (
           <div className="flex justify-center items-center h-32">
-            <span className="text-lg text-gray-500">No hay páginas para mostrar</span>
+            <span className="text-lg text-gray-500">No hay pÃ¡ginas para mostrar</span>
           </div>
         )}
       </div>
