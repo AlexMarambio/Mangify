@@ -56,26 +56,11 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
       }));
   };
 
-  // Añade un nuevo nodo al final de la lista con una viñeta inicial
+  // Añade un nuevo nodo vacío al final de la lista
   const addNewNode = () => {
     const chapter = comicData.chapters["1"];
     const nodeKeys = Object.keys(chapter);
     const nextNodeKey = (nodeKeys.length + 1).toString();
-
-    const newPanel: Panel = {
-      id: `viñeta-${Date.now()}`,
-      points: [],
-      fill: "bg-blue-500",
-      closed: true,
-      metadata: {
-        order: 10,
-        chapter: 1,
-        page: 1,
-        panel: 1,
-        createdAt: new Date().toISOString(),
-        musicType: "feliz",
-      },
-    };
 
     setComicData((prev) => ({
       ...prev,
@@ -83,7 +68,7 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
         ...prev.chapters,
         "1": {
           ...prev.chapters["1"],
-          [nextNodeKey]: [newPanel],
+          [nextNodeKey]: [],
         },
       },
     }));

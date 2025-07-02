@@ -173,9 +173,11 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
     }
   };
 
+  const [selectedNode, setSelectedNode] = useState(0);
+
   const finishShape = () => {
     if (points.length >= 6) {
-      const newId = Date.now(); // O usa `const newId = `viñeta-${Date.now()}`;` si prefieres string
+      const newId = Date.now();
       const newShape: ComicShape = {
         id: newId,
         points: [...points],
@@ -193,9 +195,8 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
       setPoints([]);
       setFirstPoint(null);
       setPoints([]);
-
-      // Asegúrate de que addPanelToNode acepte el id
-      addPanelToNode(0, newId); // <-- PASA EL ID AQUÍ
+      // Usar el nodo seleccionado
+      addPanelToNode(selectedNode, newId);
     }
   };
 
@@ -547,6 +548,8 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                                       overId ===
                                       `node-droppable-${node.nodeIndex}`
                                     }
+                                    selected={selectedNode === node.nodeIndex}
+                                    onSelect={() => setSelectedNode(node.nodeIndex)}
                                   />
                                 ))}
                               </SortableContext>

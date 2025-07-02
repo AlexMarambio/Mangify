@@ -16,7 +16,7 @@ import { SortablePanel } from "./SortablePanel"
 import { DragHandle } from "./DragHandle"
 import { type NodeCardProps } from "../../timeline"
 
-export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPanels, onDeletePanel, isOver }: NodeCardProps) {
+export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPanels, onDeletePanel, isOver, selected, onSelect }: NodeCardProps & { selected?: boolean, onSelect?: () => void }) {
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -93,15 +93,16 @@ export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPa
   const minWidth = Math.max(320, 200 + panels.length * 60)
 
   return (
-    <div className="flex flex-col space-y-2 flex-shrink-0" style={{ minWidth: `${minWidth}px` }}>
+    <div className="flex flex-col space-y-2 flex-shrink-0 ml-3 mt-3" style={{ minWidth: `${minWidth}px` }}>
       <Card
-        className={`text-white  ${isSortableDragging ? "shadow-2xl scale-105" : ""} ${
+        className={`text-white p-1 ${isSortableDragging ? "shadow-2xl scale-105" : ""} ${
           isDroppableOver ? "ring-4 ring-blue-400 ring-opacity-50 bg-opacity-80" : ""
-        } transition-all duration-200`}
+        } ${selected ? "ring-4 ring-blue-400" : ""} transition-all duration-200`}
         ref={setNodeRef}
         style={nodeStyle}
+        onClick={onSelect}
       >
-        <div className="p-4">
+        <div className="p-3 pb-2">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
               <DragHandle listeners={sortableListeners} attributes={sortableAttributes} />
@@ -140,7 +141,7 @@ export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPa
           </div>
 
           {/* Integrated Music Section */}
-          <div className={`flex items-center justify-center space-x-2 p-2 rounded-lg bg-white`}>
+          <div className="flex items-center justify-center space-x-2 p-1 rounded-lg bg-white mt-1 mb-0">
             <Music className="w-4 h-4 text-black" />
             <span className="font-medium capitalize text-black">{musicType}</span>
           </div>
