@@ -32,8 +32,8 @@ interface ComicProviderProps {
 }
 
 export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
-  // Estado inicial del cómic con datos de ejemplo
-  const [comicData, setComicData] = useState<ComicData>({
+  // Estado inicial del cómic: si hay localStorage, úsalo
+  let initialComicData: ComicData = {
     metadata: {
       title: "Mi Cómic",
       author: "Tu Nombre",
@@ -42,7 +42,64 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
     chapters: {
       "1": {}
     },
-  });
+  };
+  if (typeof window !== 'undefined') {
+    const local = localStorage.getItem('comic-latest');
+    if (local) {
+      try {
+        const parsed = JSON.parse(local);
+        // Adaptar el formato si es necesario
+        if (parsed.chapters) {
+          initialComicData = parsed;
+        } else if (parsed.pages && parsed.nodes) {
+          // Adaptar formato de Viewer a formato de Editor
+          const chapters: any = { "1": {} };
+          // Agrupar panels por nodo y por página
+          parsed.nodes.forEach((node: any, idx: number) => {
+            const nodeKey = (idx + 1).toString();
+            // Agrupar panels de este nodo por página
+            const panelsByPage: { [page: string]: any[] } = {};
+            Object.entries(parsed.pages).forEach(([pageNum, panels]) => {
+              (panels as any[]).forEach((panel: any) => {
+                if (String(panel.node) === node.id) {
+                  if (!panelsByPage[pageNum]) panelsByPage[pageNum] = [];
+                  panelsByPage[pageNum].push(panel);
+                }
+              });
+            });
+            // Solo soportamos un capítulo, pero respetamos la página
+            // Para el formato actual, solo guardamos la última página encontrada para ese nodo
+            // Si quieres soportar varias páginas por nodo, deberías adaptar el resto del editor
+            // Aquí, para cada nodo, concatenamos todos los panels de todas las páginas
+            const allPanels = Object.entries(panelsByPage).flatMap(([pageNum, panels]) =>
+              (panels as any[]).map((panel: any, i: number) => ({
+                id: panel.id,
+                points: panel.points,
+                fill: panel.fill,
+                closed: panel.closed,
+                metadata: {
+                  order: panel.order,
+                  chapter: 1,
+                  page: Number(pageNum),
+                  panel: i + 1,
+                  createdAt: panel.createdAt || new Date().toISOString(),
+                  musicType: node.mood === 'happy' ? 'feliz' : 'triste',
+                },
+              }))
+            );
+            chapters["1"][nodeKey] = allPanels;
+          });
+          initialComicData = {
+            metadata: parsed.metadata,
+            chapters,
+          };
+        }
+      } catch (e) {
+        // Si falla, ignora y usa el default
+      }
+    }
+  }
+  const [comicData, setComicData] = useState<ComicData>(initialComicData);
 
   // GET lista de nodos ordenados del capítulo actual
   const getNodesFromData = () => {

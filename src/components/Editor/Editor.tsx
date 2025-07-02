@@ -252,7 +252,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
       }
 
       pages[pageKey].push({
-        id: shape.id,
+        id: typeof shape.id === 'number' ? shape.id : Number(shape.id),
         text: `Panel ${pages[pageKey].length + 1}`,
         order: shape.metadata.order,
         node: associatedNodeKey ?? null,
@@ -355,6 +355,27 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
     window.addEventListener("add-panel-to-first-node", handler);
     return () => window.removeEventListener("add-panel-to-first-node", handler);
   }, [addPanelToNode]);
+
+  // Sincronizar las formas (shapes) con el estado global al iniciar
+  useEffect(() => {
+    // Obtener nodos y viñetas del contexto global
+    const nodes = getNodesFromData();
+    const loadedShapes: ComicShape[] = [];
+    nodes.forEach((node) => {
+      node.panels.forEach((panel) => {
+        loadedShapes.push({
+          id: typeof panel.id === 'number' ? panel.id : Number(panel.id),
+          points: panel.points,
+          fill: panel.fill,
+          closed: panel.closed,
+          metadata: panel.metadata,
+        });
+      });
+    });
+    if (loadedShapes.length > 0) {
+      setShapes(loadedShapes);
+    }
+  }, []);
 
   console.log(window.innerHeight, window.innerWidth);
 
