@@ -34,7 +34,7 @@ import {
   horizontalListSortingStrategy,
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
-import { Plus, GripVertical } from "lucide-react";
+import { Plus, GripVertical, Trash2, CornerDownLeft, FileDown, FileText, Minus, Save, Download, ArrowDownToLine } from "lucide-react";
 import { NodeCard } from "../Timeline/NodeCard";
 import { DeleteZone } from "../Timeline/DeleteZone";
 import { ComicProvider, useComic } from "../Timeline/ComicContext";
@@ -463,56 +463,34 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                   <Card className="h-full">
                     <CardContent className="flex flex-col justify-center items-center space-y-4 h-full">
                       {/* Botones para añadir viñetas y nodos */}
-                      <Button onClick={addNewNode} className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer"
-                        style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}>
-                        <Plus 
-                          className="mr-2 flex-shrink-0" 
-                          style={{ width: 'clamp(12px, 3vw, 16px)', height: 'clamp(12px, 3vw, 16px)' }}
-                        />
-                        <span className="truncate">Añadir Nodo</span>
+                      <Button onClick={addNewNode} className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer" style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Añadir Nodo
                       </Button>
                       {/* Botones */}
-                      <Button
-                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer"
-                        style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)'}}
-                        onClick={clearLastPoint}
-                      >
+                      <Button className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer" style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)'}} onClick={clearLastPoint}>
+                        <CornerDownLeft className="w-4 h-4 mr-2" />
                         <span className="truncate">Borrar último punto</span>
                       </Button>
-                      <Button
-                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer"
-                        style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}
-                        onClick={deleteLastShape}
-                      >
+                      <Button className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer" style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }} onClick={deleteLastShape}>
+                        <Trash2 className="w-4 h-4 mr-2" />
                         <span className="truncate">Borrar última forma</span>
                       </Button>
-                      <Button
-                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer"
-                        style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}
-                        onClick={exportComicData}
-                      >
-                        <span className="truncate">Exportar cómic</span>
+                      <Button className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer" style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }} onClick={exportComicData}>
+                        <FileDown className="w-4 h-4 mr-2" />
+                        Exportar cómic
                       </Button>
-                      <Button 
-                        onClick={clearLastPoint}
-                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer"
-                        style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}
-                      >
-                        <span className="truncate">Eliminar Punto</span>
+                      <Button onClick={clearLastPoint} className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer" style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}>
+                        <Minus className="w-4 h-4 mr-2" />
+                        Eliminar Punto
                       </Button>
-                      <Button 
-                        onClick={deleteLastShape}
-                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer"
-                        style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}
-                      >
-                        <span className="truncate">Eliminar Forma</span>
+                      <Button onClick={deleteLastShape} className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer" style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}>
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Eliminar Forma
                       </Button>
-                      <Button 
-                        onClick={exportComicData}
-                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer"
-                        style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}
-                      >
-                        <span className="truncate">Exportar</span>
+                      <Button onClick={exportComicData} className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer" style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}>
+                        <Save className="w-4 h-4 mr-2" />
+                        Exportar
                       </Button>
                     </CardContent>
                   </Card>
