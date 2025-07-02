@@ -433,26 +433,24 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                         )}
 
                         {/* Puntos */}
-                        {Array.from({ length: points.length / 2 }).map(
-                          (_, i) => {
-                            const x = points[i * 2];
-                            const y = points[i * 2 + 1];
-                            return (
-                              <React.Fragment key={`point-${i}`}>
-                                <Circle x={x} y={y} radius={5} fill="red" />
-                                <Text
-                                  x={x + 10}
-                                  y={y - 15}
-                                  text={`${i + 1}: (${Math.round(x)},${Math.round(
-                                    y
-                                  )})`}
-                                  fontSize={12}
-                                  fill="#333"
-                                />
-                              </React.Fragment>
-                            );
-                          }
-                        )}
+                        {Array.from({ length: points.length / 2 }).map((_, i) => {
+                          const x = points[i * 2];
+                          const y = points[i * 2 + 1];
+                          return (
+                            <React.Fragment key={`point-${i}`}>
+                              <Circle x={x} y={y} radius={5} fill={i === 0 ? "#38bdf8" : "red"} />
+                              <Text
+                                x={x + 10}
+                                y={y - 15}
+                                text={`${i + 1}: (${Math.round(x)},${Math.round(
+                                  y
+                                )})`}
+                                fontSize={12}
+                                fill="#333"
+                              />
+                            </React.Fragment>
+                          );
+                        })}
                         {/* Fin puntos figura en progreso */}
                       </Layer>
                     </Stage>
