@@ -151,12 +151,20 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
   };
 
   // Elimina una viñeta específica de un nodo y reordena las restantes
+  // Si el nodo queda vacío, también elimina el nodo
   const deletePanel = (nodeIndex: number, panelId: string) => {
     const nodeKey = (nodeIndex + 1).toString();
     const chapter = comicData.chapters["1"];
     const currentPanels = chapter[nodeKey] || [];
 
     const filteredPanels = currentPanels.filter((panel) => panel.id !== panelId);
+    
+    // Si no quedan viñetas en el nodo, eliminar el nodo completo
+    if (filteredPanels.length === 0) {
+      deleteNode(nodeIndex);
+      return;
+    }
+
     const updatedPanels = filteredPanels.map((panel, index) => ({
       ...panel,
       metadata: {
