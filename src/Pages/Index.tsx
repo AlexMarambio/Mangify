@@ -25,9 +25,9 @@ export default function Index() {
               "/editor?pdfUrl=/armadosMangify.pdf&configUrl=/testConfig.json"
             )
           }
-          className="px-6 py-6 rounded text-4xl font-serif cursor-pointer blur-none"
+          className="px-6 py-6 rounded text-4xl font-serif cursor-pointer blur-none indez-10"
         >
-          <FontAwesomeIcon icon={faPencil} className="w-32 h-32"/>
+          <FontAwesomeIcon icon={faPencil}/>
           Editor
         </Button>
         <Button

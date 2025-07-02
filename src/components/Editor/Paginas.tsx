@@ -48,23 +48,22 @@ const Paginas = ({ pdfUrl }: PaginasProps) => {
   const SelectPage = () => {
     return (
       Array.from({ length: numPages }, (_, i) => (
-        <div key={i + 1} className="row-span-1 flex h-[80px] w-full min-h-[80px]">
+        <div key={i + 1} className="row-span-1 flex h-[10%] w-full">
           <Button
             onClick={() => setCurrentPage(i + 1)}
             className={`flex h-full w-full justify-center items-center gap-4 my-1 px-2 cursor-pointer ${
               currentPage === i + 1 
-                ? 'bg-blue-500 text-white' 
-                : `bg-transparent ${theme === 'dark' ? 'text-white hover:text-black' : 'text-black hover:text-white'}`
+                ? 'text-black hover:text-white' 
+                : `bg-transparent text-white hover:text-black`
             }`}
           >
-            <div className="relative w-12 h-16 flex-shrink-0">
+            <div className="relative w-12 h-full flex-shrink-0">
               {!loadedPages.has(i + 1) && (
                 <div className="absolute inset-0 bg-gray-200 animate-pulse rounded"></div>
               )}
               <Document 
                 file={pdfUrl} 
                 className="inline-block"
-                loading=""
               >
                 <Page
                   pageNumber={i + 1}
@@ -88,7 +87,7 @@ const Paginas = ({ pdfUrl }: PaginasProps) => {
 
   const LoadingSkeleton = () => (
     Array.from({ length: 5 }, (_, i) => (
-      <div key={`skeleton-${i}`} className="row-span-1 flex h-[80px] w-full min-h-[80px]">
+      <div key={`skeleton-${i}`} className="row-span-1 flex h-[10%] w-full">
         <div className="flex h-full w-full justify-center items-center gap-4 my-1 px-2">
           <div className="w-12 h-16 bg-gray-200 animate-pulse rounded flex-shrink-0"></div>
           <div className="w-6 h-6 bg-gray-200 animate-pulse rounded flex-shrink-0"></div>
