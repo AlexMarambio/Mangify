@@ -218,12 +218,29 @@ export default function ViewerWidget({ pdfUrl }: ViewerWidgetProps) {
     }
   };
 
-  const moodMusicMap: { [mood: string]: string } = {
-    triste: "/public/music/Tension/Drama 1.mp3",
-    feliz: "/public/music/Tension/Unforgettable.mp3",
-    neutral: "/public/music/Tension/Calm.mp3",
-    // aki mas muds
-  };
+  const [moodMusicMap, setMoodMusicMap] = useState<{ [mood: string]: string }>(
+    {}
+  );
+
+  useEffect(() => {
+    const fetchMoodMusicMap = async () => {
+      try {
+        const response = await fetch(
+          //"https://backend.example.com/mood-music-map"
+          "http://localhost:3001/musicFull"
+        ); // el mood debe venir /public/...
+        const data = await response.json();
+        setMoodMusicMap(data);
+      } catch (error) {
+        console.error(
+          "Error al obtener las rutas de música desde el backend:",
+          error
+        );
+      }
+    };
+
+    fetchMoodMusicMap();
+  }, []);
 
   const [currentMood, setCurrentMood] = useState<string | null>(null);
   const [audioInstance, setAudioInstance] = useState<HTMLAudioElement | null>(
