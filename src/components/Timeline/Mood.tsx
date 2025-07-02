@@ -1,5 +1,10 @@
-import type { ChangeEvent } from "react";
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 export const moods = ["feliz", "drama", "acción", "tensión"] as const;
 type MoodType = (typeof moods)[number];
 
@@ -8,22 +13,19 @@ type Props = {
   onChange: (value: MoodType) => void;
 };
 
-export type MusicType = (typeof moods)[number];
-
 export default function Mood({ value, onChange }: Props) {
   return (
-    <select
-      value={value}
-      onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-        onChange(e.target.value as MoodType)
-      }
-      className="text-black rounded p-1"
-    >
-      {moods.map((mood) => (
-        <option key={mood} value={mood}>
-          {mood}
-        </option>
-      ))}
-    </select>
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger className="w-[180px]">
+        <SelectValue placeholder="Selecciona un estado de ánimo" />
+      </SelectTrigger>
+      <SelectContent>
+        {moods.map((mood) => (
+          <SelectItem key={mood} value={mood}>
+            {mood}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
