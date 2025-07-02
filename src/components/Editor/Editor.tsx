@@ -459,7 +459,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                   </div>
                 </ResizablePanel>
                 <Separator orientation="vertical"/>
-                <ResizablePanel defaultSize={25}>
+                <ResizablePanel defaultSize={15}>
                   <Card className="h-full">
                     <CardContent className="flex flex-col justify-center items-center space-y-4 h-full">
                       {/* Botones para añadir viñetas y nodos */}

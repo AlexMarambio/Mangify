@@ -98,7 +98,7 @@ export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPa
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center space-x-0.5">
               <DragHandle listeners={sortableListeners} attributes={sortableAttributes} />
-              <h3 className="text-xs font-medium">N{nodeIndex + 1}</h3>
+              <h3 className="text-xs font-medium">Nodo {nodeIndex + 1}</h3>
             </div>
           </div>
 
