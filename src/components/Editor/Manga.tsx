@@ -4,6 +4,15 @@ import { usePageContext } from "../../context/PageContext";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
+const LoadingSkeleton = ({ width = 455, height = 555 }: { width?: number; height?: number }) => (
+  <div className="h-full w-full overflow-hidden flex items-center justify-center">
+    <div 
+      className="bg-gray-200 animate-pulse rounded flex-shrink-0"
+      style={{ width: `${width}px`, height: `${height}px` }}
+    />
+  </div>
+);
+
 const Manga = ({
   pdfUrl,
   setPdfSize,
@@ -32,6 +41,10 @@ const Manga = ({
     }
   }, [viewportWidth, tamaño]);
 
+  if (!pdfUrl) {
+    return <LoadingSkeleton width={tamaño || 455} height={tamaño * 1.2 || 555} />;
+  }
+
   return (
     <div className="h-full w-full overflow-hidden flex items-center justify-center">
       <Document
@@ -42,6 +55,7 @@ const Manga = ({
           const viewport = page.getViewport({ scale: 1 });
           setViewportWidth(viewport.width);
         }}
+        loading={<LoadingSkeleton width={tamaño || 455} height={tamaño * 1.2 || 555} />}
       >
         <Page
           pageNumber={currentPage}
@@ -52,9 +66,11 @@ const Manga = ({
             const viewport = page.getViewport();
             setPdfSize({ width: viewport.width, height: viewport.height });
           }}
+          loading={<LoadingSkeleton width={tamaño || 455} height={tamaño * 1.2 || 555} />}
         />
       </Document>
     </div>
   );
 };
+
 export default Manga;

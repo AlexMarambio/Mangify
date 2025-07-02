@@ -17,9 +17,8 @@ import { DragHandle } from "./DragHandle"
 import { type NodeCardProps } from "../../timeline"
 import { useComic } from "./ComicContext"
 
-
 export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPanels, onDeletePanel, isOver, selected, onSelect }: NodeCardProps & { selected?: boolean, onSelect?: () => void }) {
-  const { updateMusicType } = useComic(); // <--- Agrega esto
+  const { updateMusicType } = useComic();
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -81,39 +80,30 @@ export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPa
     }
   }
 
-  const getNodeColor = () => {
-    if (panels.length > 0) {
-      return panels[0].fill === "bg-emerald-500" ? "bg-emerald-600" : "bg-violet-600"
-    }
-    return "bg-gray-600"
-  }
-
-  const getMusicColor = () => {
-    return musicType === "feliz" ? "bg-emerald-500" : "bg-violet-500"
-  }
-
-  // Calculate minimum width based on panel count
-  const minWidth = Math.max(320, 200 + panels.length * 60)
+  // Usar el ancho mínimo compacto del código que proporcionaste
+  const minWidth = Math.max(120, 80 + panels.length * 30)
 
   return (
-    <div className="flex flex-col space-y-2 flex-shrink-0 ml-3 mt-3" style={{ minWidth: `${minWidth}px` }}>
+    <div className="flex flex-col space-y-0.5 flex-shrink-0 ml-1 mt-1" style={{ minWidth: `${minWidth}px` }}>
       <Card
-        className={`text-white p-1 ${isSortableDragging ? "shadow-2xl scale-105" : ""} ${
-          isDroppableOver ? "ring-4 ring-blue-400 ring-opacity-50 bg-opacity-80" : ""
-        } ${selected ? "ring-4 ring-blue-400" : ""} transition-all duration-200`}
+        className={`text-white p-0.5 ${isSortableDragging ? "shadow-xl scale-105" : ""} ${
+          isDroppableOver ? "ring-2 ring-blue-400 ring-opacity-50 bg-opacity-80" : ""
+        } ${selected ? "ring-2 ring-blue-400" : ""} transition-all duration-200`}
         ref={setNodeRef}
         style={nodeStyle}
         onClick={onSelect}
       >
-        <div className="p-3 pb-2">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-2">
+        <div className="p-1.5 pb-1">
+          {/* Header compacto */}
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center space-x-0.5">
               <DragHandle listeners={sortableListeners} attributes={sortableAttributes} />
-              <h3 className="text-lg font-semibold">Nodo {nodeIndex + 1}</h3>
+              <h3 className="text-xs font-medium">Nodo {nodeIndex + 1}</h3>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2 mb-4">
+          {/* Paneles compactos */}
+          <div className="flex items-center space-x-0.5 mb-1">
             <div className="flex-1 overflow-x-auto">
               <DndContext 
                 sensors={sensors} 
@@ -124,7 +114,7 @@ export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPa
                   items={panels.map((p) => p.id)} 
                   strategy={horizontalListSortingStrategy}
                 >
-                  <div className="flex items-center space-x-4 min-w-max pb-2 m-1">
+                  <div className="flex items-center space-x-1 min-w-max pb-0.5">
                     {panels.map((panel, index) => (
                       <React.Fragment key={panel.id}>
                         <SortablePanel 
@@ -133,7 +123,7 @@ export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPa
                           panelIndex={index} 
                         />
                         {index < panels.length - 1 && (
-                          <div className="w-8 h-0.5 bg-white/50 flex-shrink-0" />
+                          <div className="w-2 h-0.5 bg-white/30 flex-shrink-0" />
                         )}
                       </React.Fragment>
                     ))}
@@ -143,16 +133,19 @@ export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPa
             </div>
           </div>
 
-          {/* Integrated Music Section */}
-          <div className="flex items-center justify-center space-x-2 p-1 rounded-lg bg-white mt-1 mb-0">
-            <Music className="w-4 h-4 text-black" />
+          {/* Sección de música compacta */}
+          <div className="flex items-center justify-center space-x-0.5 px-1.5 py-0.5 rounded bg-white">
+            <Music className="w-2.5 h-2.5 text-black" />
             <select
-              className="font-medium capitalize text-black bg-transparent outline-none"
+              className="font-medium capitalize text-black bg-transparent outline-none text-xs"
               value={musicType}
               onChange={(e) => updateMusicType(nodeIndex, e.target.value)}
             >
               <option value="feliz">Feliz</option>
               <option value="triste">Triste</option>
+              <option value="drama">Drama</option>
+              <option value="acción">Acción</option>
+              <option value="tensión">Tensión</option>
               <option value="neutral">Neutral</option>
             </select>
           </div>

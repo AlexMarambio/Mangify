@@ -34,7 +34,7 @@ import {
   horizontalListSortingStrategy,
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
-import { Plus, GripVertical } from "lucide-react";
+import { Plus, GripVertical, Trash2, CornerDownLeft, FileDown, FileText, Minus, Save, Download, ArrowDownToLine } from "lucide-react";
 import { NodeCard } from "../Timeline/NodeCard";
 import { DeleteZone } from "../Timeline/DeleteZone";
 import { ComicProvider, useComic } from "../Timeline/ComicContext";
@@ -283,15 +283,6 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
     // Guardar en localStorage
     localStorage.setItem('comic-latest', jsonData);
 
-    // Descargar archivo
-    const blob = new Blob([jsonData], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "comic-latest.json";
-    a.click();
-    URL.revokeObjectURL(url);
-
     alert(`Datos del cómic exportados!\nCapítulo: ${chapter}`);
   };
 
@@ -386,19 +377,18 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
       </div>
       <Separator />
       <ResizablePanelGroup direction="horizontal" className="font-mono h-[90%]">
-        <ResizablePanel defaultSize={20}>
+        <ResizablePanel defaultSize={15}>
           {/* Seleccionador de páginas */}
           <Paginas pdfUrl={pdfUrl} config={config} />
         </ResizablePanel>
-        <ResizableHandle withHandle className="[&>div]:h-12"/>
         <Separator orientation="vertical" />
         <ResizableHandle withHandle className="[&>div]:h-12"/>
         <ResizablePanel className="h-full w-full" defaultSize={80}>
           <ResizablePanelGroup direction="vertical" className="w-full">
             {/* Página manga */}
-            <ResizablePanel defaultSize={73}>
+            <ResizablePanel defaultSize={75}>
               <ResizablePanelGroup direction="horizontal" className="h-full">
-                <ResizablePanel defaultSize={75}>
+                <ResizablePanel defaultSize={78}>
                   <div className="flex relative h-full items-center">
                     {/* CONTENEDOR RELATIVO PARA SUPERPOSICIÓN */}
                     <Manga
@@ -443,86 +433,62 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                         )}
 
                         {/* Puntos */}
-                        {Array.from({ length: points.length / 2 }).map(
-                          (_, i) => {
-                            const x = points[i * 2];
-                            const y = points[i * 2 + 1];
-                            return (
-                              <React.Fragment key={`point-${i}`}>
-                                <Circle x={x} y={y} radius={5} fill="red" />
-                                <Text
-                                  x={x + 10}
-                                  y={y - 15}
-                                  text={`${i + 1}: (${Math.round(x)},${Math.round(
-                                    y
-                                  )})`}
-                                  fontSize={12}
-                                  fill="#333"
-                                />
-                              </React.Fragment>
-                            );
-                          }
-                        )}
+                        {Array.from({ length: points.length / 2 }).map((_, i) => {
+                          const x = points[i * 2];
+                          const y = points[i * 2 + 1];
+                          return (
+                            <React.Fragment key={`point-${i}`}>
+                              <Circle x={x} y={y} radius={5} fill={i === 0 ? "blue" : "red"} />
+                              <Text
+                                x={x + 10}
+                                y={y - 15}
+                                text={`${i + 1}: (${Math.round(x)},${Math.round(
+                                  y
+                                )})`}
+                                fontSize={12}
+                                fill="#333"
+                              />
+                            </React.Fragment>
+                          );
+                        })}
                         {/* Fin puntos figura en progreso */}
                       </Layer>
                     </Stage>
                   </div>
                 </ResizablePanel>
                 <Separator orientation="vertical"/>
-                <ResizablePanel defaultSize={25}>
+                <ResizablePanel defaultSize={15}>
                   <Card className="h-full">
                     <CardContent className="flex flex-col justify-center items-center space-y-4 h-full">
                       {/* Botones para añadir viñetas y nodos */}
-                      <Button onClick={addNewNode} className="w-[90%] min-h-[2.5rem] flex items-center justify-center"
-                        style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}>
-                        <Plus 
-                          className="mr-2 flex-shrink-0" 
-                          style={{ width: 'clamp(12px, 3vw, 16px)', height: 'clamp(12px, 3vw, 16px)' }}
-                        />
-                        <span className="truncate">Añadir Nodo</span>
+                      <Button onClick={addNewNode} className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer" style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Añadir Nodo
                       </Button>
                       {/* Botones */}
-                      <Button
-                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center"
-                        style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)'}}
-                        onClick={clearLastPoint}
-                      >
-                        <span className="truncate">Eliminar último punto</span>
+                      <Button className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer" style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)'}} onClick={clearLastPoint}>
+                        <CornerDownLeft className="w-4 h-4 mr-2" />
+                        <span className="truncate">Borrar último punto</span>
                       </Button>
-                      <Button
-                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center"
-                        style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}
-                        onClick={deleteLastShape}
-                      >
-                        <span className="truncate">Eliminar última forma</span>
+                      <Button className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer" style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }} onClick={deleteLastShape}>
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        <span className="truncate">Borrar última forma</span>
                       </Button>
-                      <Button
-                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center"
-                        style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}
-                        onClick={exportComicData}
-                      >
-                        <span className="truncate">Exportar cómic</span>
+                      <Button className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer" style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }} onClick={exportComicData}>
+                        <FileDown className="w-4 h-4 mr-2" />
+                        Exportar cómic
                       </Button>
-                      <Button 
-                        onClick={clearLastPoint}
-                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center"
-                        style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}
-                      >
-                        <span className="truncate">Eliminar Punto</span>
+                      <Button onClick={clearLastPoint} className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer" style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}>
+                        <Minus className="w-4 h-4 mr-2" />
+                        Eliminar Punto
                       </Button>
-                      <Button 
-                        onClick={deleteLastShape}
-                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center"
-                        style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}
-                      >
-                        <span className="truncate">Eliminar Forma</span>
+                      <Button onClick={deleteLastShape} className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer" style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}>
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Eliminar Forma
                       </Button>
-                      <Button 
-                        onClick={exportComicData}
-                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center"
-                        style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}
-                      >
-                        <span className="truncate">Exportar</span>
+                      <Button onClick={exportComicData} className="w-[90%] min-h-[2.5rem] flex items-center justify-center cursor-pointer" style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}>
+                        <Save className="w-4 h-4 mr-2" />
+                        Exportar
                       </Button>
                     </CardContent>
                   </Card>
@@ -530,7 +496,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
               </ResizablePanelGroup>
             </ResizablePanel>
             <ResizableHandle withHandle className="[&>div]:h-12"/>
-            <ResizablePanel defaultSize={27} className="my-2">
+            <ResizablePanel defaultSize={18} className="my-2">
               <div className="w-full overflow-hidden">
                 {/* Línea de tiempo */}
                 <Card className="h-full">
