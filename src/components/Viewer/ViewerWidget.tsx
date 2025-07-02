@@ -1,17 +1,11 @@
 import { useEffect, useState, useRef } from "react";
 import PDFFrame from "../PDFFrame";
 import { usePageAudio } from "./AudioServer";
-import comicData from "./comic-chapter-1-page-4 (2).json"; // Importa tu JSON exportado
+import comicDataJson from "./comic-1-2025-06-27T23_47_14.673Z.json";
 import { Stage, Layer, Line } from "react-konva";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Pause, Play, Volume2 } from "lucide-react"; // Asegúrate de tener lucide-react instalado
-
-interface ComicShape {
-  points: number[];
-  fill: string;
-  closed: boolean;
-}
 
 //interface ComicPage {
 //  [key: string]: ComicShape[]; // Las formas están agrupadas por alguna clave
@@ -21,11 +15,39 @@ interface ComicShape {
 //  [page: number]: ComicPage;
 //}
 
-//interface ComicData {
-//  chapters: {
-//    [chapter: number]: ComicChapter;
-//  };
-//}
+interface ComicShape {
+  id: number;
+  text: string;
+  order: number;
+  node: string;
+  points: number[];
+  fill: string;
+  closed: boolean;
+}
+
+interface ComicMetadata {
+  title: string;
+  chapter: string;
+  author: string;
+  created: string;
+}
+
+interface ComicNode {
+  id: string;
+  name: string;
+  mood: string;
+  color: string;
+  start: number;
+  end: number;
+}
+
+interface ComicData {
+  metadata: ComicMetadata;
+  nodes: ComicNode[];
+  pages: {
+    [pageNumber: string]: ComicShape[];
+  };
+}
 
 interface PageConfig {
   page: number;
@@ -43,12 +65,20 @@ interface ViewerWidgetProps {
 
 export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
   const [numPages, setNumPages] = useState<number | null>(null);
+
+  const comicData: ComicData = comicDataJson;
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [volume, setVolume] = useState<number>(0.5);
   const [currentPanel, setCurrentPanel] = useState<number>(1);
   const [fadingPanel, setFadingPanel] = useState<number | null>(null);
   const [fadeOpacity, setFadeOpacity] = useState(1);
   const [showAudioPanel, setShowAudioPanel] = useState(false);
+  const [totalPagesPanel, setTotalPanel] = useState<number>(0);
+  const [totalCurrentPanel, setTotalCurrentPanel] = useState<number>(0);
+  const pageConfig = config.pages.find((p) => p.page === currentPage);
+  const [panelProgress, setPanelProgress] = useState<{
+    [page: number]: number;
+  }>({});
   const [originalPdfSize, setOriginalPdfSize] = useState<{
     width: number;
     height: number;
@@ -68,7 +98,7 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
     [page: number]: number;
   }>({});
 
-  const pageConfig = config.pages.find((p) => p.page === currentPage);
+  //const pageConfig = config.pages.find((p) => p.page === currentPage);
   const { toggleAudio, isPaused } = usePageAudio(volume, pageConfig?.audioUrl);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
@@ -99,6 +129,19 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
   const resetPanel = () => {
     setCurrentPanel(1);
   };
+  const nextPanel = () => {
+    setCurrentPanel((prevPanel) => {
+      const next = prevPanel + 1;
+      setPanelProgress((prevProgress) => ({
+        ...prevProgress,
+        [currentPage]: next,
+      }));
+      return next;
+    });
+  };
+  const resetPanel = () => {
+    setCurrentPanel(1);
+  };
 
   // Carga la estructura de capítulos y páginas
   useEffect(() => {
@@ -106,13 +149,11 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
     // Removed setAvailableChapters as availableChapters is no longer used
 
     if (
-      comicData.chapters[
-        currentChapter.toString() as keyof typeof comicData.chapters
-      ]
+      comicData.pages[currentChapter.toString() as keyof typeof comicData.pages]
     ) {
       const pages = Object.keys(
-        comicData.chapters[
-          currentChapter.toString() as keyof typeof comicData.chapters
+        comicData.pages[
+          currentChapter.toString() as keyof typeof comicData.pages
         ]
       ).map(Number);
       // Removed setAvailablePages as availablePages is no longer used
@@ -133,42 +174,23 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
     updateWidth();
     window.addEventListener("resize", updateWidth);
     return () => window.removeEventListener("resize", updateWidth);
-  }, []);
+  }, [currentPage]);
 
   // Obtiene las figuras para la página actual
   const getCurrentShapes = (): ComicShape[] => {
     try {
-      // Verifica si existe el capítulo actual
-      const chapter =
-        comicData.chapters[
-          currentChapter.toString() as keyof typeof comicData.chapters
-        ];
-      if (!chapter) return [];
-
-      // Verifica si existe la página actual en el capítulo
-      const page = chapter[currentPage.toString() as keyof typeof chapter];
-      if (!page) return [];
-
-      // Convierte los valores del objeto a un array plano de formas
-      return Object.values(page).flat();
+      const pageShapes = comicData.pages[currentPage.toString()];
+      return pageShapes ?? [];
     } catch (error) {
       console.error("Error al obtener formas:", error);
       return [];
     }
   };
 
-  const getNumberOfShapes = (chapter: number, page: number): number => {
+  const getNumberOfShapes = (page: number): number => {
     try {
-      const chapterData =
-        comicData.chapters[
-          chapter.toString() as keyof typeof comicData.chapters
-        ];
-      if (!chapterData) return 0;
-
-      const pageData = chapterData[page.toString() as keyof typeof chapterData];
-      if (!pageData) return 0;
-
-      return Object.values(pageData).flat().length;
+      const pageShapes = comicData.pages[page.toString()];
+      return pageShapes ? pageShapes.length : 0;
     } catch (error) {
       console.error("Error al obtener el número de formas:", error);
       return 0;
@@ -222,20 +244,18 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
                 const scaleY = stageHeight / originalPdfSize.height;
                 return (
                   <Line
-                    key={`${currentChapter}-${currentPage}-${shapeIndex}`}
+                    key={`${currentPage}-${shapeIndex}`}
                     points={shape.points.map(
                       (point, idx) =>
                         idx % 2 === 0
-                          ? (point / editorWidth) * stageWidth // X
-                          : (point / editorHeight) * stageHeight // Y
+                          ? (point / editorWidth) * stageWidth * 1.23 // X
+                          : (point / editorHeight) * stageHeight * 1.25 // Y
                     )}
                     fill={shape.fill}
                     closed={shape.closed}
                     stroke="#444"
                     strokeWidth={2}
                     opacity={isFading ? fadeOpacity : 1}
-                    listening={false}
-                    perfectDrawEnabled={false}
                   />
                 );
               })}
@@ -246,8 +266,6 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
       {/* Barra de navegación y control de audio */}
       <div className="flex items-center justify-center bg-neutral-900 mt-4 py-2 rounded shadow gap-2">
         <Button
-          variant="outline"
-          className={currentPage <= 1 ? "cursor-not-allowed" : "cursor-pointer"}
           onClick={() => {
             if (currentPage > 1) {
               setCurrentPage((p) => {
@@ -270,13 +288,10 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
           className="mx-1 cursor-pointer"
           onClick={() => {
             const totalShapes = getNumberOfShapes(currentChapter, currentPage);
-            // Si no hay formas o ya se mostraron todas, avanza de página y resetea panel
-            if (totalShapes === 0 || currentPanel > totalShapes) {
+            if (currentPanel === totalShapes) {
               if (currentPage < (numPages ?? Number.MAX_SAFE_INTEGER)) {
-                setCurrentPage((p) => {
-                  setCurrentPanel(1);
-                  return p + 1;
-                });
+                setCurrentPage((p) => p + 1);
+                setCurrentPanel(1);
               }
             } else {
               setFadingPanel(currentPanel);
@@ -293,14 +308,7 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
                 if (progress < 1) {
                   requestAnimationFrame(animate);
                 } else {
-                  setCurrentPanel((prevPanel) => {
-                    const nextPanel = prevPanel + 1;
-                    setPanelProgress((prevProgress) => ({
-                      ...prevProgress,
-                      [currentPage]: nextPanel,
-                    }));
-                    return nextPanel;
-                  });
+                  setCurrentPanel((prevPanel) => prevPanel + 1);
                   setFadingPanel(null);
                   setFadeOpacity(1);
                 }
