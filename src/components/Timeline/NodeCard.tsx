@@ -10,7 +10,7 @@ import {
   useSortable
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { Card } from "flowbite-react"
+import { Card } from "@/components/ui/card"
 import { Music, Plus } from "lucide-react"
 import { SortablePanel } from "./SortablePanel"
 import { DragHandle } from "./DragHandle"
@@ -95,7 +95,7 @@ export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPa
   return (
     <div className="flex flex-col space-y-2 flex-shrink-0" style={{ minWidth: `${minWidth}px` }}>
       <Card
-        className={`${getNodeColor()}  text-white border-0 ${isSortableDragging ? "shadow-2xl scale-105" : ""} ${
+        className={`text-white  ${isSortableDragging ? "shadow-2xl scale-105" : ""} ${
           isDroppableOver ? "ring-4 ring-blue-400 ring-opacity-50 bg-opacity-80" : ""
         } transition-all duration-200`}
         ref={setNodeRef}
@@ -140,9 +140,9 @@ export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPa
           </div>
 
           {/* Integrated Music Section */}
-          <div className={`flex items-center justify-center space-x-2 p-2 rounded-lg ${getMusicColor()}`}>
-            <Music className="w-4 h-4" />
-            <span className="font-medium capitalize">{musicType}</span>
+          <div className={`flex items-center justify-center space-x-2 p-2 rounded-lg bg-white`}>
+            <Music className="w-4 h-4 text-black" />
+            <span className="font-medium capitalize text-black">{musicType}</span>
           </div>
         </div>
       </Card>

@@ -38,7 +38,7 @@ const Paginas = ({ pdfUrl }: PaginasProps) => {
   const SelectPage = () => {
     return (
       Array.from({ length: numPages }, (_, i) => (
-        <div key={i + 1} className="row-span-1 flex h-[20%] w-full">
+        <div key={i + 1} className="row-span-1 flex h-[10%] w-full">
         <Button
           onClick={() => setCurrentPage(i + 1)}
           className={`flex h-full w-full justify-center items-center gap-10 my-1 px-2 bg-transparent ${theme === 'dark' ? 'text-white hover:text-black' : 'text-black hover:text-white'}`}
@@ -49,7 +49,7 @@ const Paginas = ({ pdfUrl }: PaginasProps) => {
               renderTextLayer={false}
               renderAnnotationLayer={false}
               height={1000}
-              scale={0.2}
+              scale={0.1}
               />
             </Document>
             <span className="text-2xl">Página {i + 1}</span>
@@ -58,7 +58,7 @@ const Paginas = ({ pdfUrl }: PaginasProps) => {
       ))
     )
   }
-    
+
   return (
     <ScrollArea className="h-full w-full">
       {numPages > 0 ? SelectPage() : <span className="text-3xl">Cargando...</span>}
