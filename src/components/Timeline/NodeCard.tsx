@@ -128,8 +128,9 @@ export function NodeCard({
         } transition-all duration-200`}
         ref={setNodeRef}
         style={nodeStyle}
+        onClick={onSelect}
       >
-        <div className="p-4">
+        <div className="p-3 pb-2">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
               <DragHandle

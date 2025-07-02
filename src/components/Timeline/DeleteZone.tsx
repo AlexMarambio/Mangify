@@ -19,6 +19,7 @@ export function DeleteZone({ isActive, dragType }: DeleteZoneProps) {
       className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 transition-all duration-300 z-1000 ${
         isActive ? "scale-100 opacity-100" : "scale-75 opacity-0 pointer-events-none"
       }`}
+      style={{ zIndex:9999 }}
     >
       <div
         className={`flex items-center space-x-2 px-6 py-4 rounded-lg border-2 border-dashed transition-colors ${

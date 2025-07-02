@@ -60,7 +60,7 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
       }));
   };
 
-  // Añade un nuevo nodo al final de la lista con una viñeta inicial
+  // Añade un nuevo nodo vacío al final de la lista
   const addNewNode = () => {
     const chapter = comicData.chapters["1"];
     const nodeKeys = Object.keys(chapter);
@@ -87,7 +87,7 @@ export const ComicProvider: React.FC<ComicProviderProps> = ({ children }) => {
         ...prev.chapters,
         "1": {
           ...prev.chapters["1"],
-          [nextNodeKey]: [newPanel],
+          [nextNodeKey]: [],
         },
       },
     }));
