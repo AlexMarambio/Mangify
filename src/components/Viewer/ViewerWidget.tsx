@@ -5,7 +5,7 @@ import defaultComicDataJson from "./comic-latest.json";
 import { Stage, Layer, Line } from "react-konva";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Pause, Play, Volume2 } from "lucide-react"; // Asegúrate de tener lucide-react instalado
+import { Pause, Play, Volume2, VolumeOff } from "lucide-react"; // Asegúrate de tener lucide-react instalado
 
 //interface ComicPage {
 //  [key: string]: ComicShape[]; // Las formas están agrupadas por alguna clave
@@ -91,6 +91,8 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
   const [totalPagesPanel, setTotalPanel] = useState<number>(0);
   const [totalCurrentPanel, setTotalCurrentPanel] = useState<number>(0);
   const pageConfig = config.pages.find((p) => p.page === currentPage);
+  const [completedPages, setCompletedPages] = useState<Set<number>>(new Set());
+
   const [panelProgress, setPanelProgress] = useState<{
     [page: number]: number;
   }>({});
@@ -107,12 +109,17 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
   });
   const editorWidth = 560; // <-- el ancho del PDF en el editor
   const editorHeight = 688; // <-- el alto del PDF en el editor
+  const [visiblePage, setVisiblePage] = useState(currentPage); // se usa para mostrar la página actual
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [previousVolume, setPreviousVolume] = useState(volume);
 
   //const pageConfig = config.pages.find((p) => p.page === currentPage);
   const { toggleAudio, isPaused } = usePageAudio(volume, pageConfig?.audioUrl);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     setNumPages(numPages);
+    setIsPageLoading(false); // <- página lista
   }
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -169,11 +176,30 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
     return () => window.removeEventListener("resize", updateWidth);
   }, [currentPage]);
 
+  // Reinicia el estado de las figuras al cambiar de página
+  useEffect(() => {
+    // Reinicia el estado de las figuras al cambiar de página
+    if (!panelProgress[currentPage]) {
+      setCurrentPanel(1);
+      setPanelProgress((prevProgress) => ({
+        ...prevProgress,
+        [currentPage]: 1,
+      }));
+
+      // Forzar renderizado de todas las figuras
+      const shapes = getCurrentShapes();
+      if (shapes.length > 0) {
+        setFadingPanel(null);
+        setFadeOpacity(1);
+      }
+    }
+  }, [currentPage]);
+
   // Obtiene las figuras para la página actual
   const getCurrentShapes = (): ComicShape[] => {
     if (!comicData) return [];
     try {
-      const pageShapes = comicData.pages[currentPage.toString()];
+      const pageShapes = comicData.pages[page.toString()];
       return pageShapes ?? [];
     } catch (error) {
       console.error("Error al obtener formas:", error);
@@ -205,18 +231,34 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
         }}
       >
         {/* ...PDFFrame y Stage... */}
-        <PDFFrame
-          pdfUrl={pdfUrl}
-          pageNumber={currentPage}
-          onDocumentLoadSuccess={onDocumentLoadSuccess}
-          onSizeChange={({ width, height }) => {
-            setStageWidth(width);
-            setStageHeight(height);
+        <div
+          style={{
+            width: "100%",
+            height: stageHeight || 688, // Fija la altura
+            overflow: "hidden",
+            position: "relative",
           }}
-          onPageOriginalSize={({ width, height, offsetX, offsetY }) => {
-            setOriginalPdfSize({ width, height, offsetX, offsetY });
-          }}
-        />
+        >
+          <div
+            style={{
+              transition: "opacity 0.3s ease-in-out",
+              opacity: isTransitioning ? 0 : 1,
+            }}
+          >
+            <PDFFrame
+              pdfUrl={pdfUrl}
+              pageNumber={visiblePage}
+              onDocumentLoadSuccess={onDocumentLoadSuccess}
+              onSizeChange={({ width, height }) => {
+                setStageWidth(width);
+                setStageHeight(height);
+              }}
+              onPageOriginalSize={({ width, height, offsetX, offsetY }) => {
+                setOriginalPdfSize({ width, height, offsetX, offsetY });
+              }}
+            />
+          </div>
+        </div>
 
         <Stage
           width={stageWidth}
@@ -232,30 +274,34 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
           }}
         >
           <Layer>
-            {getCurrentShapes()
-              .filter((_, index) => index >= currentPanel)
-              .map((shape, index) => {
-                const shapeIndex = index + currentPanel;
-                const isFading = fadingPanel === shapeIndex;
-                const scaleX = stageWidth / originalPdfSize.width;
-                const scaleY = stageHeight / originalPdfSize.height;
-                return (
-                  <Line
-                    key={`${currentPage}-${shapeIndex}`}
-                    points={shape.points.map(
-                      (point, idx) =>
-                        idx % 2 === 0
-                          ? (point / editorWidth) * stageWidth * 1.23 // X
-                          : (point / editorHeight) * stageHeight * 1.25 // Y
-                    )}
-                    fill={shape.fill}
-                    closed={shape.closed}
-                    stroke="#444"
-                    strokeWidth={2}
-                    opacity={isFading ? fadeOpacity : 1}
-                  />
-                );
-              })}
+            {!completedPages.has(visiblePage) &&
+              getCurrentShapes(visiblePage)
+                .filter(
+                  (_, index) =>
+                    index >= currentPanel && currentPage === visiblePage
+                )
+                .map((shape, index) => {
+                  const shapeIndex = index + currentPanel;
+                  const isFading = fadingPanel === shapeIndex;
+                  const scaleX = stageWidth / originalPdfSize.width;
+                  const scaleY = stageHeight / originalPdfSize.height;
+                  return (
+                    <Line
+                      key={`${currentPage}-${shapeIndex}`}
+                      points={shape.points.map(
+                        (point, idx) =>
+                          idx % 2 === 0
+                            ? (point / editorWidth) * stageWidth * 1.23 // X
+                            : (point / editorHeight) * stageHeight * 1.25 // Y
+                      )}
+                      fill={shape.fill}
+                      closed={shape.closed}
+                      stroke="#444"
+                      strokeWidth={2}
+                      opacity={isFading ? fadeOpacity : 1}
+                    />
+                  );
+                })}
           </Layer>
         </Stage>
       </div>
@@ -264,9 +310,20 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
       <div className="flex items-center justify-center bg-neutral-900 mt-4 py-2 rounded shadow gap-2">
         <Button
           onClick={() => {
-            setCurrentPage((p) => Math.max(p - 1, 1));
+            setIsTransitioning(true);
+            setTimeout(() => {
+              setCurrentPage((p) => Math.max(p - 1, 1));
+              setVisiblePage((p) => Math.max(p - 1, 1));
+              resetPanel();
+              setPanelProgress((prevProgress) => ({
+                ...prevProgress,
+                [currentPage - 1]: 1,
+              }));
+              setIsTransitioning(false);
+            }, 300); // tiempo del fade
           }}
           disabled={currentPage <= 1}
+          className={currentPage <= 1 ? "cursor-not-allowed" : "cursor-pointer"}
         >
           Anterior
         </Button>
@@ -277,19 +334,27 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
           variant="outline"
           className="mx-1 cursor-pointer"
           onClick={() => {
+            const nextPage = currentPage + 1;
             if (
-              currentPanel == getNumberOfShapes(currentPage) ||
+              currentPanel === getNumberOfShapes(currentPage) ||
               getNumberOfShapes(currentPage) === 0
             ) {
-              setCurrentPage((p) =>
-                Math.min(p + 1, numPages ?? Number.MAX_SAFE_INTEGER)
-              );
-              resetPanel();
+              if (nextPage <= (numPages ?? 0)) {
+                setCompletedPages((prev) => new Set(prev).add(currentPage)); // <- marcar como completada
+                setIsTransitioning(true);
+                setTimeout(() => {
+                  setCurrentPage(nextPage);
+                  setVisiblePage(nextPage);
+                  resetPanel();
+                  setIsTransitioning(false);
+                }, 300);
+              }
             } else {
+              // lógica para pasar al siguiente panel
               setFadingPanel(currentPanel);
               setFadeOpacity(1);
 
-              const duration = 350; // ms
+              const duration = 350;
               const start = performance.now();
 
               function animate(now: number) {
@@ -305,6 +370,7 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
                   setFadeOpacity(1);
                 }
               }
+
               requestAnimationFrame(animate);
             }
           }}
@@ -317,7 +383,37 @@ export default function ViewerWidget({ config, pdfUrl }: ViewerWidgetProps) {
         <div className="flex items-center ml-4 relative">
           {showAudioPanel && (
             <div className="flex items-center bg-neutral-900 border border-neutral-700 rounded-lg shadow-lg px-3 py-2 mr-2 transition-all animate-in fade-in slide-in-from-right-4 absolute right-12 z-10">
-              <Volume2 className="text-neutral-300 mr-2" size={20} />
+              {isMuted ? (
+                <VolumeOff
+                  className="text-neutral-300 mr-2 cursor-pointer"
+                  size={20}
+                  onClick={() => {
+                    if (isMuted) {
+                      setVolume(previousVolume);
+                      setIsMuted(false);
+                    } else {
+                      setPreviousVolume(volume);
+                      setVolume(0);
+                      setIsMuted(true);
+                    }
+                  }}
+                />
+              ) : (
+                <Volume2
+                  className="text-neutral-300 mr-2 cursor-pointer"
+                  size={20}
+                  onClick={() => {
+                    if (isMuted) {
+                      setVolume(previousVolume);
+                      setIsMuted(false);
+                    } else {
+                      setPreviousVolume(volume);
+                      setVolume(0);
+                      setIsMuted(true);
+                    }
+                  }}
+                />
+              )}
               <Slider
                 min={0}
                 max={1}
