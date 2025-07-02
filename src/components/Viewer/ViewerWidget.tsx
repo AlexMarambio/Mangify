@@ -218,36 +218,29 @@ export default function ViewerWidget({ pdfUrl }: ViewerWidgetProps) {
     }
   };
 
-  const [moodMusicMap, setMoodMusicMap] = useState<{ [mood: string]: string }>(
-    {}
-  );
-
-  useEffect(() => {
-    const fetchMoodMusicMap = async () => {
-      try {
-        const response = await fetch(
-          "https://backend.example.com/mood-music-map"
-        ); // el mood debe
-        const data = await response.json();
-        setMoodMusicMap(data);
-      } catch (error) {
-        console.error(
-          "Error al obtener las rutas de música desde el backend:",
-          error
-        );
-      }
-    };
-
-    fetchMoodMusicMap();
-  }, []);
+  const moodMusicMap: { [mood: string]: string } = {
+    triste: "/public/music/Tension/Drama 1.mp3",
+    feliz: "/public/music/Tension/Unforgettable.mp3",
+    neutral: "/public/music/Tension/Calm.mp3",
+    // aki mas muds
+  };
 
   const [currentMood, setCurrentMood] = useState<string | null>(null);
   const [audioInstance, setAudioInstance] = useState<HTMLAudioElement | null>(
     null
   );
 
+  useEffect(() => {
+    return () => {
+      if (audioInstance) {
+        audioInstance.pause();
+        audioInstance.currentTime = 0;
+      }
+    };
+  }, [audioInstance]);
+
   const playMoodMusic = (mood: string) => {
-    if (currentMood === mood) return;
+    if (currentMood === mood) return; // No cambiar música si el mood es el mismo
 
     const audioUrl = moodMusicMap[mood];
     if (audioUrl) {
