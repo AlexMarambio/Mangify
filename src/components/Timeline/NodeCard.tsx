@@ -61,7 +61,7 @@ export function NodeCard({ nodeIndex, panels, musicType, onAddPanel, onReorderPa
     transform: CSS.Transform.toString(sortableTransform),
     transition: sortableTransition,
     opacity: isSortableDragging ? 0.7 : 1,
-    zIndex: isSortableDragging ? 1000 : 1,
+    zIndex: isSortableDragging ? 100 : 1,
   }
 
   const handleDragEnd = (event: DragEndEvent) => {

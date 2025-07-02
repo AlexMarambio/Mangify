@@ -436,53 +436,56 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
                   <Card className="h-full">
                     <CardContent className="flex flex-col justify-center items-center space-y-4 h-full">
                       {/* Botones para añadir viñetas y nodos */}
-                      <Button
-                        onClick={() => addPanelToNode(0)}
-                        className="text-xs w-[90%]"
-                      >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Añadir Viñeta
-                      </Button>
-                      <Button onClick={addNewNode} className="text-xs w-[90%]">
-                        <Plus className="w-4 h-4 mr-2" />
-                        Añadir Nodo
+                      <Button onClick={addNewNode} className="w-[90%] min-h-[2.5rem] flex items-center justify-center"
+                        style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}>
+                        <Plus 
+                          className="mr-2 flex-shrink-0" 
+                          style={{ width: 'clamp(12px, 3vw, 16px)', height: 'clamp(12px, 3vw, 16px)' }}
+                        />
+                        <span className="truncate">Añadir Nodo</span>
                       </Button>
                       {/* Botones */}
                       <Button
-                        className="rounded-md transition-colors xl:text-xs md:text-xl w-[90%]"
+                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center"
+                        style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)'}}
                         onClick={clearLastPoint}
                       >
-                        Eliminar último punto
+                        <span className="truncate">Eliminar último punto</span>
                       </Button>
                       <Button
-                        className="px-4 py-2 rounded-md transition-colors text-xs w-[90%]"
+                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center"
+                        style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}
                         onClick={deleteLastShape}
                       >
-                        Eliminar última forma
+                        <span className="truncate">Eliminar última forma</span>
                       </Button>
                       <Button
-                        className="px-4 py-2 rounded-md transition-colors text-xs w-[90%]"
+                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center"
+                        style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}
                         onClick={exportComicData}
                       >
-                        Exportar cómic
+                        <span className="truncate">Exportar cómic</span>
                       </Button>
                       <Button 
                         onClick={clearLastPoint}
-                        className="px-4 py-2 rounded-md transition-colors text-xs w-[90%]"
+                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center"
+                        style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}
                       >
-                        Eliminar Punto
+                        <span className="truncate">Eliminar Punto</span>
                       </Button>
                       <Button 
                         onClick={deleteLastShape}
-                        className="px-4 py-2 rounded-md transition-colors text-xs w-[90%]"
+                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center"
+                        style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}
                       >
-                        Eliminar Forma
+                        <span className="truncate">Eliminar Forma</span>
                       </Button>
                       <Button 
                         onClick={exportComicData}
-                        className="px-4 py-2 rounded-md transition-colors text-xs w-[90%]"
+                        className="w-[90%] min-h-[2.5rem] flex items-center justify-center"
+                        style={{ fontSize: 'clamp(0.6rem, 2vw, 0.875rem)' }}
                       >
-                        Exportar
+                        <span className="truncate">Exportar</span>
                       </Button>
                     </CardContent>
                   </Card>
@@ -560,7 +563,7 @@ const Editor = ({ pdfUrl, config }: { pdfUrl: string | null; config: any }) => {
 
                         {/* Zona de eliminación que aparece al arrastrar */}
                         {isDragging && (
-                          <div className="fixed z-50 bottom-0 left-0 right-0 h-20 transition-all duration-300 bg-red-500/20 border-t-2 border-red-500">
+                          <div className="fixed z-100 bottom-0 left-0 right-0 h-20 transition-all duration-300 bg-red-500/20 border-t-2 border-red-500">
                             <DeleteZone
                               isActive={isDragging}
                               dragType={activeDragType}
